@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────
+   ZimplifAI — Design tokens (Tailwind CSS v4)
+   Paleta: volt (lima eléctrico) + plasma (cian)
+   ───────────────────────────────────────────── */
+@theme {
+  --color-bg: #07080a;
+  --color-bg-soft: #0c0e12;
+  --color-surface: #101319;
+  --color-surface-2: #171b23;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-strong: rgba(255, 255, 255, 0.16);
+  --color-ink: #e8e6e1;
+  --color-muted: #8b9098;
+  --color-volt: #b9ff2a;
+  --color-plasma: #45e5ff;
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --animate-marquee: marquee 36s linear infinite;
+  --animate-grain: grain 9s steps(10) infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes grain {
+  0%, 100% { background-position: 0 0; }
+  20% { background-position: -160px 90px; }
+  40% { background-position: -80px -180px; }
+  60% { background-position: 140px -80px; }
+  80% { background-position: 90px 150px; }
+}
+
+/* ─────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-volt);
+  color: var(--color-bg);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #262b34;
+  border-radius: 8px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4049;
+}
+
+/* ─────────────────────────────────────────────
+   Lenis (smooth scroll) — estilos recomendados
+   ───────────────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────
+   Cursor personalizado: ocultar el del sistema
+   ───────────────────────────────────────────── */
+@media (pointer: fine) {
+  html.has-cursor,
+  html.has-cursor a,
+  html.has-cursor button,
+  html.has-cursor input,
+  html.has-cursor textarea,
+  html.has-cursor select,
+  html.has-cursor label,
+  html.has-cursor [data-cursor="hover"] {
+    cursor: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   prefers-reduced-motion
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-grain {
+    animation: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Utilidades de marca
+   ───────────────────────────────────────────── */
+@utility text-glow-volt {
+  text-shadow: 0 0 24px color-mix(in srgb, var(--color-volt) 45%, transparent);
+}
+
+@utility bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}

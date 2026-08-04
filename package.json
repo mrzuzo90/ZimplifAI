@@ -1,0 +1,31 @@
+{
+  "name": "zimplifai-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web showroom de ZimplifAI — agencia de implantación de IA. Simplifico procesos. Implanto IA.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1",
+    "framer-motion": "^12.4.2",
+    "lenis": "^1.1.18",
+    "next": "^15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.6",
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.20.0",
+    "eslint-config-next": "^15.2.4",
+    "tailwindcss": "^4.0.6",
+    "typescript": "^5.7.3"
+  }
+}
