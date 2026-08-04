@@ -41,6 +41,10 @@ const GROUPS = [
     title: "Pagos & plataformas",
     items: ["Stripe", "Multi-tenant SaaS", "RLS", "Colas / BullMQ"],
   },
+  {
+    title: "Automatismos industriales",
+    items: ["PLC (Siemens / Allen-Bradley)", "SCADA / HMI", "Modbus / Profibus / Profinet", "Cableado y cuadros eléctricos", "Normativa baja tensión", "Mantenimiento predictivo"],
+  },
 ];
 
 export default function Skills() {
@@ -113,9 +117,9 @@ export default function Skills() {
         <Reveal delay={0.15}>
           <div className="mt-10 rounded-2xl border border-volt/30 bg-volt/[0.04] p-6 md:p-8">
             <p className="text-lg leading-relaxed md:text-xl">
-              <span className="font-mono text-volt">ELEE0109</span> — electricista certificado. No es un
-              adorno de marketing: es la razón por la que entiendo tus procesos a fondo y sé cómo
-              automatizarlos bien.
+              <span className="font-mono text-volt">ELEE0109</span> — automatismos industriales. No es un
+              adorno: es la razón por la que entiendo tus procesos físicos a fondo y sé cómo
+              automatizarlos bien con IA y software.
             </p>
           </div>
         </Reveal>

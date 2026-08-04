@@ -22,6 +22,10 @@ export interface Project {
   status: string;
   statusTone: ProjectStatusTone;
   url?: string;
+  /** Color principal del proyecto para la tarjeta (hex). */
+  accent?: string;
+  /** Captura/preview visual: "browser" | "desktop" | "terminal" | "mobile" */
+  previewType?: "browser" | "desktop" | "terminal" | "mobile";
 }
 
 export const categoryLabels: Record<ProjectCategory, string> = {
@@ -45,6 +49,8 @@ export const projects: Project[] = [
     status: "En producción",
     statusTone: "live",
     url: "https://elektrizia.com",
+    accent: "#00D4AA",
+    previewType: "browser",
   },
   {
     id: "zcade",
@@ -58,6 +64,8 @@ export const projects: Project[] = [
     stack: ["Tauri 2", "React", "Konva", "TypeScript"],
     status: "Fase A completa · 420+ tests",
     statusTone: "tests",
+    accent: "#FF6B35",
+    previewType: "desktop",
   },
   {
     id: "elektrikop",
@@ -72,6 +80,8 @@ export const projects: Project[] = [
     status: "Open source",
     statusTone: "oss",
     url: "https://kop.elektrizia.com",
+    accent: "#FFD700",
+    previewType: "browser",
   },
   {
     id: "verifai",
@@ -85,6 +95,8 @@ export const projects: Project[] = [
     stack: ["Node.js", "TypeScript", "MongoDB", "OpenAI GPT-4o"],
     status: "60+ tests · 90% coverage",
     statusTone: "tests",
+    accent: "#7C3AED",
+    previewType: "terminal",
   },
   {
     id: "klasyfi",
@@ -98,6 +110,8 @@ export const projects: Project[] = [
     stack: ["Fastify", "Postgres", "Redis", "BullMQ", "Tesseract"],
     status: "En producción (API en Render)",
     statusTone: "live",
+    accent: "#0EA5E9",
+    previewType: "browser",
   },
   {
     id: "wasap",
@@ -112,19 +126,8 @@ export const projects: Project[] = [
     status: "MVP",
     statusTone: "wip",
     url: "https://wasap.es",
-  },
-  {
-    id: "pixel-agents",
-    name: "pixel-agents",
-    category: "opensource",
-    tagline: "Visualizador de agentes de Claude Code.",
-    description:
-      "Convierte a tus agentes de Claude Code en una oficina pixel-art, con un harness de tests determinista para evolucionarlo con seguridad.",
-    problem:
-      "Ver agentes de IA trabajar en una terminal es frío y opaco. pixel-agents lo hace visible, lúdico y comprobable.",
-    stack: ["Fastify", "VS Code", "React"],
-    status: "Open source",
-    statusTone: "oss",
+    accent: "#EC4899",
+    previewType: "mobile",
   },
   {
     id: "zopify",
@@ -138,6 +141,8 @@ export const projects: Project[] = [
     stack: ["Supabase", "Stripe"],
     status: "Modelo validado",
     statusTone: "wip",
+    accent: "#10B981",
+    previewType: "browser",
   },
   {
     id: "merchandeando",
@@ -151,32 +156,8 @@ export const projects: Project[] = [
     stack: ["Next.js", "Prisma", "Stripe"],
     status: "En producción",
     statusTone: "live",
-  },
-  {
-    id: "tcgscan",
-    name: "tcgscan",
-    category: "web",
-    tagline: "Escáner OCR de cartas TCG.",
-    description:
-      "Reconoce cartas por OCR, mantiene un inventario e integra precios de Cardmarket para colecciones que se gestionan solas.",
-    problem:
-      "Gestionar una colección de cartas a mano es caos. tcgscan la escanea, la inventaría y la valora automáticamente.",
-    stack: ["NestJS"],
-    status: "En desarrollo",
-    statusTone: "wip",
-  },
-  {
-    id: "ainfluencer",
-    name: "AInfluencer",
-    category: "ia",
-    tagline: "Motor autónomo de contenido con IA.",
-    description:
-      "Pipeline completo: noticias → vídeo → publicación → Telegram, sin intervención manual entre cada paso.",
-    problem:
-      "Publicar contenido constante consume horas. AInfluencer lo produce y lo distribuye de forma autónoma.",
-    stack: ["IA"],
-    status: "Código completo",
-    statusTone: "wip",
+    accent: "#F97316",
+    previewType: "browser",
   },
 ];
 

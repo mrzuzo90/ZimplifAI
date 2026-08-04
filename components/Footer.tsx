@@ -2,6 +2,7 @@
 
 import { useSmoothScroll } from "@/components/providers";
 import { site } from "@/data/site";
+import Image from "next/image";
 
 const NAV = [
   { label: "Manifiesto", target: "#manifiesto" },
@@ -18,15 +19,20 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-line">
       <div className="mx-auto max-w-7xl px-5 pb-10 pt-16 md:px-8">
-        {/* Marca gigante (clic → arriba) */}
+        {/* Marca: imagotipo clicable → arriba */}
         <button
           onClick={() => scrollTo(0, { duration: 1.4 })}
           aria-label="Volver arriba"
-          className="block w-full text-left"
+          className="block max-w-xs mx-auto md:max-w-none md:mx-0"
         >
-          <span className="block text-[14vw] font-bold uppercase leading-[0.85] tracking-tight text-ink/90 transition-colors duration-500 hover:text-volt md:text-[10vw]">
-            zimplifai<span className="text-volt">.</span>
-          </span>
+          <Image
+            src="/imagotipo.png"
+            alt="ZimplifAI"
+            width={320}
+            height={120}
+            className="w-full h-auto opacity-90 transition-opacity duration-500 hover:opacity-100"
+            priority={false}
+          />
         </button>
 
         <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3">

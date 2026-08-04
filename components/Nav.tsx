@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useSmoothScroll } from "@/components/providers";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import Image from "next/image";
 
 const LINKS = [
   { label: "Manifiesto", target: "#manifiesto" },
@@ -60,10 +61,17 @@ export default function Nav() {
           <a
             href="#top"
             onClick={go("#top")}
-            className="flex items-center gap-2 font-mono text-sm font-semibold tracking-[0.14em] text-ink"
+            className="flex items-center gap-2"
+            aria-label="ZimplifAI - Inicio"
           >
-            <span className="size-2 rounded-full bg-volt" aria-hidden="true" />
-            zimplifai
+            <Image
+              src="/isotipo.png"
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 md:size-12"
+              priority={false}
+            />
           </a>
 
           <ul className="hidden items-center gap-8 md:flex">

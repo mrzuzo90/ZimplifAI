@@ -79,12 +79,12 @@ const jsonLd = {
       "@id": `${siteUrl}/#person`,
       name: site.author.name,
       description:
-        "Desarrollador senior full-stack y electricista certificado (ELEE0109). Creador de ZimplifAI.",
+        "Especialista en automatización: full-stack, IA y automatismos industriales (ELEE0109). Creador de ZimplifAI.",
       knowsAbout: [
         "Inteligencia artificial",
         "Automatización de procesos",
         "Desarrollo full-stack",
-        "Instalaciones eléctricas",
+        "Automatismos industriales",
       ],
       worksFor: { "@id": `${siteUrl}/#organization` },
     },

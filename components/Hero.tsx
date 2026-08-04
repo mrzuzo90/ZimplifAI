@@ -26,7 +26,7 @@ export default function Hero() {
       {/* Etiquetas de esquina */}
       <div className="pointer-events-none absolute inset-x-5 top-24 hidden justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-muted md:flex md:inset-x-8">
         <span>{"// zimplifai · agencia de implantación de IA"}</span>
-        <span className="text-volt">electricista certificado · ELEE0109</span>
+        <span className="text-volt">automatización industrial · IA · full-stack · ELEE0109</span>
       </div>
 
       {/* Contenido */}
@@ -62,8 +62,9 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: EASE, delay: 0.85 }}
             className="text-balance text-lg leading-relaxed text-muted md:text-xl"
           >
-            Soy Zuzo, desarrollador senior full-stack y electricista certificado. ZimplifAI es mi
-            agencia: implanto IA en empresas y construyo software real, en producción, sin humo.
+            Soy Zuzo, especialista en automatización: programo full-stack, entreno y despliego IA, y
+            diseño automatismos industriales (ELEE0109). ZimplifAI es mi agencia: implanto IA en
+            empresas y construyo software real, en producción, sin humo.
           </motion.p>
 
           <motion.div

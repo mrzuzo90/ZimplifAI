@@ -6,7 +6,6 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Counter } from "@/components/motion/Counter";
 import { container, fadeUp } from "@/lib/motion";
 import { projects, liveCount } from "@/data/projects";
-import { site } from "@/data/site";
 
 export default function Manifesto() {
   return (
@@ -36,9 +35,10 @@ export default function Manifesto() {
             ficción.
           </motion.p>
           <motion.p variants={fadeUp} className="mb-6 text-lg leading-relaxed text-muted">
-            Soy desarrollador senior full-stack y, sí, electricista certificado (
-            {site.author.certification}). Dos oficios que suenan distintos y son el mismo: entender
-            cómo funciona un sistema por dentro y hacerlo más seguro, más simple, más rápido.
+            Soy especialista en automatización: programo full-stack, entreno y despliego IA, y diseño
+            automatismos industriales (ELEE0109). Tres disciplinas que convergen en lo mismo:
+            entender cómo funciona un sistema por dentro —código, modelo o máquina— y hacerlo más
+            seguro, más simple, más rápido.
           </motion.p>
           <motion.p variants={fadeUp} className="text-lg font-medium text-ink">
             No vendo humo. Construyo, pruebo y publico.
@@ -51,7 +51,7 @@ export default function Manifesto() {
         <Stat value={<Counter to={projects.length} />} label="proyectos reales" />
         <Stat value={<Counter to={liveCount} />} label="en producción" />
         <Stat value={<Counter to={420} suffix="+" />} label="tests automatizados (zCADe)" />
-        <Stat value={<span className="font-mono text-2xl text-volt md:text-3xl">ELEE0109</span>} label="electricista certificado" />
+        <Stat value={<span className="font-mono text-2xl text-volt md:text-3xl">ELEE0109</span>} label="automatismos industriales" />
       </div>
     </section>
   );
