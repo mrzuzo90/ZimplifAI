@@ -11,6 +11,7 @@ type Consent = "idle" | "yes" | "no";
 /** Analytics de Vercel con consentimiento opt-in y sin terceros pesados. */
 export default function AnalyticsConsent() {
   const [consent, setConsent] = useState<Consent>("idle");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!ANALYTICS_ENABLED) return;
@@ -18,6 +19,7 @@ export default function AnalyticsConsent() {
     if (stored === "yes" || stored === "no") {
       setConsent(stored);
     }
+    setReady(true);
   }, []);
 
   if (!ANALYTICS_ENABLED) return null;
@@ -30,7 +32,7 @@ export default function AnalyticsConsent() {
   return (
     <>
       {consent === "yes" && <Analytics />}
-      {consent === "idle" && (
+      {ready && consent === "idle" && (
         <div className="fixed bottom-4 left-4 z-[90] flex max-w-xs flex-col gap-3 rounded-2xl border border-line bg-surface/90 p-4 text-xs text-muted backdrop-blur-md">
           <p>
             ZimplifAI usa estadísticas anónimas para mejorar. ¿Las permites? (Sin rastreadores de
