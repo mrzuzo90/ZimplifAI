@@ -11,15 +11,33 @@ interface Particle {
   depth: number;
 }
 
+/** Cometa de luz que viaja de A→B por una conexión (volt entre partículas, plasma desde el cursor). */
+interface Pulse {
+  ax: number;
+  ay: number;
+  bx: number;
+  by: number;
+  t: number;
+  speed: number;
+  rgb: string;
+}
+
 const CONNECT_DIST = 130;
 const MOUSE_DIST = 170;
 const COUNT_CAP = 150;
+const MAX_PULSES = 46;
+/** Probabilidad por par y por frame de lanzar un pulso volt. */
+const PULSE_SPAWN = 0.018;
+/** Probabilidad por partícula-cursor y por frame de lanzar un pulso plasma. */
+const MOUSE_PULSE_SPAWN = 0.05;
+
+const VOLT = "185, 255, 42";
+const PLASMA = "69, 229, 255";
 
 /**
- * Campo de partículas en canvas 2D: constelación que reacciona al cursor
- * (atracción + líneas) con dos capas de color (volt/ink) y paralaje sutil.
- * Se elige canvas2D sobre three.js por fiabilidad y peso; respeta
- * prefers-reduced-motion (no dibuja nada).
+ * Red eléctrica viva en canvas 2D: constelación donde la corriente fluye.
+ * Cometas de luz (volt) viajan por las conexiones entre partículas y desde
+ * el cursor (plasma) como una descarga. Respeta prefers-reduced-motion.
  */
 export default function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,6 +55,7 @@ export default function ParticleField() {
     let width = 0;
     let height = 0;
     let particles: Particle[] = [];
+    let pulses: Pulse[] = [];
 
     const spawn = () => {
       const count = Math.min(COUNT_CAP, Math.max(40, Math.floor((width * height) / 14000)));
@@ -58,6 +77,7 @@ export default function ParticleField() {
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       spawn();
+      pulses = [];
     };
 
     const onMove = (e: MouseEvent) => {
@@ -68,6 +88,39 @@ export default function ParticleField() {
     const onLeave = () => {
       mouse.x = -9999;
       mouse.y = -9999;
+    };
+
+    const drawPulse = (p: Pulse) => {
+      p.t += p.speed;
+      if (p.t >= 1) return false;
+
+      const x = p.ax + (p.bx - p.ax) * p.t;
+      const y = p.ay + (p.by - p.ay) * p.t;
+      // La intensidad sube y baja con la posición: nace, viaja y se disipa.
+      const alpha = Math.sin(p.t * Math.PI);
+
+      // Estela corta (cometa)
+      const tx = x - (p.bx - p.ax) * p.speed;
+      const ty = y - (p.by - p.ay) * p.speed;
+      ctx.strokeStyle = `rgba(${p.rgb}, ${0.75 * alpha})`;
+      ctx.lineWidth = 1.8;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      // Núcleo con halo
+      ctx.fillStyle = `rgba(${p.rgb}, ${0.22 * alpha})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(${p.rgb}, ${0.95 * alpha})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      return true;
     };
 
     const tick = () => {
@@ -96,27 +149,39 @@ export default function ParticleField() {
         }
       }
 
+      // Conexiones entre partículas cercanas + pulsos de corriente volt
       ctx.lineWidth = 1;
       for (let i = 0; i < particles.length; i++) {
         const a = particles[i];
 
-        // conexiones entre partículas cercanas
         for (let j = i + 1; j < particles.length; j++) {
           const b = particles[j];
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const d = Math.hypot(dx, dy);
           if (d < CONNECT_DIST) {
-            const alpha = (1 - d / CONNECT_DIST) * 0.14;
+            const alpha = (1 - d / CONNECT_DIST) * 0.1;
             ctx.strokeStyle = `rgba(185, 255, 42, ${alpha})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
             ctx.stroke();
+
+            if (pulses.length < MAX_PULSES && Math.random() < PULSE_SPAWN) {
+              pulses.push({
+                ax: a.x,
+                ay: a.y,
+                bx: b.x,
+                by: b.y,
+                t: 0,
+                speed: 0.016 + Math.random() * 0.02,
+                rgb: VOLT,
+              });
+            }
           }
         }
 
-        // conexión con el cursor (plasma)
+        // Conexión con el cursor (plasma) + descargas desde el cursor
         const adx = a.x - mouse.x;
         const ady = a.y - mouse.y;
         const ad = Math.hypot(adx, ady);
@@ -127,7 +192,24 @@ export default function ParticleField() {
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(mouse.x, mouse.y);
           ctx.stroke();
+
+          if (pulses.length < MAX_PULSES && Math.random() < MOUSE_PULSE_SPAWN) {
+            pulses.push({
+              ax: mouse.x,
+              ay: mouse.y,
+              bx: a.x,
+              by: a.y,
+              t: 0,
+              speed: 0.02 + Math.random() * 0.02,
+              rgb: PLASMA,
+            });
+          }
         }
+      }
+
+      // Actualizar y dibujar pulsos (los terminados se eliminan)
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        if (!drawPulse(pulses[i])) pulses.splice(i, 1);
       }
 
       for (const p of particles) {

@@ -206,6 +206,7 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
     <Tilt max={5} className="h-full">
       <button
         onClick={onOpen}
+        data-cursor="project"
         className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-line bg-surface text-left transition-colors duration-300 hover:border-volt/40"
         aria-label={`Ver caso de estudio: ${project.name}`}
         style={{ "--accent": project.accent } as React.CSSProperties}

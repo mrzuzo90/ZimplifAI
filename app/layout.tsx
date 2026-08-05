@@ -4,6 +4,7 @@ import { Space_Grotesk, JetBrains_Mono, Instrument_Serif } from "next/font/googl
 import { SmoothScrollProvider } from "@/components/providers";
 import Preloader from "@/components/Preloader";
 import CustomCursor from "@/components/CustomCursor";
+import VoltageMeter from "@/components/VoltageMeter";
 import GrainOverlay from "@/components/GrainOverlay";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -114,6 +115,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SmoothScrollProvider>
           <Preloader />
           <CustomCursor />
+          <VoltageMeter />
           <GrainOverlay />
           <Nav />
           <main>{children}</main>
