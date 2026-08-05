@@ -9,7 +9,7 @@ export const site = {
   /** Descripción corta: va en meta description y JSON-LD. */
   description:
     "Agencia de implantación de IA y desarrollo web. Automatización de procesos, agentes a medida y aplicaciones full-stack en producción, sin humo.",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "mrzuzo90@gmail.com",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "contacto@zuzo.es",
   /** WhatsApp con código de país y sin "+" ni espacios. Vacío = se oculta. */
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "",
   social: {

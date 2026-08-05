@@ -37,7 +37,7 @@ Copia `.env.example` a `.env.local` y rellena:
 | `RESEND_API_KEY` | Envío del formulario de contacto | Para que el formulario envíe |
 | `CONTACT_EMAIL` | Email que recibe los mensajes | Idem |
 | `RESEND_FROM` | Remitente (usa dominio verificado; fallback `onboarding@resend.dev`) | No |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Email público mostrado en la web | No (fallback `hola@zimplifai.com`) |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email público mostrado en la web | No (fallback `contacto@zuzo.es`) |
 | `NEXT_PUBLIC_SITE_URL` | URL base para OG/sitemap | No (fallback vercel.app) |
 | `NEXT_PUBLIC_ENABLE_ANALYTICS` | Analytics de Vercel (opt-in con consentimiento) | No |
 | `NEXT_PUBLIC_WHATSAPP` | Botón WhatsApp (código país + número, sin `+`) | No (vacío oculta) |
