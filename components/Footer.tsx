@@ -19,20 +19,30 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-line">
       <div className="mx-auto max-w-7xl px-5 pb-10 pt-16 md:px-8">
-        {/* Marca: imagotipo clicable → arriba */}
+        {/* Marca: imagotipo clicable → arriba (hover: versión entera lima) */}
         <button
           onClick={() => scrollTo(0, { duration: 1.4 })}
           aria-label="Volver arriba"
-          className="block max-w-xs mx-auto md:max-w-none md:mx-0"
+          className="group block max-w-xs mx-auto md:max-w-none md:mx-0"
         >
-          <Image
-            src="/imagotipo.png"
-            alt="ZimplifAI"
-            width={320}
-            height={120}
-            className="w-full h-auto opacity-90 transition-opacity duration-500 hover:opacity-100"
-            priority={false}
-          />
+          <div className="relative overflow-hidden">
+            <Image
+              src="/imagotipo.png"
+              alt="ZimplifAI"
+              width={320}
+              height={120}
+              className="w-full h-auto opacity-90 transition-opacity duration-500 group-hover:opacity-0"
+              priority={false}
+            />
+            <Image
+              src="/imagotipo-hover.png"
+              alt=""
+              aria-hidden="true"
+              width={320}
+              height={120}
+              className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            />
+          </div>
         </button>
 
         <div className="mt-14 grid gap-10 border-t border-line pt-10 md:grid-cols-3">
