@@ -49,9 +49,9 @@ const GROUPS = [
 
 export default function Skills() {
   return (
-    <section id="habilidades" className="relative overflow-hidden py-28 md:py-40">
+    <section id="habilidades" className="relative overflow-hidden py-20 md:py-28">
       {/* Marquee de stack */}
-      <Marquee speed={44} pauseOnHover className="mb-20 border-y border-line py-6">
+      <Marquee speed={44} pauseOnHover className="mb-12 border-y border-line py-6">
         {MARQUEE.map((s) => (
           <span
             key={s}
@@ -64,7 +64,7 @@ export default function Skills() {
       </Marquee>
 
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <SectionLabel index="04" label="Habilidades" className="mb-12 md:mb-16" />
+        <SectionLabel index="04" label="Habilidades" className="mb-8 md:mb-10" />
 
         <div className="grid gap-10 md:grid-cols-12">
           <div className="md:col-span-4">

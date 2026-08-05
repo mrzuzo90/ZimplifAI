@@ -8,8 +8,8 @@ import WorkPanels from "@/components/WorkPanels";
 
 export default function Manifesto() {
   return (
-    <section id="manifiesto" className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
-      <SectionLabel index="01" label="Manifiesto" className="mb-12 md:mb-16" />
+    <section id="manifiesto" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
+      <SectionLabel index="01" label="Manifiesto" className="mb-6 md:mb-8" />
 
       <div className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-3">
@@ -52,7 +52,7 @@ export default function Manifesto() {
       <WorkPanels />
 
       {/* Stats */}
-      <div className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
+      <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
         <Stat value={<Counter to={projects.length} />} label="proyectos reales" />
         <Stat value={<Counter to={liveCount} />} label="en producción" />
         <Stat value={<Counter to={420} suffix="+" />} label="tests automatizados (zCADe)" />

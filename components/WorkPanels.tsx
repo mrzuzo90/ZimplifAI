@@ -114,7 +114,7 @@ function Panel({ panel, index }: { panel: Panel; index: number }) {
 
 export default function WorkPanels() {
   return (
-    <div className="mt-16 grid gap-4 md:grid-cols-3">
+    <div className="mt-10 grid gap-4 md:grid-cols-3">
       {PANELS.map((panel, i) => (
         <Panel key={panel.discipline} panel={panel} index={i} />
       ))}

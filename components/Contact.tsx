@@ -96,7 +96,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contacto" className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
+    <section id="contacto" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
       <SectionLabel index="05" label="Contacto" className="mb-12 md:mb-16" />
 
       <div className="grid gap-12 md:grid-cols-12">

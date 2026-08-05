@@ -51,7 +51,7 @@ export default function Services() {
   const { scrollTo } = useSmoothScroll();
 
   return (
-    <section id="servicios" className="relative mx-auto max-w-7xl px-5 py-28 md:px-8 md:py-40">
+    <section id="servicios" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
       <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
         <div>
           <SectionLabel index="02" label="Servicios" />
