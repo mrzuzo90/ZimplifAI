@@ -25,11 +25,11 @@ interface Pulse {
 const CONNECT_DIST = 130;
 const MOUSE_DIST = 170;
 const COUNT_CAP = 150;
-const MAX_PULSES = 46;
+const MAX_PULSES = 14;
 /** Probabilidad por par y por frame de lanzar un pulso volt. */
-const PULSE_SPAWN = 0.018;
+const PULSE_SPAWN = 0.005;
 /** Probabilidad por partícula-cursor y por frame de lanzar un pulso plasma. */
-const MOUSE_PULSE_SPAWN = 0.05;
+const MOUSE_PULSE_SPAWN = 0.012;
 
 const VOLT = "185, 255, 42";
 const PLASMA = "69, 229, 255";
@@ -102,8 +102,8 @@ export default function ParticleField() {
       // Estela corta (cometa)
       const tx = x - (p.bx - p.ax) * p.speed;
       const ty = y - (p.by - p.ay) * p.speed;
-      ctx.strokeStyle = `rgba(${p.rgb}, ${0.75 * alpha})`;
-      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = `rgba(${p.rgb}, ${0.45 * alpha})`;
+      ctx.lineWidth = 1.2;
       ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(tx, ty);
@@ -111,13 +111,13 @@ export default function ParticleField() {
       ctx.stroke();
 
       // Núcleo con halo
-      ctx.fillStyle = `rgba(${p.rgb}, ${0.22 * alpha})`;
+      ctx.fillStyle = `rgba(${p.rgb}, ${0.09 * alpha})`;
       ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = `rgba(${p.rgb}, ${0.95 * alpha})`;
+      ctx.fillStyle = `rgba(${p.rgb}, ${0.8 * alpha})`;
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
       ctx.fill();
 
       return true;
@@ -160,7 +160,7 @@ export default function ParticleField() {
           const dy = a.y - b.y;
           const d = Math.hypot(dx, dy);
           if (d < CONNECT_DIST) {
-            const alpha = (1 - d / CONNECT_DIST) * 0.1;
+            const alpha = (1 - d / CONNECT_DIST) * 0.055;
             ctx.strokeStyle = `rgba(185, 255, 42, ${alpha})`;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -174,7 +174,7 @@ export default function ParticleField() {
                 bx: b.x,
                 by: b.y,
                 t: 0,
-                speed: 0.016 + Math.random() * 0.02,
+                speed: 0.014 + Math.random() * 0.016,
                 rgb: VOLT,
               });
             }
@@ -186,7 +186,7 @@ export default function ParticleField() {
         const ady = a.y - mouse.y;
         const ad = Math.hypot(adx, ady);
         if (ad < CONNECT_DIST) {
-          const alpha = (1 - ad / CONNECT_DIST) * 0.4;
+          const alpha = (1 - ad / CONNECT_DIST) * 0.18;
           ctx.strokeStyle = `rgba(69, 229, 255, ${alpha})`;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -200,7 +200,7 @@ export default function ParticleField() {
               bx: a.x,
               by: a.y,
               t: 0,
-              speed: 0.02 + Math.random() * 0.02,
+              speed: 0.016 + Math.random() * 0.016,
               rgb: PLASMA,
             });
           }
