@@ -3,8 +3,8 @@
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/motion/Reveal";
 import { Counter } from "@/components/motion/Counter";
-import { container, fadeUp } from "@/lib/motion";
 import { projects, liveCount } from "@/data/projects";
+import WorkPanels from "@/components/WorkPanels";
 
 export default function Manifesto() {
   return (
@@ -47,6 +47,9 @@ export default function Manifesto() {
           </Reveal>
         </div>
       </div>
+
+      {/* Un día de trabajo: antes → después */}
+      <WorkPanels />
 
       {/* Stats */}
       <div className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">

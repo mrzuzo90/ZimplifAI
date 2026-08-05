@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import Manifesto from "@/components/Manifesto";
+import KineticType from "@/components/KineticType";
 import Services from "@/components/Services";
 import Showroom from "@/components/Showroom";
 import Skills from "@/components/Skills";
@@ -10,6 +11,7 @@ export default function Home() {
     <>
       <Hero />
       <Manifesto />
+      <KineticType />
       <Services />
       <Showroom />
       <Skills />
