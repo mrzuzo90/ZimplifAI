@@ -159,6 +159,30 @@ export const projects: Project[] = [
     accent: "#F97316",
     previewType: "browser",
   },
+  {
+    id: "crm",
+    name: "ZimplifAI CRM",
+    category: "ia",
+    tagline: "Agency Operating System multi-tenant con IA.",
+    description:
+      "Plataforma B2B SaaS completa para gestionar subcuentas verticales (hostelería, servicios, agencia) con provisión 1-clic, feature flags por módulo, impersonación real, workflows visuales, bandeja unificada multicanal, calendarios de citas públicos, editor de micro-webs verticales y CRM extendido (empresas, pipelines, tareas). Todo con white-label en tiempo real y modo demo offline.",
+    problem:
+      "Las agencias necesitan operar decenas de clientes verticales sin repetir setup: provisionar, configurar módulos, entrar en su workspace y controlar features desde un panel central. El CRM lo resuelve con arquitectura multi-tenant estricta (RLS), motor white-label y IA nativa (agentes, copilot, auditoría).",
+    stack: [
+      "Next.js 16.3",
+      "React 19",
+      "Supabase (Postgres + RLS + Realtime)",
+      "Tailwind CSS v4",
+      "Radix UI + shadcn",
+      "framer-motion",
+      "Turbopack",
+    ],
+    status: "Completo · Build verificado",
+    statusTone: "live",
+    url: "https://zimplifai.com/CRM",
+    accent: "#CEFF00",
+    previewType: "browser",
+  },
 ];
 
 /** Número de proyectos con estado "en producción" (para las stats del manifiesto). */
