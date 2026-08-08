@@ -179,7 +179,7 @@ export const projects: Project[] = [
     ],
     status: "Completo · Build verificado",
     statusTone: "live",
-    url: "https://zimplifai.com/CRM",
+    url: "https://zimplifai.vercel.app/CRM",
     accent: "#CEFF00",
     previewType: "browser",
   },
