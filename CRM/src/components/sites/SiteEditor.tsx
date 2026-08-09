@@ -8,6 +8,7 @@ import {
   Loader2,
   Monitor,
   Plus,
+  QrCode,
   Save,
   Smartphone,
   Trash2,
@@ -23,6 +24,7 @@ import { ensureTenantSite, setSitePublished, updateTenantSite } from "@/lib/data
 import { defaultContentForTemplate, templateLabel } from "@/lib/site";
 import { SITE_TEMPLATE_LABELS, SITE_VERTICAL_TEMPLATES, type TenantSite } from "@/types/database";
 import { SiteRenderer } from "@/components/sites/SiteRenderer";
+import { SiteQRDialog } from "@/components/sites/SiteQRDialog";
 import { cn } from "@/lib/utils";
 
 /** Editor de sitio web vertical: formulario a la izquierda, preview en vivo a la derecha. */
@@ -32,6 +34,7 @@ export function SiteEditor({ orgId }: { orgId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
+  const [qrOpen, setQrOpen] = useState(false);
 
   const primary = organization?.primary_color ?? "#CEFF00";
   const logoUrl = organization?.logo_url ?? null;
@@ -339,6 +342,10 @@ export function SiteEditor({ orgId }: { orgId: string }) {
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Guardar
           </Button>
+          <Button variant="outline" onClick={() => setQrOpen(true)} title="Descargar QR del sitio">
+            <QrCode className="h-4 w-4" />
+            QR
+          </Button>
           <Button variant="outline" onClick={() => void togglePublished()}>
             {site.is_published ? "Despublicar" : "Publicar"}
           </Button>
@@ -401,6 +408,9 @@ export function SiteEditor({ orgId }: { orgId: string }) {
           </div>
         </div>
       </div>
+
+      {/* QR imprimible del sitio */}
+      <SiteQRDialog key={site.id} open={qrOpen} onOpenChange={setQrOpen} site={site} primary={primary} logoUrl={logoUrl} />
     </div>
   );
 }
