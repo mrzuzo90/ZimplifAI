@@ -924,6 +924,8 @@ export type TenantSiteContent = {
   menu_items: SiteMenuItem[];
   business_hours: SiteBusinessHours[];
   contact: SiteContact;
+  /** URL pública del PDF de la carta / menú (se embebe en la web). */
+  menu_pdf_url: string;
 };
 
 /** Micro-website white-label de una subcuenta. */

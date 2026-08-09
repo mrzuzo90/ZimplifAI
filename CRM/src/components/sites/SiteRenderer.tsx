@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { CalendarCheck, Check, Clock, Loader2, MapPin, MessageCircle, Phone, Send } from "lucide-react";
+import { CalendarCheck, Check, Clock, FileText, Loader2, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ export function SiteRenderer({ site, brandColor = "#CEFF00", brandLogo = null, o
   const isLead = site.vertical_template === "lead_funnel";
 
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [form, setForm] = useState<SiteLeadForm>({ first_name: "", phone: "" });
@@ -180,6 +181,19 @@ export function SiteRenderer({ site, brandColor = "#CEFF00", brandLogo = null, o
               </div>
             ))}
           </div>
+          {c.menu_pdf_url && (
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setPdfOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-[#141815]/5"
+                style={{ borderColor: primary, color: "#141815" }}
+              >
+                <FileText className="h-4 w-4" />
+                Ver carta
+              </button>
+            </div>
+          )}
         </section>
       )}
 
@@ -345,6 +359,39 @@ export function SiteRenderer({ site, brandColor = "#CEFF00", brandLogo = null, o
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Modal de carta / menú PDF */}
+      {c.menu_pdf_url && (
+        <Dialog open={pdfOpen} onOpenChange={setPdfOpen}>
+          <DialogContent className="max-w-3xl gap-0 p-0">
+            <DialogHeader className="border-b border-[#e8e8e2] px-5 py-4">
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <FileText className="h-4 w-4" style={{ color: primary }} />
+                Carta de {site.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="bg-[#f2f2ec]">
+              <iframe
+                src={c.menu_pdf_url}
+                title={`Carta de ${site.title}`}
+                className="h-[65vh] w-full border-0"
+              />
+            </div>
+            <div className="flex items-center justify-between border-t border-[#e8e8e2] px-5 py-3">
+              <p className="text-xs text-[#5c665e]">Si no se ve correctamente, abre el PDF directamente.</p>
+              <a
+                href={c.menu_pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors hover:bg-[#141815]/5"
+                style={{ color: primary }}
+              >
+                Abrir en nueva pestaña ↗
+              </a>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

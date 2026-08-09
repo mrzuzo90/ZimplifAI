@@ -207,6 +207,17 @@ export function SiteEditor({ orgId }: { orgId: string }) {
                   </div>
                 </div>
 
+                <Field label="Carta en PDF (URL)">
+                  <Input
+                    value={c.menu_pdf_url}
+                    onChange={(e) => patchContent({ menu_pdf_url: e.target.value })}
+                    placeholder="https://ejemplo.com/carta.pdf"
+                  />
+                </Field>
+                <p className="text-[11px] text-muted-foreground -mt-2">
+                  URL pública del PDF. Se mostrará embebida en la web.
+                </p>
+
                 <div className="space-y-3">
                   {c.menu_items.map((item, i) => (
                     <div key={i} className="space-y-2 rounded-lg border border-border p-3">

@@ -36,6 +36,7 @@ export function restaurantContent(): TenantSiteContent {
       whatsapp: "+34 600 000 000",
       google_maps_url: "",
     },
+    menu_pdf_url: "",
   };
 }
 
@@ -65,6 +66,7 @@ export function serviceCatalogContent(): TenantSiteContent {
       whatsapp: "+34 610 111 222",
       google_maps_url: "",
     },
+    menu_pdf_url: "",
   };
 }
 
@@ -92,6 +94,7 @@ export function leadFunnelContent(): TenantSiteContent {
       whatsapp: "+34 620 222 333",
       google_maps_url: "",
     },
+    menu_pdf_url: "",
   };
 }
 
