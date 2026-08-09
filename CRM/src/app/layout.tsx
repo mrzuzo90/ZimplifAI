@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { BrandingProvider } from "@/context/BrandingContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeToaster } from "@/components/theme/ThemeToaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const inter = Inter({
@@ -52,7 +54,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         {/* Anti-FOUC: aplica el tema antes de que React hidrate. */}
-        <script
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem("zimplifai:theme");if(t==="light"||(!t&&matchMedia("(prefers-color-scheme: light)").matches))document.documentElement.setAttribute("data-theme","light");}catch(e){}`,
           }}
@@ -60,7 +64,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <BrandingProvider>{children}</BrandingProvider>
+          <BrandingProvider>
+            <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
+          </BrandingProvider>
           <ThemeToaster />
         </ThemeProvider>
       </body>

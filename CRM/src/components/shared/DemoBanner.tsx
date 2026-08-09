@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { FlaskConical, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBranding } from "@/hooks/useBranding";
@@ -10,7 +11,11 @@ import { cn } from "@/lib/utils";
 /** Banner de modo demo: aviso + conmutador rol + reset de datos. */
 export function DemoBanner({ className }: { className?: string }) {
   const { demoMode, isSuperAdmin, switchDemoRole } = useBranding();
-  if (!demoMode) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Evita hydration mismatch: solo renderiza tras montar en client.
+  if (!mounted || !demoMode) return null;
 
   return (
     <div className={cn("border-b border-[var(--tenant-primary)]/25 bg-[var(--tenant-primary)]/5", className)}>
