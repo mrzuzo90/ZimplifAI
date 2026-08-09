@@ -1,0 +1,304 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================================
+   ZimplifAI CRM — Design System (Tailwind CSS v4, CSS-first)
+   Estética técnica: Linear / Vercel / Stripe en modo oscuro.
+   Marca: Volt Green #CEFF00 sobre Pitch Black #0B0D0C.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Tokens de marca del tenant (inyectados dinámicamente por BrandingContext) --- */
+  --tenant-primary: #ceff00;
+  --tenant-primary-foreground: #0b0d0c;
+
+  /* --- Paleta ZimplifAI --- */
+  --background: #0b0d0c; /* Pitch Black */
+  --surface: #121614; /* Dark Slate / Charcoal */
+  --surface-elevated: #171c19;
+  --foreground: #e8e8e3; /* Off-White */
+  --muted: #171c19;
+  --muted-foreground: #8a948e; /* Gray-Green */
+  --border: #1f2622; /* Dark Slate dividers */
+  --border-strong: #2a342e;
+  --input: #1f2622;
+  --ring: var(--tenant-primary);
+  --primary: var(--tenant-primary); /* Volt Green */
+  --primary-foreground: var(--tenant-primary-foreground);
+  --secondary: #1a1f1c;
+  --secondary-foreground: #e8e8e3;
+  --accent: #1a2418; /* tinte volt 8% */
+  --accent-foreground: #e8e8e3;
+  --popover: #121614;
+  --popover-foreground: #e8e8e3;
+  --destructive: #ff5c5c;
+  --destructive-foreground: #0b0d0c;
+  --success: #3dd68c;
+  --warning: #ffb020;
+  --info: #6ab7ff;
+
+  --radius: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Scrollbar (variable para el tema claro) */
+  --scroll-thumb: #242c27;
+  --scroll-thumb-hover: #2f3a33;
+}
+
+/* ============================================================
+   Tema claro (white-label respetado: los --tenant-* son runtime
+   y funcionan en ambos temas). Default = oscuro (sin atributo).
+   ============================================================ */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f6f7f4;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --foreground: #141815;
+  --muted: #eef0ea;
+  --muted-foreground: #5c665e;
+  --border: #e2e6dd;
+  --border-strong: #c8cfc2;
+  --input: #e2e6dd;
+  --secondary: #eef0ea;
+  --secondary-foreground: #141815;
+  --accent: #e9f5c4;
+  --accent-foreground: #141815;
+  --popover: #ffffff;
+  --popover-foreground: #141815;
+  --destructive: #d0342c;
+  --destructive-foreground: #ffffff;
+  --success: #1a9e63;
+  --warning: #b9710a;
+  --info: #2d7dd2;
+
+  --scroll-thumb: #c8cfc2;
+  --scroll-thumb-hover: #aeb7aa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-volt: #ceff00;
+  --color-pitch: #0b0d0c;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
+  --font-mono: var(--font-jetbrains);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --animate-pulse-glow: pulse-glow 2.2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-scan: scan 3.5s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(206, 255, 0, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(206, 255, 0, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes scan {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-image: radial-gradient(
+        ellipse 80% 50% at 50% -20%,
+        rgba(206, 255, 0, 0.04),
+        transparent
+      ),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(206, 255, 0, 0.02), transparent);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--tenant-primary);
+    color: var(--tenant-primary-foreground);
+  }
+
+  /* Scrollbar técnica */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 8px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Texto técnico mono */
+  .text-mono {
+    font-family: var(--font-jetbrains);
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.01em;
+  }
+
+  /* Glow volt para badges / dots de estado */
+  .glow-volt {
+    box-shadow: 0 0 12px rgba(206, 255, 0, 0.5);
+  }
+  .glow-volt-soft {
+    box-shadow: 0 0 24px rgba(206, 255, 0, 0.15);
+  }
+
+  /* Rejilla técnica de fondo */
+  .bg-grid {
+    background-image: linear-gradient(rgba(206, 255, 0, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(206, 255, 0, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Skeleton shimmer */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 25%,
+      rgba(206, 255, 0, 0.06) 50%,
+      rgba(255, 255, 255, 0.02) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.4s linear infinite;
+  }
+
+  /* Shimmer en tema claro (tintes oscuros para que se perciba) */
+  :root[data-theme="light"] .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(11, 13, 12, 0.03) 25%,
+      rgba(206, 255, 0, 0.18) 50%,
+      rgba(11, 13, 12, 0.03) 75%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
