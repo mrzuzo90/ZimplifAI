@@ -157,7 +157,7 @@ export function SiteEditor({ orgId }: { orgId: string }) {
         </div>
 
         <Tabs defaultValue="hero" className="flex min-h-0 flex-1 flex-col">
-          <TabsList className="mx-4 mt-3 justify-start">
+          <TabsList className="mx-4 mt-3 h-auto flex-wrap justify-start">
             <TabsTrigger value="hero">Hero</TabsTrigger>
             <TabsTrigger value="menu">Menú / Servicios</TabsTrigger>
             <TabsTrigger value="hours">Horario y lugar</TabsTrigger>
@@ -337,28 +337,32 @@ export function SiteEditor({ orgId }: { orgId: string }) {
         </Tabs>
 
         {/* Acciones */}
-        <div className="flex items-center gap-2 border-t border-border p-4">
-          <Button onClick={() => void save()} disabled={saving} className="flex-1">
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Guardar
-          </Button>
-          <Button variant="outline" onClick={() => setQrOpen(true)} title="Descargar QR del sitio">
-            <QrCode className="h-4 w-4" />
-            QR
-          </Button>
-          <Button variant="outline" onClick={() => void togglePublished()}>
-            {site.is_published ? "Despublicar" : "Publicar"}
-          </Button>
-          <Button
-            variant="ghost"
-            asChild
-            title="Ver sitio publicado"
-            className="px-2.5"
-          >
-            <a href={`/s/${site.slug}`} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+        <div className="space-y-2 border-t border-border p-4">
+          <div className="flex items-center gap-2">
+            <Button onClick={() => void save()} disabled={saving} className="flex-1">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Guardar
+            </Button>
+            <Button variant="outline" onClick={() => setQrOpen(true)} title="Descargar QR del sitio" className="shrink-0">
+              <QrCode className="h-4 w-4" />
+              QR
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => void togglePublished()} className="flex-1">
+              {site.is_published ? "Despublicar" : "Publicar"}
+            </Button>
+            <Button
+              variant="ghost"
+              asChild
+              title="Ver sitio publicado"
+              className="shrink-0 px-2.5"
+            >
+              <a href={`/s/${site.slug}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
 
