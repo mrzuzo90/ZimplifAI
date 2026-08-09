@@ -31,4 +31,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Playwright CLI temp files
-CRM/.playwright-cli/
+.playwright-cli/
