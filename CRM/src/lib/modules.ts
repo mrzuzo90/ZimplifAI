@@ -6,6 +6,7 @@ import {
   Globe,
   Inbox,
   Kanban,
+  MessagesSquare,
   Receipt,
   ScrollText,
   Sparkles,
@@ -39,6 +40,7 @@ export const MODULE_ICONS: Record<ModuleKey, LucideIcon> = {
   finance_suite: Receipt,
   reputation_mgmt: Star,
   roi_dashboard: BarChart3,
+  reservation_bot: MessagesSquare,
 };
 
 export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
@@ -56,6 +58,8 @@ export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
   finance_suite: "Facturación, cobros y métricas de agencia.",
   reputation_mgmt: "Reseñas de Google/WhatsApp, respuestas y métricas de reputación.",
   roi_dashboard: "Dashboard de ROI: ingresos atribuidos, costes, horas ahorradas y rescates de IA.",
+  reservation_bot:
+    "Bot de reservas por Telegram o WhatsApp: disponibilidad, aforo, web y dudas rápidas, configurado desde la subcuenta del cliente.",
 };
 
 export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>> = {
@@ -122,6 +126,14 @@ export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>>
     sla_alert_minutes: 5,
     sla_auto_rescue_minutes: 10,
     show_simulator: true,
+  },
+  reservation_bot: {
+    channel: "telegram",
+    telegram_token: "",
+    whatsapp_phone: "",
+    status: "disconnected",
+    bot_username: "",
+    last_error: "",
   },
 };
 

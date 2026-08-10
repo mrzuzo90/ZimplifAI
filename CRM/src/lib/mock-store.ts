@@ -17,6 +17,7 @@ import type {
   Lead,
   LeadActivity,
   MetricsDaily,
+  MessagingBot,
   LeadScore,
   LeadScoreHistory,
   MarketingForm,
@@ -152,6 +153,7 @@ export interface MockDb {
   timelineEvents: TimelineEvent[];
   insightsMoments: InsightsMoment[];
   metricsDaily: MetricsDaily[];
+  messagingBots: MessagingBot[];
   activeOrgId: string;
   demoRole: UserRole;
   impersonatingOrgId: string | null;
@@ -207,6 +209,7 @@ function buildSeed(): MockDb {
     timelineEvents: [...mockTimelineEvents],
     insightsMoments: [...mockInsightsMoments],
     metricsDaily: [...mockMetricsDaily],
+    messagingBots: [],
     activeOrgId: mockActiveOrg.id,
     demoRole: "client_admin",
     impersonatingOrgId: null,
@@ -270,6 +273,7 @@ export function getDb(): MockDb {
         if (!Array.isArray(parsed.timelineEvents)) parsed.timelineEvents = [...mockTimelineEvents];
         if (!Array.isArray(parsed.insightsMoments)) parsed.insightsMoments = [...mockInsightsMoments];
         if (!Array.isArray(parsed.metricsDaily)) parsed.metricsDaily = [...mockMetricsDaily];
+        if (!Array.isArray(parsed.messagingBots)) parsed.messagingBots = [];
         if (Array.isArray(parsed.bookings)) {
           parsed.bookings.forEach((b) => {
             // Backfill: seeds antiguos sin calendario/token/source.
@@ -1374,5 +1378,29 @@ export function upsertMetricsDaily(row: MetricsDaily) {
     );
     if (idx >= 0) db.metricsDaily[idx] = row;
     else db.metricsDaily.push(row);
+  });
+}
+
+export function listMessagingBots(orgId: string): MessagingBot[] {
+  return getDb().messagingBots?.filter((b) => b.organization_id === orgId) ?? [];
+}
+
+export function upsertMessagingBot(bot: MessagingBot) {
+  mutate((db) => {
+    if (!db.messagingBots) db.messagingBots = [];
+    const idx = db.messagingBots.findIndex(
+      (b) => b.organization_id === bot.organization_id && b.channel === bot.channel
+    );
+    if (idx >= 0) db.messagingBots[idx] = bot;
+    else db.messagingBots.push(bot);
+  });
+}
+
+export function deleteMessagingBot(orgId: string, channel: MessagingBot["channel"]) {
+  mutate((db) => {
+    if (!db.messagingBots) return;
+    db.messagingBots = db.messagingBots.filter(
+      (b) => !(b.organization_id === orgId && b.channel === channel)
+    );
   });
 }

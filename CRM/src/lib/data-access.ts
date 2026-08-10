@@ -69,6 +69,7 @@ import {
   listMarketplace,
   listMessageTemplates,
   listMessages,
+  listMessagingBots,
   listMetricsDaily,
   listModules,
   listOrgs,
@@ -166,6 +167,8 @@ import type {
   MarketingForm,
   MarketingFunnel,
   MetricsDaily,
+  MessagingBot,
+  MessagingChannel,
   OrganizationUsage,
   UtmAttribution,
   Message,
@@ -3785,6 +3788,60 @@ export async function upsertMetricsDailyRow(orgId: string, row: Omit<MetricsDail
     return;
   }
   upsertMetricsDaily({ ...row, id: `md_${shortId()}`, organization_id: orgId, created_at: new Date().toISOString() });
+}
+
+/* ------------------------- Bot de reservas (Fase K) ------------------------- */
+
+/**
+ * Bots de mensajería conectados a una organización (patrón dual).
+ * Nunca expone la credencial ni el webhook_secret.
+ */
+export async function fetchMessagingBots(orgId: string): Promise<MessagingBot[]> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("messaging_bots")
+      .select("id, organization_id, channel, external_id, webhook_secret, status, last_error, connected_at, created_at, updated_at")
+      .eq("organization_id", orgId);
+    if (error) throw error;
+    return (data ?? []) as MessagingBot[];
+  }
+  return listMessagingBots(orgId);
+}
+
+export interface ConnectBotResult {
+  ok: boolean;
+  externalId?: string;
+  error?: string;
+  /** true si el entorno no tiene Supabase (conexión demo, sin persistencia). */
+  demo?: boolean;
+  /** Secret del webhook (solo demo) para poder desconectar después. */
+  webhook_secret?: string;
+}
+
+/**
+ * Conecta (o desconecta) el bot de reservas de una organización. Llama al
+ * endpoint que valida el token vía Telegram, registra el webhook y guarda
+ * la fila en messaging_bots.
+ */
+export async function connectReservationBot(
+  orgId: string,
+  channel: MessagingChannel,
+  action: "connect" | "disconnect",
+  token?: string,
+  webhookSecret?: string
+): Promise<ConnectBotResult> {
+  try {
+    const res = await fetch("/api/v1/telegram/connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ org_id: orgId, channel, action, token, webhook_secret: webhookSecret }),
+    });
+    const data = (await res.json().catch(() => ({}))) as ConnectBotResult;
+    return { ...data, ok: res.ok };
+  } catch {
+    return { ok: false, error: "No se pudo conectar con el servidor" };
+  }
 }
 
 /* ------------------------- No-Show Risk Engine ------------------------- */

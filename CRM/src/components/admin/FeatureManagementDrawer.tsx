@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { fetchModules, setModuleEnabled, setModuleSettings } from "@/lib/data-access";
 import { MODULE_DESCRIPTIONS, MODULE_ICONS } from "@/lib/modules";
+import { ReservationBotSetup } from "@/components/admin/ReservationBotSetup";
 import { cn } from "@/lib/utils";
 import {
   MODULE_KEYS,
@@ -89,6 +90,14 @@ export function FeatureManagementDrawer({
     } finally {
       setBusyKey(null);
     }
+  };
+
+  /** Sincroniza settings del bot en modules + drafts (para que el JSON no quede obsoleto). */
+  const syncBotSettings = (key: ModuleKey, settings: Record<string, unknown>) => {
+    setModules((cur) =>
+      cur.map((m) => (m.module_key === key ? { ...m, settings } : m))
+    );
+    setDrafts((cur) => ({ ...cur, [key]: JSON.stringify(settings, null, 2) }));
   };
 
   const saveSettings = async (key: ModuleKey) => {
@@ -190,6 +199,13 @@ export function FeatureManagementDrawer({
 
                     {isOpen && (
                       <div className="space-y-2 border-t border-border px-3 py-3">
+                        {key === "reservation_bot" && mod && (
+                          <ReservationBotSetup
+                            orgId={org.id}
+                            settings={mod.settings ?? {}}
+                            onUpdated={(s) => syncBotSettings(key, s)}
+                          />
+                        )}
                         <div className="flex items-center gap-1.5 text-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                           <Code className="h-3 w-3 text-[var(--tenant-primary)]" />
                           Configuración JSON

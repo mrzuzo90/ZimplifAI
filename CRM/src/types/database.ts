@@ -73,6 +73,7 @@ export const MODULE_KEYS = [
   "finance_suite",
   "reputation_mgmt",
   "roi_dashboard",
+  "reservation_bot",
 ] as const;
 export type ModuleKey = (typeof MODULE_KEYS)[number];
 
@@ -91,6 +92,7 @@ export const MODULE_LABELS: Record<ModuleKey, string> = {
   finance_suite: "Facturación y cobros",
   reputation_mgmt: "Reputación online",
   roi_dashboard: "Dashboard ROI",
+  reservation_bot: "Bot de reservas",
 };
 
 /** Tipos de evento del timeline de actividad por lead. */
@@ -125,6 +127,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "finance_suite",
     "reputation_mgmt",
     "roi_dashboard",
+    "reservation_bot",
   ],
   service_lead_gen: [
     "whatsapp_bot",
@@ -138,6 +141,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "finance_suite",
     "reputation_mgmt",
     "roi_dashboard",
+    "reservation_bot",
   ],
   custom_agency: [
     "whatsapp_bot",
@@ -151,6 +155,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "finance_suite",
     "reputation_mgmt",
     "roi_dashboard",
+    "reservation_bot",
   ],
 };
 
@@ -569,6 +574,38 @@ export type MetricsDaily = {
   ai_tokens_used: number;
   speed_to_lead_avg_seconds: number;
   created_at: string;
+}
+
+/* ============================= Bot de reservas multi-cliente (Fase K) ============================= */
+
+export const MESSAGING_CHANNELS = ["telegram", "whatsapp"] as const;
+export type MessagingChannel = (typeof MESSAGING_CHANNELS)[number];
+
+export const MESSAGING_BOT_STATUSES = ["connecting", "connected", "error"] as const;
+export type MessagingBotStatus = (typeof MESSAGING_BOT_STATUSES)[number];
+
+/**
+ * Bot de mensajería registrado para una organización. La fila la crea la
+ * agencia desde el perfil de SuperAdmin al activar el servicio: solo se
+ * introduce el token (Telegram) o teléfono (WhatsApp) y el resto de la
+ * configuración del bot se resuelve desde la subcuenta del cliente.
+ *
+ * `credential_encrypted` y `webhook_secret` son columnas de servidor: nunca
+ * se seleccionan desde el cliente (RLS + queries con columnas explícitas).
+ */
+export type MessagingBot = {
+  id: string;
+  organization_id: string;
+  channel: MessagingChannel;
+  /** @username del bot (Telegram) o número de teléfono (WhatsApp). */
+  external_id: string;
+  /** Secret token único para desambiguar los updates del webhook. */
+  webhook_secret: string;
+  status: MessagingBotStatus;
+  last_error: string | null;
+  connected_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 /* ============================= AI Copilot, Scoring y Cost Dashboard (Fase H) ============================= */
@@ -1397,6 +1434,48 @@ export interface Database {
         Row: MetricsDaily;
         Insert: Partial<MetricsDaily>;
         Update: Partial<MetricsDaily>;
+        Relationships: [];
+      };
+      messaging_bots: {
+        Row: {
+          id: string;
+          organization_id: string;
+          channel: MessagingChannel;
+          external_id: string;
+          credential_encrypted: string;
+          webhook_secret: string | null;
+          status: MessagingBotStatus;
+          last_error: string | null;
+          connected_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          channel: MessagingChannel;
+          external_id: string;
+          credential_encrypted: string;
+          webhook_secret?: string | null;
+          status?: MessagingBotStatus;
+          last_error?: string | null;
+          connected_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<{
+          id: string;
+          organization_id: string;
+          channel: MessagingChannel;
+          external_id: string;
+          credential_encrypted: string;
+          webhook_secret: string | null;
+          status: MessagingBotStatus;
+          last_error: string | null;
+          connected_at: string | null;
+          created_at: string;
+          updated_at: string;
+        }>;
         Relationships: [];
       };
     };

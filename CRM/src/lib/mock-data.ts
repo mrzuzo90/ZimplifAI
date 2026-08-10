@@ -347,6 +347,14 @@ export const mockModules: OrganizationModule[] = [
     sla_auto_rescue_minutes: 10,
     show_simulator: true,
   }),
+  mod("org_brasa", "reservation_bot", true, {
+    channel: "telegram",
+    telegram_token: "",
+    whatsapp_phone: "",
+    status: "disconnected",
+    bot_username: "",
+    last_error: "",
+  }),
 
   mod("org_baremo", "whatsapp_bot", true, {
     phone: "+34 610 111 222",
