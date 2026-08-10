@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3,
   Bot,
   Building2,
   CalendarClock,
@@ -53,6 +54,7 @@ const CLIENT_ITEMS: NavItem[] = [
   { label: "Marca", href: "/workspace/settings/branding", icon: Palette, moduleKey: "light_web_menu" },
   { label: "Facturas", href: "/workspace/finance", icon: Receipt, moduleKey: "finance_suite" },
   { label: "Reseñas", href: "/workspace/reputation", icon: Star, moduleKey: "reputation_mgmt" },
+  { label: "ROI Dashboard", href: "/workspace/analytics/roi", icon: BarChart3, moduleKey: "roi_dashboard" },
 ];
 
 const AGENCY_ITEMS: NavItem[] = [

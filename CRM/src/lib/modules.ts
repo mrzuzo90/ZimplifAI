@@ -12,6 +12,7 @@ import {
   Star,
   Users,
   Workflow,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ export const MODULE_ICONS: Record<ModuleKey, LucideIcon> = {
   ai_copilot: Sparkles,
   finance_suite: Receipt,
   reputation_mgmt: Star,
+  roi_dashboard: BarChart3,
 };
 
 export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
@@ -53,6 +55,7 @@ export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
   ai_copilot: "Copilot IA: sugerencias, scoring de leads y costes.",
   finance_suite: "Facturación, cobros y métricas de agencia.",
   reputation_mgmt: "Reseñas de Google/WhatsApp, respuestas y métricas de reputación.",
+  roi_dashboard: "Dashboard de ROI: ingresos atribuidos, costes, horas ahorradas y rescates de IA.",
 };
 
 export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>> = {
@@ -114,6 +117,12 @@ export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>>
     google_connected: false,
     auto_reply: true,
   },
+  roi_dashboard: {
+    monthly_software_cost: 290,
+    sla_alert_minutes: 5,
+    sla_auto_rescue_minutes: 10,
+    show_simulator: true,
+  },
 };
 
 /**
@@ -134,6 +143,7 @@ export const MODULE_ROUTES: Record<string, ModuleKey> = {
   "/workspace/ai": "ai_copilot",
   "/workspace/finance": "finance_suite",
   "/workspace/reputation": "reputation_mgmt",
+  "/workspace/analytics/roi": "roi_dashboard",
 };
 
 /** Devuelve el módulo requerido por una ruta, si está restringido. */

@@ -8,6 +8,8 @@ import { fetchBookings, updateBookingStatus } from "@/lib/data-access";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState, ErrorState, EmptyState } from "@/components/shared/States";
+import { RiskBadge } from "@/components/bookings/RiskBadge";
+import { DepositBanner } from "@/components/bookings/DepositBanner";
 import { isSameDay, format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { Booking, BookingStatus } from "@/types/database";
@@ -117,9 +119,12 @@ export function BookingsView({ orgId }: { orgId: string }) {
                       </p>
                       <p className="text-xs text-muted-foreground">{b.notes ?? "Sin notas"}</p>
                     </div>
-                    <Badge variant={meta.badge} className="w-fit">
-                      {meta.label}
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge variant={meta.badge} className="w-fit">
+                        {meta.label}
+                      </Badge>
+                      <RiskBadge booking={b} />
+                    </div>
                     <div className="flex shrink-0 items-center gap-1.5">
                       {b.status === "pending" && (
                         <>
@@ -142,6 +147,7 @@ export function BookingsView({ orgId }: { orgId: string }) {
                         </>
                       )}
                     </div>
+                    <DepositBanner booking={b} orgId={orgId} />
                   </div>
                 );
               })}

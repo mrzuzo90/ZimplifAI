@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CopilotChat } from "@/components/ai/CopilotChat";
 import { ScoringView } from "@/components/ai/ScoringView";
 import { CostDashboard } from "@/components/ai/CostDashboard";
+import { VoiceActionPanel } from "@/components/voice/VoiceActionPanel";
 
 export default function AIPage() {
   const { organization, loading } = useBranding();
@@ -26,10 +27,11 @@ export default function AIPage() {
           <LoadingState label="Cargando tenant" />
         ) : organization ? (
           <Tabs defaultValue="copilot" className="w-full">
-            <TabsList>
+            <TabsList className="flex-wrap">
               <TabsTrigger value="copilot">Copilot</TabsTrigger>
               <TabsTrigger value="scoring">Scoring</TabsTrigger>
               <TabsTrigger value="costes">Costes</TabsTrigger>
+              <TabsTrigger value="voice">Voice-to-Action</TabsTrigger>
             </TabsList>
             <TabsContent value="copilot">
               <CopilotChat orgId={organization.id} />
@@ -39,6 +41,9 @@ export default function AIPage() {
             </TabsContent>
             <TabsContent value="costes">
               <CostDashboard orgId={organization.id} />
+            </TabsContent>
+            <TabsContent value="voice">
+              <VoiceActionPanel orgId={organization.id} />
             </TabsContent>
           </Tabs>
         ) : (

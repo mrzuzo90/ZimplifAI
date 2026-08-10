@@ -11,10 +11,12 @@ import type {
   CopilotTool,
   DailyCosts,
   FormSubmission,
+  InsightsMoment,
   Invoice,
   InvoiceItem,
   Lead,
   LeadActivity,
+  MetricsDaily,
   LeadScore,
   LeadScoreHistory,
   MarketingForm,
@@ -37,6 +39,7 @@ import type {
   ScoringModel,
   Task,
   TenantSite,
+  TimelineEvent,
   UnitCost,
   UsageLimits,
   UserRole,
@@ -62,6 +65,7 @@ import {
   mockFormSubmissions,
   mockForms,
   mockFunnels,
+  mockInsightsMoments,
   mockInvoiceItems,
   mockInvoices,
   mockLeadScoreHistory,
@@ -78,9 +82,11 @@ import {
   mockQuoteItems,
   mockQuotes,
   mockResourceUsage,
+  mockMetricsDaily,
   mockReviewRequests,
   mockReviews,
   mockScoringModels,
+  mockTimelineEvents,
   mockSites,
   mockSnapshots,
   mockTasks,
@@ -143,6 +149,9 @@ export interface MockDb {
   payments: Payment[];
   reviews: Review[];
   reviewRequests: ReviewRequest[];
+  timelineEvents: TimelineEvent[];
+  insightsMoments: InsightsMoment[];
+  metricsDaily: MetricsDaily[];
   activeOrgId: string;
   demoRole: UserRole;
   impersonatingOrgId: string | null;
@@ -195,6 +204,9 @@ function buildSeed(): MockDb {
     payments: [...mockPayments],
     reviews: [...mockReviews],
     reviewRequests: [...mockReviewRequests],
+    timelineEvents: [...mockTimelineEvents],
+    insightsMoments: [...mockInsightsMoments],
+    metricsDaily: [...mockMetricsDaily],
     activeOrgId: mockActiveOrg.id,
     demoRole: "client_admin",
     impersonatingOrgId: null,
@@ -255,6 +267,9 @@ export function getDb(): MockDb {
         if (!Array.isArray(parsed.payments)) parsed.payments = [...mockPayments];
         if (!Array.isArray(parsed.reviews)) parsed.reviews = [...mockReviews];
         if (!Array.isArray(parsed.reviewRequests)) parsed.reviewRequests = [...mockReviewRequests];
+        if (!Array.isArray(parsed.timelineEvents)) parsed.timelineEvents = [...mockTimelineEvents];
+        if (!Array.isArray(parsed.insightsMoments)) parsed.insightsMoments = [...mockInsightsMoments];
+        if (!Array.isArray(parsed.metricsDaily)) parsed.metricsDaily = [...mockMetricsDaily];
         if (Array.isArray(parsed.bookings)) {
           parsed.bookings.forEach((b) => {
             // Backfill: seeds antiguos sin calendario/token/source.
@@ -1299,5 +1314,65 @@ export function patchReviewRequest(id: string, patch: Partial<ReviewRequest>) {
     if (!db.reviewRequests) return;
     const idx = db.reviewRequests.findIndex((r) => r.id === id);
     if (idx >= 0) db.reviewRequests[idx] = { ...db.reviewRequests[idx], ...patch };
+  });
+}
+
+/* ---------- Timeline unificado, Insights y Métricas (Fase J) ---------- */
+
+export function listTimelineEvents(orgId: string, leadId?: string | null): TimelineEvent[] {
+  return getDb()
+    .timelineEvents?.filter(
+      (t) => t.organization_id === orgId && (leadId ? t.lead_id === leadId : true)
+    )
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) ?? [];
+}
+
+export function addTimelineEvent(event: TimelineEvent) {
+  mutate((db) => {
+    if (!db.timelineEvents) db.timelineEvents = [];
+    db.timelineEvents.unshift(event);
+  });
+}
+
+export function listInsightsMoments(orgId: string): InsightsMoment[] {
+  return getDb()
+    .insightsMoments?.filter((m) => m.organization_id === orgId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) ?? [];
+}
+
+export function addInsightsMoment(moment: InsightsMoment) {
+  mutate((db) => {
+    if (!db.insightsMoments) db.insightsMoments = [];
+    db.insightsMoments.unshift(moment);
+  });
+}
+
+export function resolveInsightMoment(id: string) {
+  mutate((db) => {
+    if (!db.insightsMoments) return;
+    const idx = db.insightsMoments.findIndex((m) => m.id === id);
+    if (idx >= 0) db.insightsMoments[idx] = { ...db.insightsMoments[idx], is_resolved: true };
+  });
+}
+
+export function listMetricsDaily(orgId: string, dateFrom?: string, dateTo?: string): MetricsDaily[] {
+  return getDb()
+    .metricsDaily?.filter((m) => {
+      if (m.organization_id !== orgId) return false;
+      if (dateFrom && m.date < dateFrom) return false;
+      if (dateTo && m.date > dateTo) return false;
+      return true;
+    })
+    .sort((a, b) => a.date.localeCompare(b.date)) ?? [];
+}
+
+export function upsertMetricsDaily(row: MetricsDaily) {
+  mutate((db) => {
+    if (!db.metricsDaily) db.metricsDaily = [];
+    const idx = db.metricsDaily.findIndex(
+      (m) => m.organization_id === row.organization_id && m.date === row.date
+    );
+    if (idx >= 0) db.metricsDaily[idx] = row;
+    else db.metricsDaily.push(row);
   });
 }

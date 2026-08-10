@@ -4,21 +4,40 @@ import { useBranding } from "@/hooks/useBranding";
 import { PipelineView } from "@/components/pipeline/PipelineView";
 import { MyDay } from "@/components/sales/MyDay";
 import { RestaurantToday } from "./RestaurantToday";
+import { InsightsWidget } from "./InsightsWidget";
+import { DailyMetricsWidget } from "./DailyMetricsWidget";
+import { SLARadar } from "@/components/sla/SLARadar";
 
 /**
  * Home adaptativa por vertical:
  * - Hostelería → "Hoy en tu restaurante" (reservas del día).
  * - Servicios / agencia → widget "Mi Día" + pipeline (kanban / tabla / calendario / lista).
+ * Widgets comunes (SLA, momentos IA, métricas) se muestran en ambas ramas.
  */
 export function VerticalHome({ orgId }: { orgId: string }) {
   const { organization, isModuleEnabled } = useBranding();
   const isRestaurant = organization?.vertical_type === "restaurant_booking";
   const showBookingsHome = isRestaurant && isModuleEnabled("booking_calendar");
 
-  if (showBookingsHome) return <RestaurantToday orgId={orgId} />;
+  const widgets = (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <SLARadar orgId={orgId} compact />
+      <InsightsWidget orgId={orgId} />
+      <DailyMetricsWidget orgId={orgId} />
+    </div>
+  );
+
+  if (showBookingsHome)
+    return (
+      <div className="space-y-6">
+        <RestaurantToday orgId={orgId} />
+        {widgets}
+      </div>
+    );
   return (
     <div className="space-y-6">
       <MyDay orgId={orgId} />
+      {widgets}
       <PipelineView orgId={orgId} />
     </div>
   );

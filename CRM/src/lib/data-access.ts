@@ -12,6 +12,7 @@ import {
   addForm,
   addFormSubmission,
   addFunnel,
+  addInsightsMoment,
   addInvoice,
   addInvoiceItem,
   addLead,
@@ -30,6 +31,7 @@ import {
   addScoringModel,
   addSnapshot,
   addTask,
+  addTimelineEvent,
   addWorkflow,
   addWorkflowRunStep,
   ensureOrgModules,
@@ -58,6 +60,7 @@ import {
   listFormSubmissions,
   listForms,
   listFunnels,
+  listInsightsMoments,
   listInvoiceItems,
   listInvoices,
   listLeadScoreHistory,
@@ -66,6 +69,7 @@ import {
   listMarketplace,
   listMessageTemplates,
   listMessages,
+  listMetricsDaily,
   listModules,
   listOrgs,
   listPayments,
@@ -82,6 +86,7 @@ import {
   listSnapshots,
   listTasks,
   listThreads,
+  listTimelineEvents,
   listUnitCosts,
   listUsage,
   listUsageLimits,
@@ -122,12 +127,14 @@ import {
   removePipelineStage as mockRemovePipelineStage,
   removeTask as mockRemoveTask,
   removeWorkflow,
+  resolveInsightMoment,
   setActiveOrgId,
   setImpersonatingOrgId,
   setModuleEnabled as mockSetModuleEnabled,
   setModuleSettings as mockSetModuleSettings,
   setSitePublished as mockSetSitePublished,
   upsertLeadScore,
+  upsertMetricsDaily,
   upsertOrg,
   upsertSite,
   upsertUsage,
@@ -149,6 +156,7 @@ import type {
   CopilotTool,
   DailyCosts,
   FormSubmission,
+  InsightsMoment,
   Invoice,
   InvoiceItem,
   Lead,
@@ -157,6 +165,7 @@ import type {
   LeadScoreHistory,
   MarketingForm,
   MarketingFunnel,
+  MetricsDaily,
   OrganizationUsage,
   UtmAttribution,
   Message,
@@ -181,6 +190,7 @@ import type {
   Task,
   TenantSite,
   ThreadStatus,
+  TimelineEvent,
   UnitCost,
   UsageLimits,
   VerticalSnapshot,
@@ -3653,4 +3663,256 @@ export async function sendReviewRequest(orgId: string, requestId: string): Promi
     return;
   }
   patchReviewRequest(requestId, { status: "sent", sent_at: new Date().toISOString() });
+}
+
+/* ========================= Timeline unificado, Insights y Métricas (Fase J) ========================= */
+
+/** Eventos del timeline unificado de una org (opcionalmente de un lead). */
+export async function fetchTimelineEvents(
+  orgId: string,
+  leadId?: string | null
+): Promise<TimelineEvent[]> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    let query = sb.from("timeline_events").select("*").eq("organization_id", orgId);
+    if (leadId) query = query.eq("lead_id", leadId);
+    const { data, error } = await query.order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  }
+  return listTimelineEvents(orgId, leadId);
+}
+
+/** Registra un evento de timeline (patrón dual). */
+export async function recordTimelineEvent(
+  orgId: string,
+  input: {
+    lead_id?: string | null;
+    event_type: TimelineEvent["event_type"];
+    title: string;
+    description?: string | null;
+    payload?: Record<string, unknown>;
+  }
+): Promise<TimelineEvent> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("timeline_events")
+      .insert({
+        organization_id: orgId,
+        lead_id: input.lead_id ?? null,
+        event_type: input.event_type,
+        title: input.title,
+        description: input.description ?? null,
+        payload: input.payload ?? {},
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+  const event: TimelineEvent = {
+    id: `te_${shortId()}`,
+    organization_id: orgId,
+    lead_id: input.lead_id ?? null,
+    event_type: input.event_type,
+    title: input.title,
+    description: input.description ?? null,
+    payload: input.payload ?? {},
+    created_at: new Date().toISOString(),
+  };
+  addTimelineEvent(event);
+  return event;
+}
+
+/** Momentos AI de una org, pendientes primero. */
+export async function fetchInsightsMoments(orgId: string): Promise<InsightsMoment[]> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("insights_moments")
+      .select("*")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  }
+  return listInsightsMoments(orgId);
+}
+
+/** Marca un momento AI como resuelto. */
+export async function resolveInsightMomentData(orgId: string, insightId: string): Promise<void> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { error } = await sb
+      .from("insights_moments")
+      .update({ is_resolved: true })
+      .eq("id", insightId)
+      .eq("organization_id", orgId);
+    if (error) throw error;
+    return;
+  }
+  resolveInsightMoment(insightId);
+}
+
+/** Métricas diarias en un rango de fechas (inclusive). */
+export async function fetchMetricsDaily(
+  orgId: string,
+  dateFrom?: string,
+  dateTo?: string
+): Promise<MetricsDaily[]> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    let query = sb.from("metrics_daily").select("*").eq("organization_id", orgId);
+    if (dateFrom) query = query.gte("date", dateFrom);
+    if (dateTo) query = query.lte("date", dateTo);
+    const { data, error } = await query.order("date", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  }
+  return listMetricsDaily(orgId, dateFrom, dateTo);
+}
+
+/** Upsert de una fila de métricas diarias (patrón dual). */
+export async function upsertMetricsDailyRow(orgId: string, row: Omit<MetricsDaily, "id" | "organization_id" | "created_at">): Promise<void> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { error } = await sb.from("metrics_daily").upsert(
+      { ...row, organization_id: orgId },
+      { onConflict: "organization_id,date" }
+    );
+    if (error) throw error;
+    return;
+  }
+  upsertMetricsDaily({ ...row, id: `md_${shortId()}`, organization_id: orgId, created_at: new Date().toISOString() });
+}
+
+/* ------------------------- No-Show Risk Engine ------------------------- */
+
+export interface NoShowRiskInput {
+  party_size_or_service?: string | null;
+  source?: string | null;
+  booking_date?: string | null;
+  previous_no_shows?: number;
+  previous_bookings?: number;
+  lead_age_days?: number;
+}
+
+/**
+ * Algoritmo determinista de riesgo de no-show (0–100).
+ * RiskScore = f(lead history, franja horaria, tamaño del grupo, canal).
+ */
+export function calculateNoShowRisk(input: NoShowRiskInput): number {
+  let score = 20;
+
+  // Tamaño del grupo: grupos grandes = más variables que cancelan.
+  const party = parseInt(input.party_size_or_service ?? "", 10) || 2;
+  score += Math.max(0, party - 2) * 6;
+
+  // Canal de origen: sin confirmación humana pesa más.
+  const source = (input.source ?? "").toLowerCase();
+  if (["public", "web", "form"].some((s) => source.includes(s))) score += 14;
+  else if (source.includes("whatsapp")) score -= 8;
+  else if (source.includes("phone") || source.includes("voice")) score -= 5;
+
+  // Franja horaria: viernes/sábado noche = pico de no-show.
+  if (input.booking_date) {
+    const d = new Date(input.booking_date);
+    const dow = d.getDay();
+    const hour = d.getHours();
+    if ((dow === 5 || dow === 6) && hour >= 20) score += 14;
+    else if (hour >= 21) score += 8;
+    else if (dow === 0 && hour >= 14) score += 6;
+  }
+
+  // Historial del lead.
+  score += Math.min(30, (input.previous_no_shows ?? 0) * 25);
+  score -= Math.min(20, (input.previous_bookings ?? 0) * 5);
+
+  // Lead reciente y caliente = menor riesgo.
+  if (input.lead_age_days !== undefined) {
+    if (input.lead_age_days <= 1) score -= 6;
+    else if (input.lead_age_days > 14) score += 8;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+/* ------------------------- ROI Dashboard ------------------------- */
+
+export interface ROIDashboardData {
+  revenue_attributed_30d: number;
+  software_cost_month: number;
+  net_roi_pct: number;
+  ai_hours_saved_30d: number;
+  ai_tokens_30d: number;
+  speed_to_lead_avg_seconds: number;
+  leads_30d: number;
+  bookings_30d: number;
+  sla_rescues_30d: number;
+  deposits_charged_30d: number;
+  timeline: MetricsDaily[];
+  recent_leads: Array<{ id: string; name: string; speed_to_lead_seconds: number; created_at: string; stage: string }>;
+}
+
+/** Agrega métricas_daily + costes + rescates para el Dashboard ROI. */
+export async function fetchROIDashboard(orgId: string): Promise<ROIDashboardData> {
+  const dateFrom = new Date(Date.now() - 29 * 86_400_000).toISOString().slice(0, 10);
+  const dateTo = new Date().toISOString().slice(0, 10);
+
+  const [timeline, leads, events] = await Promise.all([
+    fetchMetricsDaily(orgId, dateFrom, dateTo),
+    fetchLeads(orgId),
+    fetchTimelineEvents(orgId),
+  ]);
+
+  // Coste mensual de software desde settings del módulo roi_dashboard (default 290 €).
+  let softwareCost = 290;
+  const modules = await fetchModules(orgId).catch(() => []);
+  const roiModule = modules.find((m) => m.module_key === "roi_dashboard");
+  const costSetting = roiModule?.settings?.monthly_software_cost as number | undefined;
+  if (typeof costSetting === "number") softwareCost = costSetting;
+
+  const revenue = timeline.reduce((acc, m) => acc + m.attributed_revenue, 0);
+  const hoursSaved = timeline.reduce((acc, m) => acc + m.ai_hours_saved, 0);
+  const tokens = timeline.reduce((acc, m) => acc + m.ai_tokens_used, 0);
+  const totalLeads = timeline.reduce((acc, m) => acc + m.total_leads, 0);
+  const totalBookings = timeline.reduce((acc, m) => acc + m.total_bookings, 0);
+  const speedSamples = timeline.filter((m) => m.speed_to_lead_avg_seconds > 0);
+  const speedAvg =
+    speedSamples.length > 0
+      ? Math.round(speedSamples.reduce((acc, m) => acc + m.speed_to_lead_avg_seconds, 0) / speedSamples.length)
+      : 0;
+
+  const slaRescues = events.filter((e) => e.event_type === "sla_rescued").length;
+  const deposits = events.filter((e) => e.event_type === "deposit_paid").length;
+
+  const netRoi = softwareCost > 0 ? Math.round(((revenue - softwareCost) / softwareCost) * 100) : 0;
+
+  const recentLeads = leads
+    .slice()
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 8)
+    .map((l) => ({
+      id: l.id,
+      name: `${l.first_name} ${l.last_name ?? ""}`.trim(),
+      speed_to_lead_seconds: speedAvg || 120,
+      created_at: l.created_at,
+      stage: l.status,
+    }));
+
+  return {
+    revenue_attributed_30d: Math.round(revenue * 100) / 100,
+    software_cost_month: softwareCost,
+    net_roi_pct: netRoi,
+    ai_hours_saved_30d: Math.round(hoursSaved * 100) / 100,
+    ai_tokens_30d: tokens,
+    speed_to_lead_avg_seconds: speedAvg,
+    leads_30d: totalLeads,
+    bookings_30d: totalBookings,
+    sla_rescues_30d: slaRescues,
+    deposits_charged_30d: deposits,
+    timeline,
+    recent_leads: recentLeads,
+  };
 }

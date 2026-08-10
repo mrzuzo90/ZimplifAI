@@ -3,6 +3,7 @@
 import { createSiteLead, isDemoMode } from "@/lib/data-access";
 import type { TenantSite } from "@/types/database";
 import { SiteRenderer, type SiteLeadForm } from "@/components/sites/SiteRenderer";
+import { VisionEstimator } from "@/components/vision/VisionEstimator";
 
 /**
  * Página pública de un micro-website. Recibe el sitio ya resuelto por el
@@ -33,11 +34,18 @@ export function PublicSitePage({
   };
 
   return (
-    <SiteRenderer
-      site={site}
-      brandColor={brandColor}
-      brandLogo={brandLogo}
-      onLeadSubmit={submitLead}
-    />
+    <>
+      {site.vertical_template === "service_catalog" && (
+        <div className="mx-auto max-w-2xl px-4 py-10">
+          <VisionEstimator orgId={site.organization_id} brandColor={brandColor} />
+        </div>
+      )}
+      <SiteRenderer
+        site={site}
+        brandColor={brandColor}
+        brandLogo={brandLogo}
+        onLeadSubmit={submitLead}
+      />
+    </>
   );
 }

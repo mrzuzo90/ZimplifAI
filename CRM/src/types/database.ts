@@ -31,6 +31,20 @@ export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export const AUDIT_STATUSES = ["success", "error"] as const;
 export type AuditStatus = (typeof AUDIT_STATUSES)[number];
 
+export const TIMELINE_EVENT_TYPES = [
+  "whatsapp_received", "whatsapp_sent", "voice_note", "qr_scanned",
+  "menu_viewed", "booking_created", "booking_confirmed", "booking_cancelled",
+  "ai_action", "sla_breach", "sla_rescued", "form_submitted",
+  "lead_created", "stage_changed", "deposit_requested", "deposit_paid",
+] as const;
+export type TimelineEventType = (typeof TIMELINE_EVENT_TYPES)[number];
+
+export const INSIGHT_SEVERITIES = ["info", "warning", "opportunity", "urgent"] as const;
+export type InsightSeverity = (typeof INSIGHT_SEVERITIES)[number];
+
+export const DEPOSIT_STATUSES = ["none", "pending", "paid", "refunded"] as const;
+export type DepositStatus = (typeof DEPOSIT_STATUSES)[number];
+
 export const DEFAULT_VERTICAL_COLORS: Record<VerticalType, string> = {
   restaurant_booking: "#CEFF00",
   service_lead_gen: "#6AB7FF",
@@ -58,6 +72,7 @@ export const MODULE_KEYS = [
   "ai_copilot",
   "finance_suite",
   "reputation_mgmt",
+  "roi_dashboard",
 ] as const;
 export type ModuleKey = (typeof MODULE_KEYS)[number];
 
@@ -75,6 +90,7 @@ export const MODULE_LABELS: Record<ModuleKey, string> = {
   ai_copilot: "Copilot IA",
   finance_suite: "Facturación y cobros",
   reputation_mgmt: "Reputación online",
+  roi_dashboard: "Dashboard ROI",
 };
 
 /** Tipos de evento del timeline de actividad por lead. */
@@ -108,6 +124,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "unified_inbox",
     "finance_suite",
     "reputation_mgmt",
+    "roi_dashboard",
   ],
   service_lead_gen: [
     "whatsapp_bot",
@@ -120,6 +137,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "ai_copilot",
     "finance_suite",
     "reputation_mgmt",
+    "roi_dashboard",
   ],
   custom_agency: [
     "whatsapp_bot",
@@ -132,6 +150,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "ai_copilot",
     "finance_suite",
     "reputation_mgmt",
+    "roi_dashboard",
   ],
 };
 
@@ -258,6 +277,9 @@ export type Booking = {
   notes: string | null;
   token: string | null;
   source: string | null;
+  risk_score?: number;
+  deposit_status?: DepositStatus;
+  stripe_payment_intent_id?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -272,6 +294,8 @@ export type Calendar = {
   color: string;
   is_active: boolean;
   settings: Record<string, unknown>;
+  requires_deposit_on_high_risk?: boolean;
+  deposit_amount_eur?: number;
   created_at: string;
   updated_at: string;
 }
@@ -503,6 +527,47 @@ export type LeadActivity = {
   event_type: ActivityEventType;
   summary: string;
   metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+/* ============================= Timeline unificado, Insights y Métricas (Fase J) ============================= */
+
+/** Evento del timeline unificado (whatsapp, voice, QR, booking, AI, SLA). */
+export type TimelineEvent = {
+  id: string;
+  organization_id: string;
+  lead_id: string | null;
+  event_type: TimelineEventType;
+  title: string;
+  description: string | null;
+  payload: Record<string, unknown>;
+  created_at: string;
+}
+
+/** Momento AI: sugerencia inteligente del agent runtime. */
+export type InsightsMoment = {
+  id: string;
+  organization_id: string;
+  lead_id: string | null;
+  severity: InsightSeverity;
+  title: string;
+  reasoning: string;
+  suggested_action: Record<string, unknown>;
+  is_resolved: boolean;
+  created_at: string;
+}
+
+/** Métricas diarias agregadas por tenant. */
+export type MetricsDaily = {
+  id: string;
+  organization_id: string;
+  date: string; // YYYY-MM-DD
+  total_leads: number;
+  total_bookings: number;
+  attributed_revenue: number;
+  ai_hours_saved: number;
+  ai_tokens_used: number;
+  speed_to_lead_avg_seconds: number;
   created_at: string;
 }
 
@@ -1314,6 +1379,24 @@ export interface Database {
         Row: ReviewRequest;
         Insert: Partial<ReviewRequest>;
         Update: Partial<ReviewRequest>;
+        Relationships: [];
+      };
+      timeline_events: {
+        Row: TimelineEvent;
+        Insert: Partial<TimelineEvent>;
+        Update: Partial<TimelineEvent>;
+        Relationships: [];
+      };
+      insights_moments: {
+        Row: InsightsMoment;
+        Insert: Partial<InsightsMoment>;
+        Update: Partial<InsightsMoment>;
+        Relationships: [];
+      };
+      metrics_daily: {
+        Row: MetricsDaily;
+        Insert: Partial<MetricsDaily>;
+        Update: Partial<MetricsDaily>;
         Relationships: [];
       };
     };

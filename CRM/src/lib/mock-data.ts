@@ -44,6 +44,9 @@ import type {
   Workflow,
   WorkflowRun,
   WorkflowRunStep,
+  TimelineEvent,
+  InsightsMoment,
+  MetricsDaily,
 } from "@/types/database";
 import { defaultContentForTemplate } from "@/lib/site";
 
@@ -338,6 +341,12 @@ export const mockModules: OrganizationModule[] = [
   mod("org_brasa", "sales_kanban", false, { deal_currency: "EUR", default_pipeline: [] }),
   mod("org_brasa", "sales_crm", true, { currencies: ["EUR"], default_view: "kanban" }),
   mod("org_brasa", "ai_logs", true, { retention_days: 90, stream_enabled: true }),
+  mod("org_brasa", "roi_dashboard", true, {
+    monthly_software_cost: 290,
+    sla_alert_minutes: 5,
+    sla_auto_rescue_minutes: 10,
+    show_simulator: true,
+  }),
 
   mod("org_baremo", "whatsapp_bot", true, {
     phone: "+34 610 111 222",
@@ -350,6 +359,12 @@ export const mockModules: OrganizationModule[] = [
   mod("org_baremo", "ai_logs", true, { retention_days: 90, stream_enabled: true }),
   mod("org_baremo", "booking_calendar", false, { open_hours: "09:00–18:00", max_capacity: 8, confirmation_sms: false }),
   mod("org_baremo", "light_web_menu", false, { site_url: "", has_menu: false, cta_phone: "" }),
+  mod("org_baremo", "roi_dashboard", true, {
+    monthly_software_cost: 290,
+    sla_alert_minutes: 5,
+    sla_auto_rescue_minutes: 10,
+    show_simulator: true,
+  }),
 
   mod("org_mamare", "whatsapp_bot", true, {
     phone: "+34 620 222 333",
@@ -1796,3 +1811,69 @@ export const mockReviewRequests: ReviewRequest[] = [
   { id: "rr_2", organization_id: "org_brasa", contact_id: null, contact_name: "Marta G.", channel: "email", status: "responded", sent_at: daysAgo(20), responded_at: daysAgo(21), created_at: daysAgo(20) },
   { id: "rr_3", organization_id: "org_baremo", contact_id: "comp_constructora", contact_name: "Constructora Levante", channel: "whatsapp", status: "pending", sent_at: null, responded_at: null, created_at: daysAgo(1) },
 ];
+
+/* ------------------------- Timeline unificado (Fase J) ------------------------- */
+
+export const mockTimelineEvents: TimelineEvent[] = [
+  { id: "te_1", organization_id: "org_brasa", lead_id: "lead_jorge", event_type: "whatsapp_received", title: "Nuevo mensaje de WhatsApp", description: "Jorge pide mesa para 4 esta noche.", payload: { channel: "whatsapp", from: "+34 612 000 001", body: "Hola, ¿tenéis mesa para 4 esta noche?" }, created_at: hoursAgo(1) },
+  { id: "te_2", organization_id: "org_brasa", lead_id: "lead_jorge", event_type: "whatsapp_sent", title: "Respuesta automática enviada", description: "El agente IA confirmó disponibilidad en terraza.", payload: { channel: "whatsapp", to: "+34 612 000 001", template: "availability" }, created_at: minutesAgo(58) },
+  { id: "te_3", organization_id: "org_brasa", lead_id: "lead_jorge", event_type: "booking_created", title: "Reserva creada", description: "4 personas · Terraza · esta noche 21:00.", payload: { booking_id: "bk_1", calendar_id: "cal_terraza", party_size: 4 }, created_at: minutesAgo(52) },
+  { id: "te_4", organization_id: "org_brasa", lead_id: "lead_jorge", event_type: "booking_confirmed", title: "Reserva confirmada", description: "Confirmación automática por WhatsApp.", payload: { booking_id: "bk_1" }, created_at: minutesAgo(48) },
+  { id: "te_5", organization_id: "org_brasa", lead_id: null, event_type: "qr_scanned", title: "QR escaneado", description: "Acceso al menú digital desde la mesa 12.", payload: { table: "M12", site_slug: "brasa-carbon" }, created_at: hoursAgo(3) },
+  { id: "te_6", organization_id: "org_brasa", lead_id: null, event_type: "menu_viewed", title: "Menú digital visto", description: "Sesión de 2 min 14 s en la carta.", payload: { session_ms: 134000, items_viewed: 6 }, created_at: hoursAgo(3) },
+  { id: "te_7", organization_id: "org_brasa", lead_id: "lead_elena", event_type: "voice_note", title: "Nota de voz recibida", description: "Elena deja audio sobre evento de 10 pax.", payload: { channel: "whatsapp", duration_s: 23 }, created_at: hoursAgo(2) },
+  { id: "te_8", organization_id: "org_brasa", lead_id: "lead_elena", event_type: "ai_action", title: "El agente extrajo requisitos del audio", description: "Detectado: 10 pax, salón privado, catering.", payload: { tool: "entity_extraction", entities: { party_size: 10, venue: "salón privado", catering: true } }, created_at: hoursAgo(2) },
+  { id: "te_9", organization_id: "org_brasa", lead_id: "lead_ivan", event_type: "sla_breach", title: "SLA en riesgo: 4 min sin respuesta", description: "Lead entrante de formulario sin primer contacto.", payload: { speed_to_lead_seconds: 240, threshold_minutes: 5 }, created_at: minutesAgo(40) },
+  { id: "te_10", organization_id: "org_brasa", lead_id: "lead_ivan", event_type: "sla_rescued", title: "IA rescató el lead", description: "Mensaje automático enviado a los 6 min.", payload: { speed_to_lead_seconds: 360, auto_action: true }, created_at: minutesAgo(34) },
+  { id: "te_11", organization_id: "org_brasa", lead_id: "lead_marc", event_type: "stage_changed", title: "Lead movido a 'En conversación'", description: "Avance en el pipeline comercial.", payload: { from_stage: "Nuevo", to_stage: "En conversación", actor: "Agente IA" }, created_at: hoursAgo(5) },
+  { id: "te_12", organization_id: "org_brasa", lead_id: "lead_laura", event_type: "form_submitted", title: "Formulario de reserva enviado", description: "Origen: campaña 'Verano 2026' (UTM).", payload: { utm_campaign: "verano-2026", channel: "instagram" }, created_at: hoursAgo(8) },
+  { id: "te_13", organization_id: "org_brasa", lead_id: "lead_sofia", event_type: "deposit_requested", title: "Depósito solicitado", description: "Alto riesgo de no-show (75) · 10 € por persona.", payload: { amount_eur: 40, risk_score: 75, booking_id: "bk_2" }, created_at: hoursAgo(6) },
+  { id: "te_14", organization_id: "org_brasa", lead_id: "lead_sofia", event_type: "deposit_paid", title: "Depósito pagado", description: "Link de pago cobrado (card) · 40 €.", payload: { amount_eur: 40, payment_intent: "pi_mock_9f3a" }, created_at: hoursAgo(4) },
+  { id: "te_15", organization_id: "org_brasa", lead_id: "lead_nerea", event_type: "lead_created", title: "Lead creado", description: "Nerea Costa llega desde reseña de Google.", payload: { source: "google_review", campaign: null }, created_at: hoursAgo(9) },
+  { id: "te_16", organization_id: "org_brasa", lead_id: "lead_nerea", event_type: "whatsapp_received", title: "Nuevo mensaje de WhatsApp", description: "Nerea agradece y pregunta por menú vegano.", payload: { channel: "whatsapp", body: "¿Tenéis opciones veganas?" }, created_at: minutesAgo(12) },
+  { id: "te_17", organization_id: "org_baremo", lead_id: "lead_beatriz", event_type: "whatsapp_received", title: "Nuevo mensaje de WhatsApp", description: "Beatriz consulta sobre asesoría laboral.", payload: { channel: "whatsapp", body: "Hola, ¿hacéis contratos de alta dirección?" }, created_at: hoursAgo(2) },
+  { id: "te_18", organization_id: "org_baremo", lead_id: "lead_david", event_type: "booking_cancelled", title: "Cita cancelada", description: "David cancela la consulta del jueves.", payload: { booking_id: "bk_baremo_2", reason: "conflicto agenda" }, created_at: hoursAgo(7) },
+  { id: "te_19", organization_id: "org_brasa", lead_id: null, event_type: "whatsapp_received", title: "Mensaje no clasificado", description: "Solicitud genérica sin intención clara.", payload: { channel: "whatsapp" }, created_at: minutesAgo(5) },
+];
+
+/* ------------------------- Momentos AI (Fase J) ------------------------- */
+
+export const mockInsightsMoments: InsightsMoment[] = [
+  { id: "im_1", organization_id: "org_brasa", lead_id: "lead_sofia", severity: "urgent", title: "Depósito pendiente de confirmación", reasoning: "El pago se inició pero lleva 2 h sin confirmarse. Un recordatorio por WhatsApp reduce el no-show.", suggested_action: { type: "charge_deposit", payload: { booking_id: "bk_2", amount_eur: 40 } }, is_resolved: false, created_at: hoursAgo(4) },
+  { id: "im_2", organization_id: "org_brasa", lead_id: "lead_elena", severity: "opportunity", title: "Evento corporativo con alto valor", reasoning: "Elena pidió 10 pax con salón privado y catering. Histórico de Bodas & Receptions: ticket medio 2.900 €.", suggested_action: { type: "send_whatsapp", payload: { template: "evento_catering", body: "Te preparamos una propuesta de catering para 10 personas…" } }, is_resolved: false, created_at: hoursAgo(2) },
+  { id: "im_3", organization_id: "org_brasa", lead_id: "lead_ivan", severity: "warning", title: "Lead sin respuesta a las 24 h", reasoning: "Iván entró por formulario y solo recibió el mensaje automático. Riesgo de enfriamiento.", suggested_action: { type: "follow_up", payload: { channel: "whatsapp", delay_hours: 0 } }, is_resolved: false, created_at: hoursAgo(6) },
+  { id: "im_4", organization_id: "org_brasa", lead_id: "lead_nerea", severity: "info", title: "Interés por menú vegano", reasoning: "Nerea preguntó por opciones veganas. Sugerir la carta vegana puede acelerar la conversión.", suggested_action: { type: "send_whatsapp", payload: { template: "menu_vegano" } }, is_resolved: false, created_at: minutesAgo(10) },
+  { id: "im_5", organization_id: "org_brasa", lead_id: "lead_marc", severity: "opportunity", title: "Cumpleaños en los próximos 7 días", reasoning: "Marc celebró aquí su cumpleaños el año pasado. Reenganche ideal con oferta de celebración.", suggested_action: { type: "send_whatsapp", payload: { template: "cumpleanos_aniversario" } }, is_resolved: false, created_at: hoursAgo(7) },
+  { id: "im_6", organization_id: "org_baremo", lead_id: "lead_beatriz", severity: "opportunity", title: "Consulta de alta dirección", reasoning: "Servicio de alto margen (2.400 €). Responder en menos de 30 min duplica la conversión.", suggested_action: { type: "send_whatsapp", payload: { template: "asesoria_laboral" } }, is_resolved: false, created_at: hoursAgo(2) },
+];
+
+/* ------------------------- Métricas diarias (Fase J) ------------------------- */
+
+function buildMetricsDaily(): MetricsDaily[] {
+  const rows: MetricsDaily[] = [];
+  const today = dayKey(0);
+  // Patrón semanal realista: fin de semana pico en restaurante, laborable en estudio.
+  for (let i = 29; i >= 0; i--) {
+    const date = dayKey(-i);
+    const dow = new Date(`${date}T12:00:00Z`).getUTCDay();
+    const weekend = dow === 0 || dow === 6;
+    const base = i === 0 ? 1 : 0; // hoy: parcial
+    const totalLeads = weekend ? 14 + ((i * 7) % 5) : 7 + ((i * 3) % 5);
+    const bookedRatio = 0.55 + ((i * 13) % 30) / 100;
+    rows.push({
+      id: `md_${date}`,
+      organization_id: "org_brasa",
+      date,
+      total_leads: totalLeads + base,
+      total_bookings: Math.round((totalLeads + base) * bookedRatio),
+      attributed_revenue: Math.round((weekend ? 900 + (i % 6) * 140 : 380 + (i % 5) * 95) * 100) / 100,
+      ai_hours_saved: Math.round(((totalLeads + base) * 0.38 + (i % 3) * 0.4) * 100) / 100,
+      ai_tokens_used: (totalLeads + base) * (weekend ? 3200 : 2100) + ((i * 97) % 900),
+      speed_to_lead_avg_seconds: 120 + ((i * 47) % 480),
+      created_at: date === today ? minutesAgo(30) : hoursAgo(24 * i + 3),
+    });
+  }
+  return rows;
+}
+
+export const mockMetricsDaily: MetricsDaily[] = buildMetricsDaily();
