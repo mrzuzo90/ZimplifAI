@@ -14,9 +14,6 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <DemoBanner />
-      <ImpersonationBanner />
-
       <div className="flex">
         {/* Sidebar escritorio */}
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r border-border bg-pitch lg:block">
@@ -46,6 +43,9 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
         )}
 
         <div className="flex min-w-0 flex-1 flex-col lg:pl-60">
+          {/* Banners dentro de la zona de contenido: ocupan el ancho menos la sidebar. */}
+          <DemoBanner />
+          <ImpersonationBanner />
           <WorkspaceHeader onMenuClick={() => setMobileOpen(true)} />
           <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {children}
