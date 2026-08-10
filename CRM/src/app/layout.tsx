@@ -7,6 +7,25 @@ import { ThemeToaster } from "@/components/theme/ThemeToaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
+const APP_NAME = "ZimplifAI CRM";
+const APP_DESCRIPTION =
+  "Plataforma multi-tenant de ZimplifAI: provisiona CRMs white-label, bots de IA y reservas en 1 clic para negocios locales.";
+
+export const metadata: Metadata = {
+  title: {
+    default: APP_NAME,
+    template: `%s · ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  robots: { index: false, follow: false },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
+};
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -25,22 +44,8 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 });
 
-const APP_NAME = "ZimplifAI CRM";
-const APP_DESCRIPTION =
-  "Plataforma multi-tenant de ZimplifAI: provisiona CRMs white-label, bots de IA y reservas en 1 clic para negocios locales.";
-
-export const metadata: Metadata = {
-  title: {
-    default: APP_NAME,
-    template: `%s · ${APP_NAME}`,
-  },
-  description: APP_DESCRIPTION,
-  applicationName: APP_NAME,
-  robots: { index: false, follow: false },
-};
-
 export const viewport: Viewport = {
-  themeColor: "#0B0D0C",
+  themeColor: "#CEFF00",
   width: "device-width",
   initialScale: 1,
 };
