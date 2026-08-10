@@ -24,9 +24,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { useBranding } from "@/hooks/useBranding";
 import { TenantLogo } from "@/components/shared/TenantLogo";
-import { ZMark } from "@/components/shared/ZLogo";
 import { VERTICAL_LABELS, type ModuleKey } from "@/types/database";
 
 interface NavItem {
@@ -99,15 +99,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       {/* Cabecera */}
       <div className="flex items-center gap-2.5 px-5 py-5">
-        <ZMark className="h-7 w-7" />
-        <div className="min-w-0 leading-tight">
-          <p className="text-mono text-[11px] font-bold uppercase tracking-[0.18em] text-foreground">
-            Zimplif<span className="text-[var(--tenant-primary)]">AI</span> CRM
-          </p>
-          <p className="truncate text-[11px] text-muted-foreground">
-            {isAgencyMode ? "Agency Operating System" : "Panel de control"}
-          </p>
-        </div>
+        <Image
+          src="/imagotipo.png"
+          alt="ZimplifAI"
+          width={140}
+          height={56}
+          className="h-6 w-auto"
+          priority
+        />
       </div>
 
       {/* Contexto del tenant / agencia */}
