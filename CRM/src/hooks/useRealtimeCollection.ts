@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import type { RealtimePostgresChangesPayload, RealtimeChannel } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isDemoMode } from "@/lib/data-access";
 import { subscribeDb } from "@/lib/mock-store";
@@ -24,7 +24,6 @@ export function useRealtimeCollection<T extends { id: string }>(
   const [error, setError] = useState<Error | null>(null);
 
   // Ref con el sortKey vigente: el handler del canal lo lee sin re-suscribirse.
-  // Se actualiza en un effect (no durante el render — regla react-hooks/refs).
   const sortKeyRef = useRef<((a: T, b: T) => number) | undefined>(undefined);
   useEffect(() => {
     sortKeyRef.current = opts?.sortKey;
@@ -32,7 +31,6 @@ export function useRealtimeCollection<T extends { id: string }>(
 
   // Ref con el fetcher vigente: la carga lee la última referencia sin
   // re-ejecutar el effect cada vez que el caller pasa un fetcher inline
-  // (p.ej. `(oid) => fetchAgents(oid)`), lo que provocaba un bucle infinito.
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
     fetcherRef.current = fetcher;
@@ -52,7 +50,7 @@ export function useRealtimeCollection<T extends { id: string }>(
     }
   }, [orgId]);
 
-  // Carga inicial: setState tras el await (continuación async), nunca síncrono.
+  // Carga inicial
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -84,10 +82,11 @@ export function useRealtimeCollection<T extends { id: string }>(
   const table = opts?.table;
   const filter = opts?.filter;
 
-  // Ref para el canal actual: evita race conditions entre mount/unmount
-  const channelRef = useRef<ReturnType<typeof getSupabaseBrowserClient>["channel"] | null>(null);
-  // Ref para evitar doble suscripción en React 18 strict mode
-  const subscribedRef = useRef(false);
+  // Ref para el canal actual y flag de montaje
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const mountedRef = useRef(false);
+  // Contador para generar nombres de canal únicos y evitar colisiones en React 18 Strict Mode
+  const channelIdRef = useRef(0);
 
   useEffect(() => {
     if (isDemoMode() || !orgId || !table) return;
@@ -95,47 +94,45 @@ export function useRealtimeCollection<T extends { id: string }>(
     if (!sb) return;
 
     const channelKey = filter ? filter.replace(/[^A-Za-z0-9]/g, "-") : "all";
+    // Nombre único por montaje: evita colisiones con canales previos no liberados por Supabase
+    const channelId = ++channelIdRef.current;
+    const channelName = `realtime:${table}:${orgId}:${channelKey}:${channelId}`;
 
-    // Cleanup del canal anterior SÍNCRONO antes de crear el nuevo
+    // Cleanup del canal anterior (si existe)
     if (channelRef.current) {
       sb.removeChannel(channelRef.current);
       channelRef.current = null;
-      subscribedRef.current = false;
     }
 
-    // Guardar montaje para evitar que el cleanup del strict mode elimine
-    // el canal antes de que se complete la suscripción
-    let mounted = true;
+    mountedRef.current = true;
 
-    const channel = sb
-      .channel(`realtime:${table}:${orgId}:${channelKey}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table, filter: filter ?? undefined },
-        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
-          if (!mounted) return;
-          if (payload.eventType === "DELETE") {
-            const oldId = String(payload.old?.id ?? "");
-            if (oldId) setData((cur) => cur.filter((r) => r.id !== oldId));
-            return;
-          }
-          setData((cur) => upsertRow(payload.new, cur, sortKeyRef.current));
+    const channel = sb.channel(channelName);
+
+    // Configurar TODOS los callbacks ANTES de subscribe
+    channel.on(
+      "postgres_changes",
+      { event: "*", schema: "public", table, filter: filter ?? undefined },
+      (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+        if (!mountedRef.current) return;
+        if (payload.eventType === "DELETE") {
+          const oldId = String(payload.old?.id ?? "");
+          if (oldId) setData((cur) => cur.filter((r) => r.id !== oldId));
+          return;
         }
-      )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          subscribedRef.current = true;
-        }
-      });
+        setData((cur) => upsertRow(payload.new, cur, sortKeyRef.current));
+      }
+    );
+
+    // Suscribir al final
+    channel.subscribe();
 
     channelRef.current = channel;
 
     return () => {
-      mounted = false;
-      if (channelRef.current && subscribedRef.current) {
-        void sb.removeChannel(channelRef.current);
+      mountedRef.current = false;
+      if (channelRef.current) {
+        sb.removeChannel(channelRef.current);
         channelRef.current = null;
-        subscribedRef.current = false;
       }
     };
   }, [orgId, table, filter]);
