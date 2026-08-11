@@ -83,12 +83,23 @@ export function useRealtimeCollection<T extends { id: string }>(
   // Producción: realtime via postgres_changes.
   const table = opts?.table;
   const filter = opts?.filter;
+
+  // Ref para el canal actual: evita race conditions entre mount/unmount
+  const channelRef = useRef<ReturnType<typeof getSupabaseBrowserClient>["channel"] | null>(null);
+
   useEffect(() => {
     if (isDemoMode() || !orgId || !table) return;
     const sb = getSupabaseBrowserClient();
     if (!sb) return;
 
     const channelKey = filter ? filter.replace(/[^A-Za-z0-9]/g, "-") : "all";
+
+    // Cleanup del canal anterior SÍNCRONO antes de crear el nuevo
+    if (channelRef.current) {
+      sb.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
     const channel = sb
       .channel(`realtime:${table}:${orgId}:${channelKey}`)
       .on(
@@ -105,8 +116,13 @@ export function useRealtimeCollection<T extends { id: string }>(
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
-      void sb.removeChannel(channel);
+      if (channelRef.current) {
+        void sb.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, [orgId, table, filter]);
 
