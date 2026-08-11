@@ -1,6 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getServiceSupabase } from "@/lib/supabase/admin";
+import { fireWorkflowTriggers } from "@/lib/workflow-runtime";
 import {
   addAgent,
   addAvailabilityRule,
@@ -21,6 +22,7 @@ import {
   addMessage,
   addMessageTemplate,
   addPayment,
+  addThread,
   addPipeline,
   addPipelineStage,
   addQuote,
@@ -34,6 +36,7 @@ import {
   addTimelineEvent,
   addWorkflow,
   addWorkflowRunStep,
+  deleteMessagingBot,
   ensureOrgModules,
   findBookingByToken,
   getCopilotSession,
@@ -105,6 +108,7 @@ import {
   patchInvoice,
   patchLead,
   patchMarketplaceItem,
+  patchMessageTemplate,
   patchPipeline,
   patchPipelineStage,
   patchQuote,
@@ -123,6 +127,7 @@ import {
   removeCompany as mockRemoveCompany,
   removeForm as mockRemoveForm,
   removeFunnel as mockRemoveFunnel,
+  removeMarketplaceItem,
   removeMessageTemplate,
   removePipeline as mockRemovePipeline,
   removePipelineStage as mockRemovePipelineStage,
@@ -135,6 +140,7 @@ import {
   setModuleSettings as mockSetModuleSettings,
   setSitePublished as mockSetSitePublished,
   upsertLeadScore,
+  upsertMessagingBot,
   upsertMetricsDaily,
   upsertOrg,
   upsertSite,
@@ -227,17 +233,19 @@ export async function fetchOrganizations(): Promise<Organization[]> {
 export async function fetchAdminOverview(): Promise<AdminOverview> {
   const sb = getSupabaseBrowserClient();
   if (sb) {
-    const [orgs, agents, leads, modules] = await Promise.all([
+    const [orgs, agents, leads, modules, profiles] = await Promise.all([
       sb.from("organizations").select("*").order("created_at", { ascending: false }),
       sb.from("ai_agents").select("organization_id, is_active"),
       sb.from("leads").select("organization_id, deal_value, status, created_at"),
       sb.from("organization_modules").select("*"),
+      sb.from("profiles").select("organization_id"),
     ]);
     if (orgs.error) throw orgs.error;
     const orgRows = orgs.data ?? [];
     const agentRows = agents.data ?? [];
     const leadRows = leads.data ?? [];
     const moduleRows = modules.data ?? [];
+    const profileRows = profiles.data ?? [];
 
     const tenants: OrganizationWithStats[] = orgRows.map((o) => {
       const orgAgents = agentRows.filter((a) => a.organization_id === o.id);
@@ -246,7 +254,7 @@ export async function fetchAdminOverview(): Promise<AdminOverview> {
         ...o,
         active_agents: orgAgents.filter((a) => a.is_active).length,
         total_leads: orgLeads.length,
-        members: 0, // contador de perfiles por org (opcional en esta vista)
+        members: profileRows.filter((p) => p.organization_id === o.id).length,
         modules: moduleRows.filter((m) => m.organization_id === o.id),
       };
     });
@@ -378,6 +386,7 @@ export async function createLead(
       .single();
     if (error) throw error;
     await recordLeadActivity(orgId, data.id, "lead_created", "Lead creado");
+    await fireWorkflowTriggers(orgId, "lead_created", { leadId: data.id }, sb);
     return data;
   }
   const created: Lead = {
@@ -399,6 +408,7 @@ export async function createLead(
   };
   addLead(created);
   await recordLeadActivity(orgId, created.id, "lead_created", "Lead creado");
+  await fireWorkflowTriggers(orgId, "lead_created", { leadId: created.id }, sb);
   return created;
 }
 
@@ -419,9 +429,11 @@ export async function updateLead(
       .eq("id", leadId)
       .eq("organization_id", orgId);
     if (error) throw error;
+    if (patch.status) await fireWorkflowTriggers(orgId, "stage_changed", { leadId }, sb);
     return;
   }
   patchLead(leadId, patch);
+  if (patch.status) await fireWorkflowTriggers(orgId, "stage_changed", { leadId }, sb);
 }
 
 /* ========================= Actividad (timeline por lead) ========================= */
@@ -524,6 +536,111 @@ export async function updateBookingStatus(orgId: string, bookingId: string, stat
   patchBooking(bookingId, { status });
 }
 
+/** Actualiza el estado de depósito anti-no-show de una reserva (dual). */
+export async function updateBookingDeposit(
+  orgId: string,
+  bookingId: string,
+  depositStatus: NonNullable<Booking["deposit_status"]>
+) {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { error } = await sb
+      .from("bookings")
+      .update({ deposit_status: depositStatus })
+      .eq("id", bookingId)
+      .eq("organization_id", orgId);
+    if (error) throw error;
+    return;
+  }
+  patchBooking(bookingId, { deposit_status: depositStatus });
+}
+
+/** Ejecuta una acción derivada de una nota de voz: crea lead + reserva + evento de timeline. */
+export async function executeVoiceAction(
+  orgId: string,
+  action: { type: string; payload: Record<string, unknown>; confidence: number }
+): Promise<{ type: string; booking?: Booking; event: TimelineEvent; skipped?: string }> {
+  // Acciones que no son reserva: solo se registran en el timeline como ai_action.
+  if (action.type !== "create_booking") {
+    const event = await recordTimelineEvent(orgId, {
+      event_type: "ai_action",
+      title: `Acción de voz: ${action.type}`,
+      description: JSON.stringify(action.payload),
+      payload: { channel: "voice_note", action },
+    });
+    return { type: action.type, event };
+  }
+
+  const calendars = await fetchCalendars(orgId);
+  const calendar = calendars[0] ?? null;
+  if (!calendar) {
+    const event = await recordTimelineEvent(orgId, {
+      event_type: "ai_action",
+      title: "Reserva por voz sin calendario",
+      description: "No hay calendario configurado; la acción se registró sin crear reserva.",
+      payload: { channel: "voice_note", action },
+    });
+    return { type: action.type, event, skipped: "no_calendar" };
+  }
+
+  const partySize = Math.max(1, Number(action.payload.party_size ?? 2));
+  const phone = String(action.payload.phone ?? "+34 600 00 00 00");
+  const bookingDate = buildVoiceBookingDate(String(action.payload.datetime ?? ""));
+  const note = String(action.payload.note ?? "Reserva por nota de voz");
+
+  const lead = await createLead(orgId, {
+    first_name: "Cliente (voz)",
+    last_name: null,
+    email: null,
+    phone,
+    status: "booked",
+    deal_value: 0,
+    assigned_to: null,
+    tags: ["Voz"],
+  });
+
+  const booking = await createBooking(orgId, {
+    lead_id: lead.id,
+    calendar_id: calendar.id,
+    booking_date: bookingDate.toISOString(),
+    party_size_or_service: `${partySize} personas`,
+    status: "confirmed",
+    notes: note,
+    source: "voice",
+  });
+
+  const event = await recordTimelineEvent(orgId, {
+    lead_id: lead.id,
+    event_type: "ai_action",
+    title: "Reserva creada por voz",
+    description: `Nota de voz → reserva para ${partySize} personas en ${calendar.name}`,
+    payload: { channel: "voice_note", action, booking_id: booking.id, calendar_name: calendar.name },
+  });
+
+  return { type: action.type, booking, event };
+}
+
+/**
+ * Resuelve la fecha de reserva de una nota de voz.
+ * Si `hhmm` es "21:30" → próximo sábado a esa hora; sin hora válida → mañana a las 12:00.
+ */
+function buildVoiceBookingDate(hhmm: string): Date {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(hhmm.trim());
+  const now = new Date();
+  if (!match) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + 1);
+    d.setHours(12, 0, 0, 0);
+    return d;
+  }
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const d = new Date(now);
+  d.setHours(hour, minute, 0, 0);
+  if (d.getTime() <= now.getTime()) d.setDate(d.getDate() + 1);
+  return d;
+}
+
 export async function createBooking(
   orgId: string,
   booking: Omit<Booking, "id" | "organization_id" | "created_at" | "updated_at" | "calendar_id" | "token" | "source"> & {
@@ -547,6 +664,12 @@ export async function createBooking(
       .single();
     if (error) throw error;
     await recordBookingConfirmed(orgId, normalized, data);
+    await fireWorkflowTriggers(
+      orgId,
+      "booking_created",
+      { leadId: normalized.lead_id, bookingId: data.id },
+      sb
+    );
     return data;
   }
   const created: Booking = {
@@ -558,6 +681,12 @@ export async function createBooking(
   };
   addBooking(created);
   await recordBookingConfirmed(orgId, normalized, created);
+  await fireWorkflowTriggers(
+    orgId,
+    "booking_created",
+    { leadId: normalized.lead_id, bookingId: created.id },
+    sb
+  );
   return created;
 }
 
@@ -621,8 +750,17 @@ export async function fetchAuditLogs(orgId: string, limit = 60): Promise<AiAudit
   return listAudit(orgId).slice(0, limit);
 }
 
-/** Inserta una entrada de audit (usada por el stream simulado / ingest demo). */
-export function pushAuditEntry(entry: Omit<AiAuditLog, "id" | "created_at">) {
+/** Inserta una entrada de audit (stream de agentes IA). Nunca rompe la acción que la origina. */
+export async function pushAuditEntry(entry: Omit<AiAuditLog, "id" | "created_at">) {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    try {
+      await sb.from("ai_audit_logs").insert(entry);
+    } catch (e) {
+      console.error("pushAuditEntry falló:", e);
+    }
+    return;
+  }
   prependAudit({
     ...entry,
     id: `aud_${shortId()}`,
@@ -1003,6 +1141,60 @@ export async function setThreadResolved(orgId: string, threadId: string, status:
   patchThread(threadId, { status });
 }
 
+/** Crea un hilo nuevo (p.ej. al abrir conversación con un lead que no tiene uno). */
+export async function createMessageThread(
+  orgId: string,
+  input: {
+    lead_id?: string | null;
+    channel: MessageChannel;
+    external_id?: string | null;
+    subject?: string | null;
+    last_message_preview?: string | null;
+    unread_count?: number;
+    status?: ThreadStatus;
+  }
+): Promise<MessageThread> {
+  const now = new Date().toISOString();
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("message_threads")
+      .insert({
+        organization_id: orgId,
+        lead_id: input.lead_id ?? null,
+        channel: input.channel,
+        external_id: input.external_id ?? null,
+        subject: input.subject ?? null,
+        last_message_at: now,
+        last_message_preview: input.last_message_preview ?? null,
+        unread_count: input.unread_count ?? 0,
+        status: input.status ?? "open",
+        created_at: now,
+        updated_at: now,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+  const created: MessageThread = {
+    id: `thread_${shortId()}`,
+    organization_id: orgId,
+    lead_id: input.lead_id ?? null,
+    channel: input.channel,
+    external_id: input.external_id ?? null,
+    subject: input.subject ?? null,
+    last_message_at: now,
+    last_message_preview: input.last_message_preview ?? null,
+    unread_count: input.unread_count ?? 0,
+    status: input.status ?? "open",
+    created_at: now,
+    updated_at: now,
+  };
+  addThread(created);
+  return created;
+}
+
 /** Plantillas de respuesta rápida del tenant. */
 export async function fetchMessageTemplates(orgId: string): Promise<MessageTemplate[]> {
   const sb = getSupabaseBrowserClient();
@@ -1066,6 +1258,33 @@ export async function deleteMessageTemplate(orgId: string, templateId: string) {
   removeMessageTemplate(templateId);
 }
 
+/** Actualiza una plantilla (name/category/channel/body) re-extrae variables si cambia el body. */
+export async function updateMessageTemplate(
+  orgId: string,
+  templateId: string,
+  input: Partial<Pick<MessageTemplate, "name" | "category" | "channel" | "body">>
+) {
+  const body = input.body?.trim();
+  const patch: Partial<MessageTemplate> = { ...input };
+  if (input.name) patch.name = input.name.trim();
+  if (input.category) patch.category = input.category.trim() || "general";
+  if (body !== undefined) {
+    patch.body = body;
+    patch.variables = extractVariables(body);
+  }
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { error } = await sb
+      .from("message_templates")
+      .update(patch)
+      .eq("id", templateId)
+      .eq("organization_id", orgId);
+    if (error) throw error;
+    return;
+  }
+  patchMessageTemplate(templateId, patch);
+}
+
 export interface ReplySuggestionResult {
   reply: string;
   intent: string;
@@ -1108,7 +1327,7 @@ export async function suggestAiReply(orgId: string, threadId: string, businessNa
     businessName,
   });
 
-  pushAuditEntry({
+  await pushAuditEntry({
     organization_id: orgId,
     lead_id: thread.lead_id,
     agent_name: agentName ?? "AI Reply Copilot",
@@ -2495,6 +2714,7 @@ export async function publishSnapshot(orgId: string, id: string, isPublished: bo
     if (error) throw error;
     return;
   }
+  patchSnapshot(id, { is_published: isPublished });
 }
 
 /* ---- Organization Usage (contadores mensuales) ---- */
@@ -2709,6 +2929,7 @@ export async function deleteMarketplaceItem(orgId: string, id: string) {
     if (error) throw error;
     return;
   }
+  removeMarketplaceItem(id);
 }
 
 export async function incrementMarketplaceInstalls(id: string) {
@@ -3741,6 +3962,31 @@ export async function fetchInsightsMoments(orgId: string): Promise<InsightsMomen
     return data ?? [];
   }
   return listInsightsMoments(orgId);
+}
+
+/** Registra un momento AI nuevo (p.ej. SLA breach detectado o lead de alto valor). */
+export async function createInsightMoment(
+  orgId: string,
+  input: Omit<InsightsMoment, "id" | "organization_id" | "created_at">
+): Promise<InsightsMoment> {
+  const sb = getSupabaseBrowserClient();
+  if (sb) {
+    const { data, error } = await sb
+      .from("insights_moments")
+      .insert({ ...input, organization_id: orgId })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+  const created: InsightsMoment = {
+    ...input,
+    id: `ins_${shortId()}`,
+    organization_id: orgId,
+    created_at: new Date().toISOString(),
+  };
+  addInsightsMoment(created);
+  return created;
 }
 
 /** Marca un momento AI como resuelto. */

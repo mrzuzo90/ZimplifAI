@@ -1,6 +1,7 @@
 import { getServiceSupabase, isAdminConfigured } from "@/lib/supabase/admin";
 import { decryptCredential } from "@/lib/telegram";
 import { generateBookingToken } from "@/lib/booking";
+import { fireWorkflowTriggers } from "@/lib/workflow-runtime";
 import type { BotOrgContext, BookingInput } from "@/lib/bot-brain";
 import { mockOrganizations, mockCalendars, mockAvailabilityRules, mockBookings } from "@/lib/mock-data";
 
@@ -125,11 +126,13 @@ export async function saveBotBooking(
       .single();
     if (leadErr) return { ok: false, error: leadErr.message };
     leadId = created.id;
+    // Automatización: lead nuevo entrante por Telegram.
+    await fireWorkflowTriggers(orgId, "lead_created", { leadId: created.id }, sb);
   }
 
   const token = generateBookingToken();
   const bookingDate = new Date(`${input.date}T${input.time}:00`).toISOString();
-  const { error } = await sb
+  const { data: bookingData, error } = await sb
     .from("bookings")
     .insert({
       organization_id: orgId,
@@ -140,8 +143,18 @@ export async function saveBotBooking(
       token,
       source: "telegram",
       notes: `Reserva por bot de Telegram · ${input.customerName}`,
-    });
+    })
+    .select("id")
+    .single();
   if (error) return { ok: false, error: error.message };
+
+  // Automatización: reserva confirmada (dispara los workflows booking_created del cliente).
+  await fireWorkflowTriggers(
+    orgId,
+    "booking_created",
+    { leadId, bookingId: bookingData.id, meta: { source: "telegram" } },
+    sb
+  );
 
   // Timeline de auditoría (best-effort).
   try {

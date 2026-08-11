@@ -596,6 +596,12 @@ export function patchThread(threadId: string, patch: Partial<MessageThread>) {
   });
 }
 
+export function addThread(thread: MessageThread) {
+  mutate((db) => {
+    db.threads.push(thread);
+  });
+}
+
 export function listMessages(orgId: string, threadId: string): Message[] {
   return getDb()
     .messages.filter((m) => m.organization_id === orgId && m.thread_id === threadId)

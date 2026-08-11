@@ -21,6 +21,8 @@ import {
   type BookingInput,
   type BotSession,
 } from "@/lib/bot-brain";
+import { getServiceSupabase } from "@/lib/supabase/admin";
+import { fireWorkflowTriggers } from "@/lib/workflow-runtime";
 
 /**
  * POST /api/v1/telegram/webhook
@@ -124,6 +126,31 @@ export async function POST(req: Request) {
     // Fallo al enviar: no rompe el webhook; Telegram reintentará.
     console.error("sendMessage falló:", e instanceof Error ? e.message : e);
   });
+
+  // Automatización: cada mensaje entrante de texto dispara los workflows
+  // `message_incoming` del cliente (lead resuelto por su teléfono Telegram).
+  if (resolved && msg?.text) {
+    try {
+      const sb = getServiceSupabase();
+      if (sb) {
+        const tgPhone = from.username ? `tg:${from.username}` : `tg:${from.id}`;
+        const { data: tgLead } = await sb
+          .from("leads")
+          .select("id")
+          .eq("organization_id", ctx.orgId)
+          .eq("phone", tgPhone)
+          .maybeSingle();
+        await fireWorkflowTriggers(
+          ctx.orgId,
+          "message_incoming",
+          { leadId: tgLead?.id ?? null, meta: { channel: "telegram", text } },
+          sb
+        );
+      }
+    } catch {
+      // Nunca rompe la respuesta del bot.
+    }
+  }
 
   return NextResponse.json({ ok: true, demo: !resolved, reply: result.reply.text });
 }

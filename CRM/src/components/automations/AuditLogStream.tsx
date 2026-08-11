@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Activity, Braces } from "lucide-react";
 import { useRealtimeCollection } from "@/hooks/useRealtimeCollection";
-import { fetchAuditLogs, isDemoMode, pushAuditEntry } from "@/lib/data-access";
-import { MOCK_AUDIT_STREAM_POOL } from "@/lib/mock-data";
+import { fetchAuditLogs } from "@/lib/data-access";
 import { formatRelative, formatTokens } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,17 +19,7 @@ import {
 import { PayloadViewerModal } from "./PayloadViewerModal";
 import type { AiAuditLog } from "@/types/database";
 
-function simulateEntry(): AiAuditLog {
-  const pool = MOCK_AUDIT_STREAM_POOL;
-  const template = pool[Math.floor(Math.random() * pool.length)];
-  return {
-    ...template,
-    id: `aud_${Math.random().toString(36).slice(2, 8)}`,
-    created_at: new Date().toISOString(),
-  } as AiAuditLog;
-}
-
-/** Stream en vivo de acciones de los agentes. En demo simula entradas periódicas. */
+/** Stream en vivo de acciones de los agentes (real en Supabase, seed+acciones reales en demo). */
 export function AuditLogStream({ orgId }: { orgId: string }) {
   const { data, loading, error } = useRealtimeCollection<AiAuditLog>(fetchAuditLogs, orgId, {
     table: "ai_audit_logs",
@@ -39,34 +28,6 @@ export function AuditLogStream({ orgId }: { orgId: string }) {
   });
   const [selected, setSelected] = useState<AiAuditLog | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  // Simulación de realtime (modo demo)
-  useEffect(() => {
-    if (!isDemoMode()) return;
-    let alive = true;
-    let timer: ReturnType<typeof setTimeout>;
-    const tick = () => {
-      timer = setTimeout(() => {
-        if (!alive) return;
-        const entry = simulateEntry();
-        pushAuditEntry({
-          organization_id: orgId,
-          lead_id: entry.lead_id,
-          agent_name: entry.agent_name,
-          input_payload: entry.input_payload,
-          output_payload: entry.output_payload,
-          tokens_used: entry.tokens_used,
-          status: Math.random() > 0.12 ? "success" : "error",
-        });
-        tick();
-      }, 5500 + Math.random() * 4000);
-    };
-    tick();
-    return () => {
-      alive = false;
-      clearTimeout(timer);
-    };
-  }, [orgId]);
 
   const totalTokens = data.reduce((acc, l) => acc + (l.tokens_used ?? 0), 0);
 

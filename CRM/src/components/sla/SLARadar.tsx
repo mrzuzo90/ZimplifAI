@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SLAConfigDrawer, type SLAConfig } from "@/components/sla/SLAConfigDrawer";
+import { fetchModules, recordTimelineEvent, setModuleSettings } from "@/lib/data-access";
 import { toast } from "sonner";
 
 interface SlaLead {
@@ -43,12 +44,20 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/sla/check?org_id=${encodeURIComponent(orgId)}`);
+      const [res, modules] = await Promise.all([
+        fetch(`/api/v1/sla/check?org_id=${encodeURIComponent(orgId)}`),
+        fetchModules(orgId),
+      ]);
       const json = await res.json();
       setLeads(json.leads_at_risk ?? []);
+      // Los umbrales persistentes viven en los settings del módulo roi_dashboard;
+      // si no están guardados aún, se usan los que devuelve la API.
+      const roi = modules.find((m) => m.module_key === "roi_dashboard")?.settings ?? {};
+      const alert = Number(roi.sla_alert_minutes ?? json.config?.alert_minutes ?? 5);
+      const auto = Number(roi.sla_auto_rescue_minutes ?? json.config?.auto_rescue_minutes ?? 10);
       setConfig({
-        alert_minutes: json.config?.alert_minutes ?? 5,
-        auto_rescue_minutes: json.config?.auto_rescue_minutes ?? 10,
+        alert_minutes: alert > 0 ? alert : 5,
+        auto_rescue_minutes: auto > alert ? auto : alert + 1,
       });
     } catch {
       /* silencio: el radar simplemente no muestra nada */
@@ -56,6 +65,23 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
       setLoading(false);
     }
   }, [orgId]);
+
+  /** Persiste los umbrales en los settings del módulo y los aplica en caliente. */
+  const handleSaveConfig = async (next: SLAConfig) => {
+    setConfig(next);
+    try {
+      const modules = await fetchModules(orgId);
+      const existing = modules.find((m) => m.module_key === "roi_dashboard")?.settings ?? {};
+      await setModuleSettings(orgId, "roi_dashboard", {
+        ...existing,
+        sla_alert_minutes: next.alert_minutes,
+        sla_auto_rescue_minutes: next.auto_rescue_minutes,
+      });
+      toast.success("Umbrales SLA guardados");
+    } catch {
+      toast.error("No se pudieron guardar los umbrales");
+    }
+  };
 
   useEffect(() => {
     load();
@@ -69,14 +95,36 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
     };
   }, []);
 
-  const handleRescue = (lead: SlaLead) => {
-    toast.success(`Lead ${lead.name} rescatado manualmente`);
+  const handleRescue = async (lead: SlaLead) => {
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status: "rescued" } : l)));
+    try {
+      await recordTimelineEvent(orgId, {
+        lead_id: lead.id,
+        event_type: "sla_rescued",
+        title: "Lead rescatado manualmente",
+        description: `Rescatado a los ${mmss(lead.age_seconds)} por un miembro del equipo.`,
+        payload: { channel: lead.source, speed_to_lead_seconds: lead.age_seconds, mode: "manual" },
+      });
+      toast.success(`Lead ${lead.name} rescatado manualmente`);
+    } catch {
+      toast.error("No se pudo registrar el rescate");
+    }
   };
 
-  const handleAuto = (lead: SlaLead) => {
-    toast.success(`La IA respondió a ${lead.name} en ${mmss(lead.age_seconds)}`);
+  const handleAuto = async (lead: SlaLead) => {
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status: "rescued" } : l)));
+    try {
+      await recordTimelineEvent(orgId, {
+        lead_id: lead.id,
+        event_type: "sla_rescued",
+        title: "Lead rescatado por IA",
+        description: `La IA respondió en ${mmss(lead.age_seconds)} (auto-rescate SLA).`,
+        payload: { channel: lead.source, speed_to_lead_seconds: lead.age_seconds, mode: "ai" },
+      });
+      toast.success(`La IA respondió a ${lead.name} en ${mmss(lead.age_seconds)}`);
+    } catch {
+      toast.error("No se pudo registrar el rescate");
+    }
   };
 
   const sorted = useMemo(() => {
@@ -111,7 +159,7 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
           <CardDescription>Leads en riesgo de respuesta lenta</CardDescription>
         </div>
       </div>
-      {!compact && <SLAConfigDrawer config={config} onSave={setConfig} />}
+      {!compact && <SLAConfigDrawer config={config} onSave={(c) => void handleSaveConfig(c)} />}
     </CardHeader>
   );
 

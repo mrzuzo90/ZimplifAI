@@ -1,9 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { calculateNoShowRisk, type NoShowRiskInput } from "@/lib/data-access";
+import {
+  calculateNoShowRisk,
+  recordTimelineEvent,
+  updateBookingDeposit,
+  type NoShowRiskInput,
+} from "@/lib/data-access";
 import { formatCurrency } from "@/lib/format";
 import { toast } from "sonner";
 import type { Booking } from "@/types/database";
@@ -16,6 +21,7 @@ function estimateDeposit(booking: Booking): number {
 /** Banner de depósito anti-no-show para reservas con riesgo ≥ 50. */
 export function DepositBanner({ booking, orgId }: { booking: Booking; orgId: string }) {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const score = useMemo(() => {
     if (typeof booking.risk_score === "number") return booking.risk_score;
@@ -31,9 +37,25 @@ export function DepositBanner({ booking, orgId }: { booking: Booking; orgId: str
 
   if (score < 50 || booking.status === "cancelled" || booking.status === "completed") return null;
 
-  const handleSend = () => {
-    setSent(true);
-    toast.success(`Link de pago de ${formatCurrency(amount)} enviado por WhatsApp`);
+  /** Envía el link de pago: persiste el estado del depósito y lo deja en el timeline. */
+  const handleSend = async () => {
+    setSending(true);
+    try {
+      await updateBookingDeposit(orgId, booking.id, "pending");
+      await recordTimelineEvent(orgId, {
+        lead_id: booking.lead_id,
+        event_type: "deposit_requested",
+        title: "Depósito solicitado",
+        description: `Link de pago de ${formatCurrency(amount)} enviado por WhatsApp (anti-no-show).`,
+        payload: { booking_id: booking.id, amount, channel: "whatsapp" },
+      });
+      setSent(true);
+      toast.success(`Link de pago de ${formatCurrency(amount)} enviado por WhatsApp`);
+    } catch {
+      toast.error("No se pudo enviar el link de pago");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -46,11 +68,11 @@ export function DepositBanner({ booking, orgId }: { booking: Booking; orgId: str
         size="sm"
         variant="outline"
         className="h-7 gap-1.5 border-amber-500/40 text-xs text-amber-600 hover:text-amber-700"
-        onClick={handleSend}
-        disabled={sent}
+        onClick={() => void handleSend()}
+        disabled={sent || sending}
       >
-        <CreditCard className="h-3.5 w-3.5" />
-        {sent ? "Link enviado" : "Enviar link de pago"}
+        {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
+        {sent ? "Link enviado" : sending ? "Enviando…" : "Enviar link de pago"}
       </Button>
     </div>
   );

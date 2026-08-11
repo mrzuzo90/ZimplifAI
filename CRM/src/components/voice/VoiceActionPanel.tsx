@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { AudioLines, Loader2, Mic, Play, Sparkles } from "lucide-react";
+import { AudioLines, CalendarCheck, Loader2, Mic, Play, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { executeVoiceAction } from "@/lib/data-access";
 import { toast } from "sonner";
 
 interface ParseResult {
@@ -15,11 +16,18 @@ interface ParseResult {
   timeline_written: boolean;
 }
 
+interface ExecutionState {
+  running: boolean;
+  ok: boolean | null;
+  message: string;
+}
+
 /** Panel Voice-to-Action: simula transcripción de nota de voz y ejecución de acciones. */
 export function VoiceActionPanel({ orgId }: { orgId: string }) {
   const [recording, setRecording] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<ParseResult | null>(null);
+  const [execution, setExecution] = useState<ExecutionState>({ running: false, ok: null, message: "" });
 
   const handleParse = async (useSample = false) => {
     if (!useSample) {
@@ -36,6 +44,7 @@ export function VoiceActionPanel({ orgId }: { orgId: string }) {
       });
       const json = await res.json();
       setResult(json);
+      setExecution({ running: false, ok: null, message: "" });
       toast.success("Nota de voz analizada");
     } catch {
       toast.error("No se pudo procesar la nota de voz");
@@ -44,9 +53,36 @@ export function VoiceActionPanel({ orgId }: { orgId: string }) {
     }
   };
 
-  const handleRunAction = () => {
+  const handleRunAction = async () => {
     if (!result) return;
-    toast.success(`Acción "${result.action.type}" ejecutada en el timeline`);
+    setExecution({ running: true, ok: null, message: "" });
+    try {
+      const res = await executeVoiceAction(orgId, result.action);
+      if (res.booking) {
+        const when = new Date(res.booking.booking_date);
+        const day = when.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
+        const hour = when.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+        setExecution({ running: false, ok: true, message: `Reserva creada · ${day} a las ${hour}` });
+        toast.success("Reserva creada desde la nota de voz");
+      } else if (res.skipped) {
+        setExecution({
+          running: false,
+          ok: false,
+          message: "No hay calendario configurado: la acción quedó registrada sin reserva.",
+        });
+        toast.error("Sin calendario para crear la reserva");
+      } else {
+        setExecution({
+          running: false,
+          ok: true,
+          message: `Acción "${res.type}" ejecutada y registrada en el timeline`,
+        });
+        toast.success("Acción registrada en el timeline");
+      }
+    } catch {
+      setExecution({ running: false, ok: false, message: "No se pudo ejecutar la acción" });
+      toast.error("No se pudo ejecutar la acción");
+    }
   };
 
   return (
@@ -125,10 +161,24 @@ export function VoiceActionPanel({ orgId }: { orgId: string }) {
                   {JSON.stringify(result.action, null, 2)}
                 </pre>
               </div>
-              <Button className="w-full gap-2" onClick={handleRunAction}>
-                <Play className="h-4 w-4" />
-                Ejecutar acción
+              <Button className="w-full gap-2" onClick={() => void handleRunAction()} disabled={execution.running}>
+                {execution.running ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {execution.running ? "Ejecutando…" : "Ejecutar acción"}
               </Button>
+              {execution.ok !== null && (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {execution.ok ? (
+                    <CalendarCheck className="h-3.5 w-3.5 text-emerald-500" />
+                  ) : (
+                    <AudioLines className="h-3.5 w-3.5 text-rose-500" />
+                  )}
+                  {execution.message}
+                </p>
+              )}
             </>
           )}
         </CardContent>
