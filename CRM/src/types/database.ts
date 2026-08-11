@@ -74,6 +74,7 @@ export const MODULE_KEYS = [
   "reputation_mgmt",
   "roi_dashboard",
   "reservation_bot",
+  "ai_voice_agent",
 ] as const;
 export type ModuleKey = (typeof MODULE_KEYS)[number];
 
@@ -93,6 +94,7 @@ export const MODULE_LABELS: Record<ModuleKey, string> = {
   reputation_mgmt: "Reputación online",
   roi_dashboard: "Dashboard ROI",
   reservation_bot: "Bot de reservas",
+  ai_voice_agent: "Llamadas IA",
 };
 
 /** Tipos de evento del timeline de actividad por lead. */
@@ -128,6 +130,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "reputation_mgmt",
     "roi_dashboard",
     "reservation_bot",
+    "ai_voice_agent",
   ],
   service_lead_gen: [
     "whatsapp_bot",
@@ -142,6 +145,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "reputation_mgmt",
     "roi_dashboard",
     "reservation_bot",
+    "ai_voice_agent",
   ],
   custom_agency: [
     "whatsapp_bot",
@@ -156,6 +160,7 @@ export const VERTICAL_MODULES: Record<VerticalType, ModuleKey[]> = {
     "reputation_mgmt",
     "roi_dashboard",
     "reservation_bot",
+    "ai_voice_agent",
   ],
 };
 
@@ -1149,6 +1154,107 @@ export interface AdminOverview {
   tenants: OrganizationWithStats[];
 }
 
+/* ============================= Agente de llamadas IA (Fase L) ============================= */
+
+export const VOICE_LLM_PROVIDERS = ["gemini", "groq", "demo"] as const;
+export type VoiceLLMProvider = (typeof VOICE_LLM_PROVIDERS)[number];
+
+export const VOICE_TTS_PROVIDERS = ["elevenlabs", "deepgram", "demo"] as const;
+export type VoiceTTSProvider = (typeof VOICE_TTS_PROVIDERS)[number];
+
+export const VOICE_AGENT_STATUSES = ["connecting", "connected", "error"] as const;
+export type VoiceAgentStatus = (typeof VOICE_AGENT_STATUSES)[number];
+
+/** Fila de `voice_agent_configs`: identidad, personalidad y credenciales del agente de voz. */
+export type VoiceAgentConfig = {
+  id: string;
+  organization_id: string;
+  agent_name: string;
+  tone: string;
+  custom_rules: string | null;
+  llm_provider: VoiceLLMProvider;
+  llm_api_key_encrypted: string | null;
+  tts_provider: VoiceTTSProvider;
+  tts_api_key_encrypted: string | null;
+  voice_id: string | null;
+  phone_number: string | null;
+  webhook_secret: string | null;
+  status: VoiceAgentStatus;
+  last_error: string | null;
+  connected_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Config devuelta al cliente: NUNCA incluye claves, solo máscaras. */
+export type VoiceAgentConfigPublic = Pick<
+  VoiceAgentConfig,
+  "agent_name" | "tone" | "custom_rules" | "llm_provider" | "tts_provider" | "voice_id" | "phone_number" | "status" | "last_error" | "connected_at"
+> & {
+  llm_key_set: boolean;
+  tts_key_set: boolean;
+  webhook_url: string | null;
+};
+
+/** Cuerpo del endpoint genérico /api/v1/voice/turn (consumible por Vapi / Retell). */
+export interface VoiceTurnRequest {
+  org_id: string;
+  /** Último texto transcrito del cliente (STT ya resuelto por el orquestador). */
+  transcript: string;
+  /** Teléfono del llamante (dedupe del lead). */
+  phone?: string | null;
+  /** Id de sesión de llamada: mantiene el estado de la conversación. */
+  session_id?: string | null;
+  /** Secret del agente: autentica el turn en producción. */
+  webhook_secret?: string | null;
+}
+
+export type VoiceActionType =
+  | "none"
+  | "create_booking"
+  | "request_call_back"
+  | "send_quote";
+
+/** Acción que el agente decide ejecutar tras el turno. */
+export interface VoiceTurnAction {
+  type: VoiceActionType;
+  payload: Record<string, unknown>;
+}
+
+/** Estado acumulado de una llamada (por sesión), serializable para el cliente. */
+export interface VoiceSessionState {
+  intent: "idle" | "booking" | "pricing" | "hours" | "web";
+  step: "none" | "date" | "service" | "party" | "time" | "confirm";
+  dateStr: string | null;
+  serviceId: string | null;
+  partySize: number | null;
+  time: string | null;
+  customerName: string | null;
+  turnCount: number;
+}
+
+/** Respuesta del turno: texto del agente + acción + modo (demo vs LLM real). */
+export interface VoiceTurnResponse {
+  reply: string;
+  demo: boolean;
+  action: VoiceTurnAction;
+  /** Reserva creada (si la acción fue create_booking y había calendario). */
+  booking?: Pick<Booking, "id" | "booking_date" | "token" | "source">;
+  /** Timeline de auditoría escrito (best-effort). */
+  timeline_written?: boolean;
+  /** Siguiente estado de la conversación (demo determinista). */
+  session?: VoiceSessionState;
+}
+
+/** Resultado de conectar/desconectar el agente de voz (puente HTTP). */
+export interface ConnectVoiceAgentResult {
+  ok: boolean;
+  demo?: boolean;
+  webhook_secret?: string;
+  status?: VoiceAgentStatus;
+  error?: string;
+}
+
 /* ============================= Database (Supabase genérico) ============================= */
 
 export interface Database {
@@ -1476,6 +1582,12 @@ export interface Database {
           created_at: string;
           updated_at: string;
         }>;
+        Relationships: [];
+      };
+      voice_agent_configs: {
+        Row: VoiceAgentConfig;
+        Insert: Partial<VoiceAgentConfig>;
+        Update: Partial<VoiceAgentConfig>;
         Relationships: [];
       };
     };

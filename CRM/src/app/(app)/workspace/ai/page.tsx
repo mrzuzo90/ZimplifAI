@@ -9,6 +9,7 @@ import { CopilotChat } from "@/components/ai/CopilotChat";
 import { ScoringView } from "@/components/ai/ScoringView";
 import { CostDashboard } from "@/components/ai/CostDashboard";
 import { VoiceActionPanel } from "@/components/voice/VoiceActionPanel";
+import { VoiceCallPanel } from "@/components/voice/VoiceCallPanel";
 
 export default function AIPage() {
   const { organization, loading } = useBranding();
@@ -32,6 +33,7 @@ export default function AIPage() {
               <TabsTrigger value="scoring">Scoring</TabsTrigger>
               <TabsTrigger value="costes">Costes</TabsTrigger>
               <TabsTrigger value="voice">Voice-to-Action</TabsTrigger>
+              <TabsTrigger value="llamadas">Llamadas IA</TabsTrigger>
             </TabsList>
             <TabsContent value="copilot">
               <CopilotChat orgId={organization.id} />
@@ -44,6 +46,9 @@ export default function AIPage() {
             </TabsContent>
             <TabsContent value="voice">
               <VoiceActionPanel orgId={organization.id} />
+            </TabsContent>
+            <TabsContent value="llamadas">
+              <VoiceCallPanel orgId={organization.id} />
             </TabsContent>
           </Tabs>
         ) : (

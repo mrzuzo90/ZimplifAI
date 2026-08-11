@@ -158,6 +158,7 @@ import type {
   Booking,
   Calendar,
   Company,
+  ConnectVoiceAgentResult,
   CopilotMessage,
   CopilotSession,
   CopilotTool,
@@ -177,6 +178,8 @@ import type {
   MessagingChannel,
   OrganizationUsage,
   UtmAttribution,
+  VoiceSessionState,
+  VoiceTurnResponse,
   Message,
   MessageChannel,
   MessageTemplate,
@@ -4218,4 +4221,96 @@ export async function fetchROIDashboard(orgId: string): Promise<ROIDashboardData
     timeline,
     recent_leads: recentLeads,
   };
+}
+
+/* ------------------------- Agente de llamadas IA (Fase L) ------------------------- */
+
+/** Config de conexión del agente de voz (sin claves en el JSON editable). */
+export interface VoiceAgentConnectInput {
+  agent_name?: string;
+  tone?: string;
+  custom_rules?: string;
+  llm_provider?: string;
+  llm_api_key?: string;
+  tts_provider?: string;
+  tts_api_key?: string;
+  voice_id?: string;
+  phone_number?: string;
+  webhook_secret?: string;
+}
+
+/** Puente HTTP: conecta o desconecta el agente de llamadas IA de la subcuenta. */
+export async function connectVoiceAgent(
+  orgId: string,
+  action: "connect" | "disconnect",
+  input: VoiceAgentConnectInput
+): Promise<ConnectVoiceAgentResult> {
+  try {
+    const res = await fetch("/api/v1/voice/connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ org_id: orgId, action, ...input }),
+    });
+    const data = (await res.json().catch(() => ({}))) as ConnectVoiceAgentResult;
+    return { ...data, ok: res.ok };
+  } catch {
+    return { ok: false, error: "No se pudo conectar con el servidor" };
+  }
+}
+
+/** Turno de llamada IA desde el panel de pruebas (overrides en modo demo). */
+export async function runVoiceTurn(
+  orgId: string,
+  input: {
+    transcript: string;
+    phone?: string | null;
+    session_id?: string | null;
+    session_state?: VoiceSessionState;
+    agent_name?: string;
+    tone?: string;
+    custom_rules?: string;
+    llm_provider?: string;
+    llm_api_key?: string;
+    tts_provider?: string;
+    tts_api_key?: string;
+    voice_id?: string;
+  }
+): Promise<VoiceTurnResponse> {
+  const res = await fetch("/api/v1/voice/turn", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ org_id: orgId, ...input }),
+  });
+  const data = (await res.json().catch(() => ({}))) as VoiceTurnResponse & { error?: string };
+  if (!res.ok) throw new Error(data.error ?? "No se pudo procesar el turno de voz");
+  return data;
+}
+
+/** Sintetiza la respuesta del agente a audio (o marca demo si no hay TTS). */
+export async function voiceTts(
+  orgId: string,
+  text: string,
+  overrides?: { tts_provider?: string; tts_api_key?: string; voice_id?: string }
+): Promise<{ audioBase64?: string; contentType?: string; demo: boolean; reply: string }> {
+  try {
+    const res = await fetch("/api/v1/voice/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ org_id: orgId, text, ...overrides }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      audioBase64?: string;
+      contentType?: string;
+      demo?: boolean;
+      reply?: string;
+    };
+    return {
+      audioBase64: data.audioBase64,
+      contentType: data.contentType,
+      demo: data.demo ?? false,
+      reply: data.reply ?? text,
+    };
+  } catch {
+    return { demo: true, reply: text };
+  }
 }

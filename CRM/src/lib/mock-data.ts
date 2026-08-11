@@ -798,19 +798,19 @@ export const mockCalendars: Calendar[] = [
     id: "cal_mesa", organization_id: "org_brasa", name: "Mesa interior",
     description: "Comedor principal. Terraza cubierta según disponibilidad.",
     service_duration_min: 90, color: "#CEFF00", is_active: true,
-    settings: { slot_minutes: 30 }, created_at: daysAgo(100), updated_at: daysAgo(5),
+    settings: { slot_minutes: 30, price_eur: 18 }, created_at: daysAgo(100), updated_at: daysAgo(5),
   },
   {
     id: "cal_terraza", organization_id: "org_brasa", name: "Terraza",
     description: "Terraza al aire libre, 4 mesas altas.",
     service_duration_min: 90, color: "#6AB7FF", is_active: true,
-    settings: { slot_minutes: 30 }, created_at: daysAgo(90), updated_at: daysAgo(5),
+    settings: { slot_minutes: 30, price_eur: 15 }, created_at: daysAgo(90), updated_at: daysAgo(5),
   },
   {
     id: "cal_salon", organization_id: "org_brasa", name: "Salón privado",
     description: "Eventos y grupos. Capacidad hasta 14.",
     service_duration_min: 120, color: "#C084FC", is_active: true,
-    settings: { slot_minutes: 60 }, created_at: daysAgo(80), updated_at: daysAgo(5),
+    settings: { slot_minutes: 60, price_eur: 250 }, created_at: daysAgo(80), updated_at: daysAgo(5),
   },
   {
     id: "cal_consulta", organization_id: "org_baremo", name: "Consulta legal",

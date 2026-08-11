@@ -18,6 +18,7 @@ import {
 import { fetchModules, setModuleEnabled, setModuleSettings } from "@/lib/data-access";
 import { MODULE_DESCRIPTIONS, MODULE_ICONS } from "@/lib/modules";
 import { ReservationBotSetup } from "@/components/admin/ReservationBotSetup";
+import { VoiceAgentSetup } from "@/components/admin/VoiceAgentSetup";
 import { cn } from "@/lib/utils";
 import {
   MODULE_KEYS,
@@ -201,6 +202,13 @@ export function FeatureManagementDrawer({
                       <div className="space-y-2 border-t border-border px-3 py-3">
                         {key === "reservation_bot" && mod && (
                           <ReservationBotSetup
+                            orgId={org.id}
+                            settings={mod.settings ?? {}}
+                            onUpdated={(s) => syncBotSettings(key, s)}
+                          />
+                        )}
+                        {key === "ai_voice_agent" && mod && (
+                          <VoiceAgentSetup
                             orgId={org.id}
                             settings={mod.settings ?? {}}
                             onUpdated={(s) => syncBotSettings(key, s)}

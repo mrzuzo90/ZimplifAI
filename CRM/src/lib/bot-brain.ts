@@ -128,7 +128,7 @@ export function formatDateEs(dateStr: string): string {
   return `${WEEKDAYS[dt.getDay()]} ${d} de ${month}`;
 }
 
-function parseTime(text: string): string | null {
+export function parseTime(text: string): string | null {
   let t = text.toLowerCase().trim();
   if (t.startsWith("slot:")) t = t.slice(5);
   const m = /^(\d{1,2})[:.](\d{2})$/.exec(t);

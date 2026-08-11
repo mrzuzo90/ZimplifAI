@@ -14,6 +14,7 @@ import {
   Users,
   Workflow,
   BarChart3,
+  PhoneCall,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -41,6 +42,7 @@ export const MODULE_ICONS: Record<ModuleKey, LucideIcon> = {
   reputation_mgmt: Star,
   roi_dashboard: BarChart3,
   reservation_bot: MessagesSquare,
+  ai_voice_agent: PhoneCall,
 };
 
 export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
@@ -60,6 +62,8 @@ export const MODULE_DESCRIPTIONS: Record<ModuleKey, string> = {
   roi_dashboard: "Dashboard de ROI: ingresos atribuidos, costes, horas ahorradas y rescates de IA.",
   reservation_bot:
     "Bot de reservas por Telegram o WhatsApp: disponibilidad, aforo, web y dudas rápidas, configurado desde la subcuenta del cliente.",
+  ai_voice_agent:
+    "Llamadas IA: agente telefónico que responde, informa de servicios y horarios y crea reservas por voz. El cerebro y la voz se eligen por subcuenta; el resto sale del CRM.",
 };
 
 export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>> = {
@@ -133,6 +137,20 @@ export const MODULE_DEFAULT_SETTINGS: Record<ModuleKey, Record<string, unknown>>
     whatsapp_phone: "",
     status: "disconnected",
     bot_username: "",
+    last_error: "",
+  },
+  ai_voice_agent: {
+    status: "disconnected",
+    agent_name: "Recepción",
+    tone: "cercano, natural y profesional",
+    custom_rules: "",
+    llm_provider: "demo",
+    llm_api_key: "",
+    tts_provider: "demo",
+    tts_api_key: "",
+    voice_id: "",
+    phone_number: "",
+    webhook_secret: "",
     last_error: "",
   },
 };
