@@ -15,10 +15,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.quotes;
-alter publication supabase_realtime add table public.invoices;
-alter publication supabase_realtime add table public.payments;
-alter publication supabase_realtime add table public.reviews;
 
 -- ============================ Fase E2 — Presupuestos ============================
 
@@ -248,4 +244,9 @@ begin
   end loop;
 end $$;
 
+
+alter publication supabase_realtime add table public.quotes;
+alter publication supabase_realtime add table public.invoices;
+alter publication supabase_realtime add table public.payments;
+alter publication supabase_realtime add table public.reviews;
 commit;

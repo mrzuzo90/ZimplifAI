@@ -12,10 +12,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.workflows;
-alter publication supabase_realtime add table public.workflow_runs;
-alter publication supabase_realtime add table public.workflow_run_steps;
-
 -- ----- workflows -----
 create table public.workflows (
   id              uuid primary key default gen_random_uuid(),
@@ -99,5 +95,10 @@ create policy "workflow_run_steps_tenant_all"
 grant all on table public.workflows to authenticated, service_role;
 grant all on table public.workflow_runs to authenticated, service_role;
 grant all on table public.workflow_run_steps to authenticated, service_role;
+
+-- Realtime (las tablas ya existen aquí)
+alter publication supabase_realtime add table public.workflows;
+alter publication supabase_realtime add table public.workflow_runs;
+alter publication supabase_realtime add table public.workflow_run_steps;
 
 commit;

@@ -14,9 +14,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.message_threads;
-alter publication supabase_realtime add table public.messages;
-alter publication supabase_realtime add table public.message_templates;
 
 -- ----- message_threads -----
 create table public.message_threads (
@@ -110,4 +107,8 @@ grant all on table public.message_threads to authenticated, service_role;
 grant all on table public.messages to authenticated, service_role;
 grant all on table public.message_templates to authenticated, service_role;
 
+
+alter publication supabase_realtime add table public.message_threads;
+alter publication supabase_realtime add table public.messages;
+alter publication supabase_realtime add table public.message_templates;
 commit;

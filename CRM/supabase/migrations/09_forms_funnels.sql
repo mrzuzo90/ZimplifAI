@@ -13,9 +13,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.forms;
-alter publication supabase_realtime add table public.form_submissions;
-alter publication supabase_realtime add table public.funnels;
 
 -- ----- forms -----
 create table public.forms (
@@ -115,4 +112,8 @@ grant all on table public.form_submissions to authenticated, service_role;
 grant all on table public.funnels to authenticated, service_role;
 grant all on table public.leads to authenticated, service_role;
 
+
+alter publication supabase_realtime add table public.forms;
+alter publication supabase_realtime add table public.form_submissions;
+alter publication supabase_realtime add table public.funnels;
 commit;

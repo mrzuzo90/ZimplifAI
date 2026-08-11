@@ -13,8 +13,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.calendars;
-alter publication supabase_realtime add table public.availability_rules;
 
 -- ----- calendars -----
 create table public.calendars (
@@ -82,4 +80,7 @@ grant all on table public.calendars to authenticated, service_role;
 grant all on table public.availability_rules to authenticated, service_role;
 grant all on table public.bookings to authenticated, service_role;
 
+
+alter publication supabase_realtime add table public.calendars;
+alter publication supabase_realtime add table public.availability_rules;
 commit;

@@ -19,8 +19,6 @@ begin;
 
 -- ======================== Realtime ========================
 
-alter publication supabase_realtime add table public.timeline_events;
-alter publication supabase_realtime add table public.insights_moments;
 
 -- ======================== timeline_events ========================
 
@@ -133,4 +131,7 @@ grant all on table public.metrics_daily to authenticated, service_role;
 grant all on table public.bookings to authenticated, service_role;
 grant all on table public.calendars to authenticated, service_role;
 
+
+alter publication supabase_realtime add table public.timeline_events;
+alter publication supabase_realtime add table public.insights_moments;
 commit;

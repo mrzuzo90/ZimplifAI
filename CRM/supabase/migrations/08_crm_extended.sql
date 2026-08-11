@@ -14,10 +14,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.companies;
-alter publication supabase_realtime add table public.pipelines;
-alter publication supabase_realtime add table public.pipeline_stages;
-alter publication supabase_realtime add table public.tasks;
 
 -- ----- companies -----
 create table public.companies (
@@ -137,4 +133,9 @@ grant all on table public.pipeline_stages to authenticated, service_role;
 grant all on table public.tasks to authenticated, service_role;
 grant all on table public.leads to authenticated, service_role;
 
+
+alter publication supabase_realtime add table public.companies;
+alter publication supabase_realtime add table public.pipelines;
+alter publication supabase_realtime add table public.pipeline_stages;
+alter publication supabase_realtime add table public.tasks;
 commit;

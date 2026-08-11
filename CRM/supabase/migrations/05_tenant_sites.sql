@@ -12,7 +12,6 @@
 
 begin;
 
-alter publication supabase_realtime add table public.tenant_sites;
 
 -- ----- tenant_sites -----
 create table public.tenant_sites (
@@ -83,4 +82,6 @@ create policy "tenant_sites_super_admin_all"
 
 grant all on table public.tenant_sites to authenticated, anon, service_role;
 
+
+alter publication supabase_realtime add table public.tenant_sites;
 commit;
