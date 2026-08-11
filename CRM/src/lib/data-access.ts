@@ -43,6 +43,7 @@ import {
   getCurrentUsage,
   getDb,
   getForm,
+  getFormBySlug,
   getImpersonatingOrgId,
   getOrg,
   getSnapshot,
@@ -2489,6 +2490,15 @@ export async function fetchPublicFormContext(slug: string): Promise<{
     if (!org) return null;
     return { org, form };
   }
+  // 1) Formularios creados en demo: se resuelven por slug desde el store mock,
+  //    de modo que cualquier form nuevo del workspace funciona en /f/<slug>.
+  const formBySlug = getFormBySlug(slug);
+  if (formBySlug) {
+    const org = getOrg(formBySlug.organization_id);
+    if (org) return { org, form: formBySlug };
+    return null;
+  }
+  // 2) Fallback a los slugs demo predefinidos (FORM_SLUGS).
   const mapped = FORM_SLUGS[slug];
   if (!mapped) return null;
   const org = getOrg(mapped.orgId);

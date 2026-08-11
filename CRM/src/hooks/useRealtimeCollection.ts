@@ -30,26 +30,34 @@ export function useRealtimeCollection<T extends { id: string }>(
     sortKeyRef.current = opts?.sortKey;
   });
 
+  // Ref con el fetcher vigente: la carga lee la última referencia sin
+  // re-ejecutar el effect cada vez que el caller pasa un fetcher inline
+  // (p.ej. `(oid) => fetchAgents(oid)`), lo que provocaba un bucle infinito.
+  const fetcherRef = useRef(fetcher);
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  });
+
   const refresh = useCallback(async () => {
     if (!orgId) {
       setData([]);
       return;
     }
     try {
-      const rows = await fetcher(orgId);
+      const rows = await fetcherRef.current(orgId);
       setData(rows);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e : new Error("Error al cargar datos"));
     }
-  }, [orgId, fetcher]);
+  }, [orgId]);
 
   // Carga inicial: setState tras el await (continuación async), nunca síncrono.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const rows = orgId ? await fetcher(orgId) : [];
+        const rows = orgId ? await fetcherRef.current(orgId) : [];
         if (!cancelled) {
           setData(rows);
           setError(null);
@@ -63,7 +71,7 @@ export function useRealtimeCollection<T extends { id: string }>(
     return () => {
       cancelled = true;
     };
-  }, [orgId, fetcher]);
+  }, [orgId]);
 
   // Modo demo: el store mock emite cambios → refrescamos.
   useEffect(() => {

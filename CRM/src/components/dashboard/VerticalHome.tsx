@@ -7,12 +7,13 @@ import { RestaurantToday } from "./RestaurantToday";
 import { InsightsWidget } from "./InsightsWidget";
 import { DailyMetricsWidget } from "./DailyMetricsWidget";
 import { SLARadar } from "@/components/sla/SLARadar";
+import { ReservationBotCard } from "@/components/bots/ReservationBotCard";
 
 /**
  * Home adaptativa por vertical:
  * - Hostelería → "Hoy en tu restaurante" (reservas del día).
  * - Servicios / agencia → widget "Mi Día" + pipeline (kanban / tabla / calendario / lista).
- * Widgets comunes (SLA, momentos IA, métricas) se muestran en ambas ramas.
+ * Widgets comunes (SLA, momentos IA, métricas, bot de reservas) se muestran en ambas ramas.
  */
 export function VerticalHome({ orgId }: { orgId: string }) {
   const { organization, isModuleEnabled } = useBranding();
@@ -21,6 +22,9 @@ export function VerticalHome({ orgId }: { orgId: string }) {
 
   const widgets = (
     <div className="grid gap-4 lg:grid-cols-3">
+      <div className="lg:col-span-3">
+        <ReservationBotCard orgId={orgId} />
+      </div>
       <SLARadar orgId={orgId} compact />
       <InsightsWidget orgId={orgId} />
       <DailyMetricsWidget orgId={orgId} />

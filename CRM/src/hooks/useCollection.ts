@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { isDemoMode } from "@/lib/data-access";
 import { subscribeDb } from "@/lib/mock-store";
 
@@ -13,19 +13,27 @@ export function useCollection<T>(fetcher: (orgId: string) => Promise<T[]>, orgId
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Ref con el fetcher vigente: la carga lee la última referencia sin
+  // re-ejecutar el effect cada vez que el caller pasa un fetcher inline
+  // (p.ej. `(oid) => fetchAgents(oid)`), lo que provocaba un bucle infinito.
+  const fetcherRef = useRef(fetcher);
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  });
+
   const refresh = useCallback(async () => {
     if (!orgId) {
       setData([]);
       return;
     }
     try {
-      const rows = await fetcher(orgId);
+      const rows = await fetcherRef.current(orgId);
       setData(rows);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e : new Error("Error al cargar datos"));
     }
-  }, [orgId, fetcher]);
+  }, [orgId]);
 
   // Carga inicial: el setState se produce tras el await (continuación async),
   // nunca de forma síncrona dentro del effect.
@@ -33,7 +41,7 @@ export function useCollection<T>(fetcher: (orgId: string) => Promise<T[]>, orgId
     let cancelled = false;
     (async () => {
       try {
-        const rows = orgId ? await fetcher(orgId) : [];
+        const rows = orgId ? await fetcherRef.current(orgId) : [];
         if (!cancelled) {
           setData(rows);
           setError(null);
@@ -47,7 +55,7 @@ export function useCollection<T>(fetcher: (orgId: string) => Promise<T[]>, orgId
     return () => {
       cancelled = true;
     };
-  }, [orgId, fetcher]);
+  }, [orgId]);
 
   useEffect(() => {
     if (!isDemoMode()) return;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Plus, Edit, Trash2, FileText } from "lucide-react";
+import { Plus, Edit, Trash2, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -433,8 +433,17 @@ export function MarketingFormsView({ orgId }: { orgId: string }) {
                       </div>
                     )}
                   </td>
-                  <td className="py-3 pr-4 font-mono text-sm">
-                    /f/{form.slug}
+                  <td className="py-3 pr-4">
+                    <a
+                      href={`/f/${form.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 font-mono text-sm text-[var(--tenant-primary)] transition-opacity hover:opacity-80"
+                      title={`Abrir /f/${form.slug} en una nueva pestaña`}
+                    >
+                      /f/{form.slug}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
                   </td>
                   <td className="py-3 pr-4">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-secondary">
@@ -461,6 +470,16 @@ export function MarketingFormsView({ orgId }: { orgId: string }) {
                   </td>
                   <td className="py-3 pr-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <a
+                        href={`/f/${form.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Abrir en una nueva pestaña"
+                      >
+                        <Button variant="ghost" size="icon">
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
                       <Button
                         variant="ghost"
                         size="icon"

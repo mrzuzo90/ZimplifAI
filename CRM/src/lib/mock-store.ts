@@ -883,6 +883,11 @@ export function getForm(id: string): MarketingForm | undefined {
   return getDb().forms.find((f) => f.id === id);
 }
 
+/** Busca un formulario activo por slug público (cualquier organización). */
+export function getFormBySlug(slug: string): MarketingForm | undefined {
+  return getDb().forms.find((f) => f.slug === slug && f.is_active);
+}
+
 export function addForm(form: MarketingForm) {
   mutate((db) => {
     db.forms.push(form);

@@ -412,6 +412,14 @@ export const mockModules: OrganizationModule[] = [
   mod("org_demo", "ai_logs", true, { retention_days: 90, stream_enabled: true }),
   mod("org_demo", "booking_calendar", false, { open_hours: "09:00–18:00", max_capacity: 10, confirmation_sms: false }),
   mod("org_demo", "light_web_menu", false, { site_url: "", has_menu: false, cta_phone: "" }),
+  mod("org_demo", "reservation_bot", true, {
+    channel: "telegram",
+    status: "disconnected",
+    bot_username: "",
+    telegram_token: "",
+    whatsapp_phone: "",
+    last_error: "",
+  }),
 
   // --- Fase A: workflow_automation habilitado en los tenants activos ---
   mod("org_brasa", "workflow_automation", true, { max_active_workflows: 10, execution_budget_tokens: 50000 }),
@@ -1279,6 +1287,26 @@ export const mockForms: MarketingForm[] = [
     is_active: true,
     created_at: daysAgo(45),
     updated_at: daysAgo(1),
+  },
+  {
+    id: "form_demo",
+    organization_id: "org_demo",
+    name: "Solicitud de contacto",
+    slug: "solicita-demo",
+    description: "Formulario demo de la agencia: prueba el botón «abrir en nueva pestaña».",
+    config: {
+      fields: [
+        { key: "first_name", label: "Nombre", type: "text", required: true },
+        { key: "email", label: "Email", type: "email", required: true },
+        { key: "phone", label: "Teléfono", type: "phone", required: false },
+      ],
+      button_text: "Enviar",
+      success_message: "¡Gracias! Te contactaremos pronto.",
+      redirect_url: null,
+    },
+    is_active: true,
+    created_at: daysAgo(30),
+    updated_at: daysAgo(2),
   },
 ];
 
