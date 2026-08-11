@@ -86,6 +86,8 @@ export function useRealtimeCollection<T extends { id: string }>(
 
   // Ref para el canal actual: evita race conditions entre mount/unmount
   const channelRef = useRef<ReturnType<typeof getSupabaseBrowserClient>["channel"] | null>(null);
+  // Ref para evitar doble suscripción en React 18 strict mode
+  const subscribedRef = useRef(false);
 
   useEffect(() => {
     if (isDemoMode() || !orgId || !table) return;
@@ -98,7 +100,12 @@ export function useRealtimeCollection<T extends { id: string }>(
     if (channelRef.current) {
       sb.removeChannel(channelRef.current);
       channelRef.current = null;
+      subscribedRef.current = false;
     }
+
+    // Guardar montaje para evitar que el cleanup del strict mode elimine
+    // el canal antes de que se complete la suscripción
+    let mounted = true;
 
     const channel = sb
       .channel(`realtime:${table}:${orgId}:${channelKey}`)
@@ -106,6 +113,7 @@ export function useRealtimeCollection<T extends { id: string }>(
         "postgres_changes",
         { event: "*", schema: "public", table, filter: filter ?? undefined },
         (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+          if (!mounted) return;
           if (payload.eventType === "DELETE") {
             const oldId = String(payload.old?.id ?? "");
             if (oldId) setData((cur) => cur.filter((r) => r.id !== oldId));
@@ -114,14 +122,20 @@ export function useRealtimeCollection<T extends { id: string }>(
           setData((cur) => upsertRow(payload.new, cur, sortKeyRef.current));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          subscribedRef.current = true;
+        }
+      });
 
     channelRef.current = channel;
 
     return () => {
-      if (channelRef.current) {
+      mounted = false;
+      if (channelRef.current && subscribedRef.current) {
         void sb.removeChannel(channelRef.current);
         channelRef.current = null;
+        subscribedRef.current = false;
       }
     };
   }, [orgId, table, filter]);
