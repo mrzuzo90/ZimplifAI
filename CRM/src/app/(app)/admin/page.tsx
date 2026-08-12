@@ -10,6 +10,7 @@ import { FeatureManagementDrawer } from "@/components/admin/FeatureManagementDra
 import { Button } from "@/components/ui/button";
 import { fetchAdminOverview } from "@/lib/data-access";
 import type { AdminOverview, OrganizationWithStats } from "@/types/database";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 
 /** Panel SuperAdmin: KPIs globales + tabla de tenants + provisión 1-Click. */
 export default function AdminPage() {
@@ -46,8 +47,9 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
+    <AdminGuard>
+      <div className="space-y-6">
+        <PageHeader
         index="ADM"
         label="SuperAdmin"
         title="Panel de control"
@@ -98,5 +100,6 @@ export default function AdminPage() {
         />
       )}
     </div>
+    </AdminGuard>
   );
 }

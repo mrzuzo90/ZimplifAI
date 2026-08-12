@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SLAConfigDrawer, type SLAConfig } from "@/components/sla/SLAConfigDrawer";
 import { fetchModules, recordTimelineEvent, setModuleSettings } from "@/lib/data-access";
+import { useBranding } from "@/hooks/useBranding";
 import { toast } from "sonner";
 
 interface SlaLead {
@@ -34,19 +35,37 @@ function mmss(seconds: number): string {
 }
 
 /** Radar de rescate de SLA: leads en riesgo de respuesta lenta con countdown. */
-export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: boolean }) {
+export function SLARadar({ compact = false }: { compact?: boolean }) {
+  const { organization } = useBranding();
   const [leads, setLeads] = useState<SlaLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState<SLAConfig>({ alert_minutes: 5, auto_rescue_minutes: 10 });
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const orgId = organization?.id;
+
   const load = useCallback(async () => {
+    if (!orgId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
+      // Get auth token from cookies/localStorage for API call
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("sb-"))
+        ?.split("=")[1];
+
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const [res, modules] = await Promise.all([
-        fetch(`/api/v1/sla/check?org_id=${encodeURIComponent(orgId)}`),
-        fetchModules(orgId),
+        fetch("/api/v1/sla/check", { headers }),
+        fetchModules(""), // orgId will be taken from JWT on server
       ]);
       const json = await res.json();
       setLeads(json.leads_at_risk ?? []);
@@ -68,6 +87,7 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
 
   /** Persiste los umbrales en los settings del módulo y los aplica en caliente. */
   const handleSaveConfig = async (next: SLAConfig) => {
+    if (!orgId) return;
     setConfig(next);
     try {
       const modules = await fetchModules(orgId);
@@ -84,8 +104,10 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
   };
 
   useEffect(() => {
-    load();
-  }, [load]);
+    (async () => {
+      await load();
+    })();
+  }, [load, orgId]);
 
   // Countdown visual: el reloj avanza cada segundo.
   useEffect(() => {
@@ -96,6 +118,7 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
   }, []);
 
   const handleRescue = async (lead: SlaLead) => {
+    if (!orgId) return;
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status: "rescued" } : l)));
     try {
       await recordTimelineEvent(orgId, {
@@ -112,6 +135,7 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
   };
 
   const handleAuto = async (lead: SlaLead) => {
+    if (!orgId) return;
     setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status: "rescued" } : l)));
     try {
       await recordTimelineEvent(orgId, {
@@ -182,7 +206,9 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
       {header}
       <CardContent className="space-y-2 pt-0">
         {sorted.slice(0, compact ? 3 : undefined).map((lead) => {
-          const liveAge = lead.status === "rescued" ? lead.age_seconds : lead.age_seconds + 0;
+          // El countdown avanza con el tick de 1s: age_seconds es la edad al cargar,
+          // y tick suma los segundos transcurridos desde el montaje del radar.
+          const liveAge = lead.status === "rescued" ? lead.age_seconds : lead.age_seconds + tick;
           const isDanger = lead.status !== "rescued" && liveAge >= config.auto_rescue_minutes * 60;
           const isWarning = lead.status !== "rescued" && liveAge >= config.alert_minutes * 60;
           return (
@@ -200,14 +226,14 @@ export function SLARadar({ orgId, compact = false }: { orgId: string; compact?: 
               )}
             >
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 truncate text-sm font-medium">
-                  {lead.name}
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="truncate text-sm font-medium">{lead.name}</p>
                   {lead.status === "rescued" && (
-                    <Badge className="bg-emerald-500/15 text-emerald-500 gap-1">
+                    <Badge className="shrink-0 gap-1 bg-emerald-500/15 text-emerald-500">
                       <HeartHandshake className="h-3 w-3" /> Rescatado
                     </Badge>
                   )}
-                </p>
+                </div>
                 <p className="truncate text-xs text-muted-foreground">
                   {SOURCE_LABEL[lead.source] ?? lead.source} · hace {mmss(liveAge)}
                 </p>

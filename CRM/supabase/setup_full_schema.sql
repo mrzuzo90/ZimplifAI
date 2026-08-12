@@ -205,6 +205,17 @@ as $$
   select public.current_user_role() = 'super_admin';
 $$;
 
+-- Agency mode: super_admin SIN impersonar (JWT tiene role=super_admin y _impersonated_from=null).
+-- En este modo el super_admin debe poder leer TODAS las organizaciones para el panel de agencia.
+create or replace function public.is_agency_mode()
+returns boolean
+language sql
+stable
+as $$
+  select public.current_user_role() = 'super_admin'
+     and (auth.jwt() -> 'app_metadata' ->> '_impersonated_from') is null;
+$$;
+
 create or replace function public.is_tenant_member()
 returns boolean
 language sql
@@ -253,6 +264,11 @@ create policy "org_super_admin_all"
   using (public.is_super_admin())
   with check (public.is_super_admin());
 
+-- Agency mode: super_admin sin impersonar puede leer TODAS las orgs para el panel de agencia.
+create policy "org_agency_read_all"
+  on public.organizations for select
+  using (public.is_agency_mode());
+
 create policy "org_tenant_read"
   on public.organizations for select
   using (public.is_tenant_member() and id = public.current_org_id());
@@ -267,6 +283,11 @@ create policy "profiles_super_admin_all"
   on public.profiles for all
   using (public.is_super_admin())
   with check (public.is_super_admin());
+
+-- Agency mode: super_admin sin impersonar puede leer TODOS los perfiles para el panel de agencia.
+create policy "profiles_agency_read_all"
+  on public.profiles for select
+  using (public.is_agency_mode());
 
 create policy "profiles_tenant_read"
   on public.profiles for select
@@ -431,8 +452,19 @@ create policy "modules_super_admin_all"
   using (public.is_super_admin())
   with check (public.is_super_admin());
 
+-- Client_admin puede gestionar (habilitar/deshabilitar) módulos de SU organización.
+create policy "modules_client_admin_manage"
+  on public.organization_modules for update
+  using (
+    public.current_user_role() = 'client_admin'
+    and organization_id = public.current_org_id()
+  )
+  with check (
+    public.current_user_role() = 'client_admin'
+    and organization_id = public.current_org_id()
+  );
+
 -- Cliente: solo lectura de los módulos de su organización (para renderizar UI).
--- No pueden escribir: el feature management es exclusivo del SuperAdmin.
 create policy "modules_tenant_read"
   on public.organization_modules for select
   using (public.is_tenant_member() and organization_id = public.current_org_id());
@@ -1926,7 +1958,7 @@ begin
     execute format(
       'create policy %I on %s
          as restrictive
-         for insert
+         for insert, update, delete
          with check (public.is_org_active());',
       'suspend_guard_' || replace(t, '.', '_'), t
     );
@@ -2225,6 +2257,53 @@ create policy "voice_agent_configs_tenant_all"
 -- ======================== Grants ========================
 
 grant all on table public.voice_agent_configs to authenticated, service_role;
+
+commit;
+
+-- ====================== 16_indexes_fks.sql ======================
+-- Índices compuestos faltantes para consultas frecuentes + FK constraints
+-- Ejecutar tras migraciones 01-15
+-- ============================================================
+
+begin;
+
+-- ---- 1. profiles: índice por organization_id (para lookups de tenant) ----
+create index if not exists profiles_org_idx on public.profiles (organization_id);
+
+-- ---- 2. leads: FK explícitas a companies y pipelines ----
+-- Nota: las columnas ya existen y tienen referencias inline (líneas 1019-1020),
+-- pero añadimos constraints con nombre para mejor debugging y cascade explícito.
+alter table public.leads
+  add constraint if not exists leads_company_id_fkey
+  foreign key (company_id) references public.companies (id) on delete set null;
+
+alter table public.leads
+  add constraint if not exists leads_pipeline_id_fkey
+  foreign key (pipeline_id) references public.pipelines (id) on delete set null;
+
+-- ---- 3. leads: índice compuesto por (organization_id, pipeline_id, status) ----
+create index if not exists leads_org_pipeline_status_idx
+  on public.leads (organization_id, pipeline_id, status);
+
+-- ---- 4. bookings: índice compuesto por (organization_id, calendar_id, booking_date) ----
+create index if not exists bookings_org_calendar_date_idx
+  on public.bookings (organization_id, calendar_id, booking_date);
+
+-- ---- 5. ai_audit_logs: índice compuesto por (lead_id, created_at) ----
+create index if not exists ai_audit_logs_lead_created_idx
+  on public.ai_audit_logs (lead_id, created_at desc);
+
+-- ---- 6. workflow_runs: índice compuesto por (organization_id, workflow_id, status) ----
+create index if not exists workflow_runs_org_workflow_status_idx
+  on public.workflow_runs (organization_id, workflow_id, status);
+
+-- ---- 7. message_threads: índice compuesto por (organization_id, status, last_message_at) ----
+create index if not exists message_threads_org_status_lastmsg_idx
+  on public.message_threads (organization_id, status, last_message_at desc);
+
+-- ---- 8. tasks: índice compuesto por (organization_id, assigned_to, due_date, status) ----
+create index if not exists tasks_org_assigned_due_status_idx
+  on public.tasks (organization_id, assigned_to, due_date, status);
 
 commit;
 

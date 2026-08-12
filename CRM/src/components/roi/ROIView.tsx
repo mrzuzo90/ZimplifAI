@@ -28,6 +28,7 @@ import {
   type ROIDashboardData,
 } from "@/lib/data-access";
 import { formatCurrency, formatNumber, formatTokens, formatDateShort } from "@/lib/format";
+import { useBranding } from "@/hooks/useBranding";
 import { toast } from "sonner";
 
 /** Bar chart CSS puro para métricas diarias. */
@@ -54,7 +55,9 @@ function MiniBars({ data }: { data: { date: string; value: number }[] }) {
 }
 
 /** Dashboard ROI: ingresos atribuidos vs coste, horas ahorradas y rescates. */
-export function ROIView({ orgId }: { orgId: string }) {
+export function ROIView() {
+  const { organization } = useBranding();
+  const orgId = organization?.id;
   const [data, setData] = useState<ROIDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +68,10 @@ export function ROIView({ orgId }: { orgId: string }) {
   const [simulating, setSimulating] = useState(false);
 
   const load = useCallback(async () => {
+    if (!orgId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -78,7 +85,9 @@ export function ROIView({ orgId }: { orgId: string }) {
   }, [orgId]);
 
   useEffect(() => {
-    load();
+    (async () => {
+      await load();
+    })();
   }, [load, refreshKey]);
 
   const chartData = useMemo(() => {
@@ -99,6 +108,7 @@ export function ROIView({ orgId }: { orgId: string }) {
   }, [data]);
 
   const handleSimulate = async () => {
+    if (!orgId) return;
     setSimulating(true);
     try {
       // Registra un lead entrante simulado en el timeline.
@@ -189,7 +199,7 @@ export function ROIView({ orgId }: { orgId: string }) {
           </CardContent>
         </Card>
 
-        <SLARadar orgId={orgId} compact />
+        <SLARadar compact />
       </div>
 
       {/* Simulador + leads recientes */}

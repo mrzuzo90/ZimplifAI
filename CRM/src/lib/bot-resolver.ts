@@ -178,41 +178,7 @@ export async function saveBotBooking(
 /** Contexto demo con los datos de la org de ejemplo para probar el wiring del webhook. */
 export async function demoOrgContext(): Promise<BotOrgContext> {
   const org = mockOrganizations.find((o) => o.id === "org_brasa");
-  const site = {
-    id: "site_brasa",
-    organization_id: "org_brasa",
-    title: "Brasa & Carbón",
-    slug: "brasa-carbon",
-    vertical_template: "restaurant_menu" as const,
-    is_published: true,
-    custom_domain: null,
-    seo_metadata: {},
-    content_payload: {
-      hero: {
-        headline: "Brasa & Carbón",
-        subheadline: "Cocina de brasa y reservas online.",
-        badge: "Reserva online disponible",
-        cta_text: "Reservar Mesa",
-      },
-      sections: {
-        show_menu: true,
-        show_hours: true,
-        show_location: true,
-        show_booking: true,
-      },
-      menu_items: [],
-      business_hours: [],
-      contact: {
-        address: "Calle Mayor 12, Madrid",
-        phone: "+34 910 000 000",
-        whatsapp: "+34 910 000 000",
-        google_maps_url: "",
-      },
-      menu_pdf_url: "",
-    },
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
+  // site data is embedded in the return object via siteUrl and calendars/rules/bookings
   return {
     orgId: org?.id ?? "org_brasa",
     businessName: org?.name ?? "Brasa & Carbón · Restaurante",

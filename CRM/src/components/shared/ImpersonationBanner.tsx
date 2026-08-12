@@ -5,18 +5,19 @@ import { toast } from "sonner";
 import { Eye, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBranding } from "@/hooks/useBranding";
-import { stopImpersonating } from "@/lib/data-access";
 import { cn } from "@/lib/utils";
 
 /** Banner persistente: SuperAdmin viendo una subcuenta en modo agencia. */
 export function ImpersonationBanner({ className }: { className?: string }) {
   const router = useRouter();
-  const { isImpersonating, organization, isSuperAdmin } = useBranding();
+  // stopImpersonation (contexto) hace DELETE + refresh de sesión + reload del contexto:
+  // sin el reload, el provider persistente del layout conservaría el estado impersonado.
+  const { isImpersonating, organization, isSuperAdmin, stopImpersonation } = useBranding();
   if (!isImpersonating || !isSuperAdmin) return null;
 
   const exit = async () => {
     try {
-      await stopImpersonating();
+      await stopImpersonation();
       router.push("/admin");
       router.refresh();
     } catch {

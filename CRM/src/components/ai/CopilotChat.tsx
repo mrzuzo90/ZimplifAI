@@ -67,7 +67,7 @@ export function CopilotChat({ orgId }: { orgId: string }) {
   };
 
   const startNewSession = async () => {
-    if (creating) return;
+    if (creating) return null;
     setCreating(true);
     try {
       const session = await createCopilotSession(orgId, profile?.id ?? "demo_user", {
@@ -75,25 +75,30 @@ export function CopilotChat({ orgId }: { orgId: string }) {
         context_type: "general",
       });
       setActiveSessionId(session.id);
+      return session;
     } catch {
       /* noop */
+      return null;
     } finally {
       setCreating(false);
     }
   };
 
-  const handleSend = async (text?: string) => {
+  // `sessionId` es un override explícito: cuando se envía desde una sugerencia tras
+  // crear sesión, `activeSessionId` aún no se ha aplicado en el render actual.
+  const handleSend = async (text?: string, sessionId?: string) => {
+    const target = sessionId ?? activeSessionId;
     const content = (text ?? input).trim();
-    if (!content || !activeSessionId || sending) return;
+    if (!content || !target || sending) return;
     setSending(true);
     setInput("");
     try {
-      await sendCopilotMessage(orgId, activeSessionId, { role: "user", content });
+      await sendCopilotMessage(orgId, target, { role: "user", content });
       // En demo, el asistente responde de forma determinista (sin LLM real).
       if (isDemoMode()) {
         const reply = demoAssistantReply(content);
         await new Promise((r) => setTimeout(r, 450));
-        await sendCopilotMessage(orgId, activeSessionId, {
+        await sendCopilotMessage(orgId, target, {
           role: "assistant",
           content: reply.content,
           tool_calls: reply.tool_calls,
@@ -167,7 +172,10 @@ export function CopilotChat({ orgId }: { orgId: string }) {
                 <button
                   key={s}
                   onClick={() => {
-                    void startNewSession().then(() => handleSend(s));
+                    void (async () => {
+                      const session = await startNewSession();
+                      if (session) await handleSend(s, session.id);
+                    })();
                   }}
                   className="rounded-full border border-border bg-background px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-[var(--tenant-primary)] hover:text-foreground"
                 >

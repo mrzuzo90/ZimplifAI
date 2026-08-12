@@ -12,7 +12,10 @@ import { cn } from "@/lib/utils";
 export function DemoBanner({ className }: { className?: string }) {
   const { demoMode, isSuperAdmin, switchDemoRole } = useBranding();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Evita hydration mismatch: solo renderiza tras montar en client.
   if (!mounted || !demoMode) return null;

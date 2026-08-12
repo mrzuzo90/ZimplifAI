@@ -15,9 +15,10 @@ import { toast } from "sonner";
  * para el workspace del cliente. El cliente VE el bot y lo prueba; la
  * configuración (token de BotFather) se hace desde el panel de agencia.
  */
-export function ReservationBotCard({ orgId }: { orgId: string }) {
+export function ReservationBotCard() {
   const router = useRouter();
-  const { isSuperAdmin, isModuleEnabled } = useBranding();
+  const { organization, isSuperAdmin, isModuleEnabled } = useBranding();
+  const orgId = organization?.id;
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
 
@@ -26,6 +27,10 @@ export function ReservationBotCard({ orgId }: { orgId: string }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      if (!orgId) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
       try {
         const mods = await fetchModules(orgId);
         const bot = mods.find((m) => m.module_key === "reservation_bot");

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TenantLogo } from "@/components/shared/TenantLogo";
+import { useBranding } from "@/hooks/useBranding";
 import { formatDateShort } from "@/lib/format";
 import { getIngestWebhookInfo, impersonate } from "@/lib/data-access";
 import { moduleLabel } from "@/lib/modules";
@@ -46,6 +47,7 @@ export function TenantsTable({
   onManageFeatures: (tenant: OrganizationWithStats) => void;
 }) {
   const router = useRouter();
+  const { refresh } = useBranding();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [vertical, setVertical] = useState<string>("all");
@@ -65,6 +67,8 @@ export function TenantsTable({
     setBusy({ type: "enter", orgId: tenant.id });
     try {
       await impersonate(tenant.id);
+      // Recarga el contexto para que /workspace muestre la subcuenta (no la agencia).
+      await refresh();
       toast.success(`Entrando en ${tenant.name}`);
       router.push("/workspace");
     } catch {

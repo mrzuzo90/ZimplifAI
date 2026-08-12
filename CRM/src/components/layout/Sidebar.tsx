@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   BarChart3,
   Bot,
@@ -64,7 +65,9 @@ const AGENCY_ITEMS: NavItem[] = [
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { organization, isSuperAdmin, isAgencyMode, isModuleEnabled } = useBranding();
+  const router = useRouter();
+  const { organization, isSuperAdmin, isAgencyMode, isModuleEnabled, isImpersonating, stopImpersonation } =
+    useBranding();
   const vertical = organization?.vertical_type ?? "custom_agency";
 
   const isActive = (item: NavItem) =>
@@ -75,14 +78,39 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     isSuperAdmin ? true : item.moduleKey ? isModuleEnabled(item.moduleKey) : true
   );
 
-  const renderLink = (item: NavItem) => {
+  /**
+   * Navegación al Agency Dashboard. Estando dentro de una subcuenta (impersonando)
+   * es imprescindible salir de la impersonación primero: sin el stop, el contexto
+   * sigue apuntando a la subcuenta y /admin no muestra la vista de agencia real.
+   */
+  const goAgencyDashboard = async () => {
+    if (isImpersonating) {
+      try {
+        await stopImpersonation();
+      } catch {
+        toast.error("No se pudo salir al modo agencia");
+        return;
+      }
+    }
+    onNavigate?.();
+    router.push("/admin");
+    router.refresh();
+  };
+
+  const renderLink = (item: NavItem, action?: () => void) => {
     const active = isActive(item);
     const Icon = item.icon;
     return (
       <Link
         key={item.href}
         href={item.href}
-        onClick={onNavigate}
+        onClick={(e) => {
+          onNavigate?.();
+          if (action) {
+            e.preventDefault();
+            void action();
+          }
+        }}
         className={cn(
           "group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
           active
@@ -145,14 +173,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <p className="px-2 pb-2 pt-1 text-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
               Operación global
             </p>
-            {AGENCY_ITEMS.map(renderLink)}
+            {AGENCY_ITEMS.map((item) =>
+              renderLink(item, item.href === "/admin" ? goAgencyDashboard : undefined)
+            )}
           </>
         ) : (
           <>
             <p className="px-2 pb-2 pt-1 text-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
               Operaciones
             </p>
-            {clientItems.map(renderLink)}
+            {clientItems.map((item) => renderLink(item))}
 
             {isSuperAdmin && (
               <>
@@ -161,7 +191,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 </p>
                 <Link
                   href="/admin"
-                  onClick={onNavigate}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void goAgencyDashboard();
+                  }}
                   className={cn(
                     "group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
                     pathname.startsWith("/admin")

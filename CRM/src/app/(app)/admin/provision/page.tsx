@@ -20,6 +20,7 @@ import { provisionOrganization } from "@/lib/data-access";
 import { fetchPublishedSnapshots } from "@/lib/data-access";
 import { VERTICAL_LABELS, type VerticalSnapshot } from "@/types/database";
 import type { ProvisionOutput } from "@/lib/provisioning";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 
 /** Motor de provisión 1-Click: crea org + cliente + agentes + webhook. */
 export default function AdminProvisionPage() {
@@ -77,8 +78,9 @@ export default function AdminProvisionPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
+    <AdminGuard>
+      <div className="space-y-6">
+        <PageHeader
         index="ADM"
         label="SuperAdmin"
         title="Provisión 1-Click"
@@ -272,5 +274,6 @@ export default function AdminProvisionPage() {
         </Card>
       )}
     </div>
+    </AdminGuard>
   );
 }

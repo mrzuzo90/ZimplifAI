@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  cancelBookingByToken, createPublicBooking, fetchBookingByToken,
-  fetchPublicAvailability, rescheduleBookingByToken,
+  cancelBookingByTokenApi, createPublicBookingApi, fetchBookingByTokenApi,
+  fetchPublicAvailabilityApi, rescheduleBookingByTokenApi,
 } from "@/lib/data-access";
 import type { Booking, Calendar } from "@/types/database";
 import type { DaySlot } from "@/lib/booking";
@@ -109,8 +109,8 @@ function BookingFlow({
     let cancelled = false;
     (async () => {
       try {
-        const result = await fetchPublicAvailability(orgId, calendarId, dateKey);
-        if (!cancelled) setSlots(result);
+        const result = await fetchPublicAvailabilityApi(orgId, calendarId, dateKey);
+        if (!cancelled) setSlots(result.slots);
       } catch {
         if (!cancelled) {
           setSlots([]);
@@ -132,7 +132,8 @@ function BookingFlow({
     }
     setSubmitting(true);
     try {
-      const booking = await createPublicBooking(orgId, {
+      const booking = await createPublicBookingApi({
+        orgId,
         calendar_id: calendarId,
         first_name: firstName.trim(),
         last_name: lastName.trim() || undefined,
@@ -142,7 +143,7 @@ function BookingFlow({
         date: dateKey,
         time: selectedTime,
       });
-      setCreated(booking);
+      setCreated(booking.booking);
     } catch {
       toast.error(es.bookingPage.errorGeneric);
     } finally {
@@ -358,9 +359,9 @@ function ManageBooking({
     let cancelled = false;
     (async () => {
       try {
-        const b = await fetchBookingByToken(token);
+        const b = await fetchBookingByTokenApi(token);
         if (!cancelled) {
-          if (b) setBooking(b);
+          if (b) setBooking(b.booking);
           else setError(true);
         }
       } catch {
@@ -381,8 +382,8 @@ function ManageBooking({
     let cancelled = false;
     (async () => {
       try {
-        const result = await fetchPublicAvailability(orgId, calendarId, dateKey);
-        if (!cancelled) setSlots(result);
+        const result = await fetchPublicAvailabilityApi(orgId, calendarId, dateKey);
+        if (!cancelled) setSlots(result.slots);
       } catch {
         if (!cancelled) setSlots([]);
       } finally {
@@ -443,7 +444,7 @@ function ManageBooking({
   const doCancel = async () => {
     setBusy(true);
     try {
-      await cancelBookingByToken(token);
+      await cancelBookingByTokenApi(token);
       setResult("cancelled");
     } catch {
       toast.error(es.bookingPage.errorGeneric);
@@ -459,7 +460,7 @@ function ManageBooking({
     }
     setBusy(true);
     try {
-      await rescheduleBookingByToken(token, dateKey, selectedTime);
+      await rescheduleBookingByTokenApi(token, dateKey, selectedTime);
       setResult("rescheduled");
     } catch {
       toast.error(es.bookingPage.errorGeneric);

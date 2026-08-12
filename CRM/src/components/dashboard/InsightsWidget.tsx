@@ -11,6 +11,7 @@ import { formatRelative } from "@/lib/format";
 import { toast } from "sonner";
 import type { InsightsMoment } from "@/types/database";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/hooks/useBranding";
 
 const SEVERITY_TONE: Record<InsightsMoment["severity"], string> = {
   info: "bg-sky-500/15 text-sky-500 border-sky-500/30",
@@ -20,16 +21,20 @@ const SEVERITY_TONE: Record<InsightsMoment["severity"], string> = {
 };
 
 /** Widget "Momentos IA": últimos insights pendientes del agent runtime. */
-export function InsightsWidget({ orgId }: { orgId: string }) {
+export function InsightsWidget() {
+  const { organization } = useBranding();
+  const orgId = organization?.id;
+
   const { data, refresh } = useRealtimeCollection<InsightsMoment>(
     useCallback((id) => fetchInsightsMoments(id), []),
-    orgId,
-    { table: "insights_moments", filter: `organization_id=eq.${orgId}` }
+    orgId ?? "",
+    { table: "insights_moments", filter: orgId ? `organization_id=eq.${orgId}` : undefined }
   );
 
   const pending = data.filter((m) => !m.is_resolved).slice(0, 4);
 
   const handleResolve = async (id: string) => {
+    if (!orgId) return;
     await resolveInsightMomentData(orgId, id);
     toast.success("Momento resuelto");
     refresh();

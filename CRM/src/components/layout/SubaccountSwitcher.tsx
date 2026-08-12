@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TenantLogo } from "@/components/shared/TenantLogo";
 import { useBranding } from "@/hooks/useBranding";
-import { fetchOrganizations, impersonate, stopImpersonating } from "@/lib/data-access";
+import { fetchOrganizations, impersonate } from "@/lib/data-access";
 import { VERTICAL_LABELS, type Organization } from "@/types/database";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
  */
 export function SubaccountSwitcher({ className }: { className?: string }) {
   const router = useRouter();
-  const { organization, isSuperAdmin, isAgencyMode, isImpersonating } = useBranding();
+  const { organization, isSuperAdmin, isAgencyMode, isImpersonating, stopImpersonation, refresh } = useBranding();
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -53,7 +53,8 @@ export function SubaccountSwitcher({ className }: { className?: string }) {
     if (isImpersonating) {
       setBusy("__agency__");
       try {
-        await stopImpersonating();
+        // stopImpersonation (contexto): DELETE + refresh de sesión + reload del contexto.
+        await stopImpersonation();
       } catch {
         toast.error("No se pudo salir al modo agencia");
         setBusy(null);
@@ -69,6 +70,9 @@ export function SubaccountSwitcher({ className }: { className?: string }) {
     setBusy(o.id);
     try {
       await impersonate(o.id);
+      // Recarga el contexto: sin refresh, el provider persistente del layout seguiría
+      // mostrando la org de agencia tras la navegación a /workspace.
+      await refresh();
       toast.success(`Entrando en ${o.name}`);
       router.push("/workspace");
     } catch {

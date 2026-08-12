@@ -23,6 +23,14 @@ export function shortId(prefix = ""): string {
   return prefix ? `${prefix}_${rand}` : rand;
 }
 
+/** Genera un UUID v4 (solo server-side, usa crypto). */
+export function uuid(): string {
+  if (typeof window !== "undefined") {
+    throw new Error("uuid() must only be called server-side");
+  }
+  return crypto.randomUUID();
+}
+
 /** Trunca texto manteniendo integridad de palabras. */
 export function truncate(input: string, max = 80): string {
   if (input.length <= max) return input;

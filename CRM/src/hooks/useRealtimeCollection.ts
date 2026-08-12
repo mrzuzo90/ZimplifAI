@@ -5,6 +5,17 @@ import type { RealtimePostgresChangesPayload, RealtimeChannel } from "@supabase/
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isDemoMode } from "@/lib/data-access";
 import { subscribeDb } from "@/lib/mock-store";
+import { useBranding } from "@/hooks/useBranding";
+
+/**
+ * Contador GLOBAL de canales realtime (módulo). Un ref por instancia se reinicia
+ * en cada montaje y colisiona con el canal previo aún en `unsubscribe()`: realtime-js
+ * `channel(topic)` devuelve el canal EXISTENTE si el topic coincide, y llamar
+ * `.on("postgres_changes")` sobre un canal ya suscrito lanza el error
+ * "cannot add postgres_changes callbacks ... after subscribe()".
+ * El contador global garantiza topics únicos entre instancias del hook.
+ */
+let channelSeq = 0;
 
 /**
  * Hook genérico de colección con realtime:
@@ -23,6 +34,10 @@ export function useRealtimeCollection<T extends { id: string }>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Validar orgId contra el contexto de branding para evitar acceso cruzado de tenants
+  const { organization } = useBranding();
+  const validatedOrgId = orgId && organization?.id === orgId ? orgId : null;
+
   // Ref con el sortKey vigente: el handler del canal lo lee sin re-suscribirse.
   const sortKeyRef = useRef<((a: T, b: T) => number) | undefined>(undefined);
   useEffect(() => {
@@ -37,25 +52,25 @@ export function useRealtimeCollection<T extends { id: string }>(
   });
 
   const refresh = useCallback(async () => {
-    if (!orgId) {
+    if (!validatedOrgId) {
       setData([]);
       return;
     }
     try {
-      const rows = await fetcherRef.current(orgId);
+      const rows = await fetcherRef.current(validatedOrgId);
       setData(rows);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e : new Error("Error al cargar datos"));
     }
-  }, [orgId]);
+  }, [validatedOrgId]);
 
   // Carga inicial
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const rows = orgId ? await fetcherRef.current(orgId) : [];
+        const rows = validatedOrgId ? await fetcherRef.current(validatedOrgId) : [];
         if (!cancelled) {
           setData(rows);
           setError(null);
@@ -69,7 +84,7 @@ export function useRealtimeCollection<T extends { id: string }>(
     return () => {
       cancelled = true;
     };
-  }, [orgId]);
+  }, [validatedOrgId]);
 
   // Modo demo: el store mock emite cambios → refrescamos.
   useEffect(() => {
@@ -85,57 +100,82 @@ export function useRealtimeCollection<T extends { id: string }>(
   // Ref para el canal actual y flag de montaje
   const channelRef = useRef<RealtimeChannel | null>(null);
   const mountedRef = useRef(false);
-  // Contador para generar nombres de canal únicos y evitar colisiones en React 18 Strict Mode
-  const channelIdRef = useRef(0);
+  // Mutex para serializar cleanup → create (evita race condition en React 18 Strict Mode)
+  const cleanupLockRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
-    if (isDemoMode() || !orgId || !table) return;
-    const sb = getSupabaseBrowserClient();
-    if (!sb) return;
+    let cancelled = false;
+    let sb: ReturnType<typeof getSupabaseBrowserClient> = null;
 
-    const channelKey = filter ? filter.replace(/[^A-Za-z0-9]/g, "-") : "all";
-    // Nombre único por montaje: evita colisiones con canales previos no liberados por Supabase
-    const channelId = ++channelIdRef.current;
-    const channelName = `realtime:${table}:${orgId}:${channelKey}:${channelId}`;
+    (async () => {
+      try {
+        // Esperar a que termine cualquier cleanup previo ANTES de crear el nuevo canal
+        // Esto serializa: cleanup anterior → create nuevo → subscribe
+        const currentLock = cleanupLockRef.current;
+        cleanupLockRef.current = currentLock.then(async () => {
+          // Cleanup SÍNCRONO del canal anterior ANTES de crear el nuevo
+          if (channelRef.current) {
+            const oldChannel = channelRef.current;
+            channelRef.current = null;
+            // unsubscribe() retorna Promise; await garantiza que termine antes de continuar
+            await oldChannel.unsubscribe();
+            sb?.removeChannel(oldChannel);
+          }
+        });
 
-    // Cleanup del canal anterior (si existe)
-    if (channelRef.current) {
-      sb.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
+        // Esperar al lock antes de proceder
+        await currentLock;
 
-    mountedRef.current = true;
+        if (cancelled) return;
 
-    const channel = sb.channel(channelName);
+        if (isDemoMode() || !validatedOrgId || !table) return;
+        sb = getSupabaseBrowserClient();
+        if (!sb) return;
 
-    // Configurar TODOS los callbacks ANTES de subscribe
-    channel.on(
-      "postgres_changes",
-      { event: "*", schema: "public", table, filter: filter ?? undefined },
-      (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
-        if (!mountedRef.current) return;
-        if (payload.eventType === "DELETE") {
-          const oldId = String(payload.old?.id ?? "");
-          if (oldId) setData((cur) => cur.filter((r) => r.id !== oldId));
-          return;
-        }
-        setData((cur) => upsertRow(payload.new, cur, sortKeyRef.current));
+        const channelKey = filter ? filter.replace(/[^A-Za-z0-9]/g, "-") : "all";
+        // Nombre único global (módulo): evita que realtime-js reutilice un topic en
+        // unsubscribe de otra instancia → "postgres_changes after subscribe()".
+        const channelId = ++channelSeq;
+        const channelName = `realtime:${table}:${validatedOrgId}:${channelKey}:${channelId}`;
+
+        mountedRef.current = true;
+
+        const channel = sb.channel(channelName);
+
+        // Configurar TODOS los callbacks ANTES de subscribe
+        channel.on(
+          "postgres_changes",
+          { event: "*", schema: "public", table, filter: filter ?? undefined },
+          (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+            if (!mountedRef.current) return;
+            if (payload.eventType === "DELETE") {
+              const oldId = String(payload.old?.id ?? "");
+              if (oldId) setData((cur) => cur.filter((r) => r.id !== oldId));
+              return;
+            }
+            setData((cur) => upsertRow(payload.new, cur, sortKeyRef.current));
+          }
+        );
+
+        // Suscribir al final (después de TODOS los .on())
+        channel.subscribe();
+
+        channelRef.current = channel;
+      } catch (e) {
+        if (!cancelled) console.error("Realtime setup error:", e);
       }
-    );
-
-    // Suscribir al final
-    channel.subscribe();
-
-    channelRef.current = channel;
+    })();
 
     return () => {
+      cancelled = true;
       mountedRef.current = false;
       if (channelRef.current) {
-        sb.removeChannel(channelRef.current);
+        const ch = channelRef.current;
         channelRef.current = null;
+        ch.unsubscribe().then(() => sb?.removeChannel(ch));
       }
     };
-  }, [orgId, table, filter]);
+  }, [validatedOrgId, table, filter]);
 
   return { data, loading, error, refresh };
 }

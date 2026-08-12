@@ -81,7 +81,9 @@ export function ReputationView({ orgId }: { orgId: string }) {
     return { avg, count: reviews.length, distribution };
   }, [reviews]);
 
-  const published = useMemo(() => reviews.filter((r) => r.status === "published"), [reviews]);
+  // Muestra publicadas + pendientes (las nuevas quedan a la vista hasta su revisión);
+  // las archivadas se ocultan. Evita que una reseña recién creada desaparezca.
+  const visible = useMemo(() => reviews.filter((r) => r.status !== "archived"), [reviews]);
 
   const handleReply = async (review: Review) => {
     setSendingReply(review.id);
@@ -164,10 +166,10 @@ export function ReputationView({ orgId }: { orgId: string }) {
 
         <TabsContent value="reviews" className="mt-4">
           <div className="space-y-3">
-            {published.length === 0 && (
+            {visible.length === 0 && (
               <EmptyState icon={Star} title="Sin reseñas" description="Pide reseñas a tus clientes para empezar a construir tu reputación." />
             )}
-            {published.map((review) => (
+            {visible.map((review) => (
               <div key={review.id} className="rounded-xl border border-border bg-surface p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">

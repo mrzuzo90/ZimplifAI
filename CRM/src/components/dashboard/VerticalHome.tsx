@@ -15,34 +15,37 @@ import { ReservationBotCard } from "@/components/bots/ReservationBotCard";
  * - Servicios / agencia → widget "Mi Día" + pipeline (kanban / tabla / calendario / lista).
  * Widgets comunes (SLA, momentos IA, métricas, bot de reservas) se muestran en ambas ramas.
  */
-export function VerticalHome({ orgId }: { orgId: string }) {
+export function VerticalHome() {
   const { organization, isModuleEnabled } = useBranding();
   const isRestaurant = organization?.vertical_type === "restaurant_booking";
   const showBookingsHome = isRestaurant && isModuleEnabled("booking_calendar");
+  const showSalesCRM = isModuleEnabled("sales_crm");
+  const showSalesKanban = isModuleEnabled("sales_kanban");
+  const orgId = organization?.id;
 
   const widgets = (
     <div className="grid gap-4 lg:grid-cols-3">
       <div className="lg:col-span-3">
-        <ReservationBotCard orgId={orgId} />
+        <ReservationBotCard />
       </div>
-      <SLARadar orgId={orgId} compact />
-      <InsightsWidget orgId={orgId} />
-      <DailyMetricsWidget orgId={orgId} />
+      <SLARadar compact />
+      <InsightsWidget />
+      <DailyMetricsWidget />
     </div>
   );
 
   if (showBookingsHome)
     return (
       <div className="space-y-6">
-        <RestaurantToday orgId={orgId} />
+        <RestaurantToday orgId={orgId!} />
         {widgets}
       </div>
     );
   return (
     <div className="space-y-6">
-      <MyDay orgId={orgId} />
+      {showSalesCRM && <MyDay orgId={orgId!} />}
       {widgets}
-      <PipelineView orgId={orgId} />
+      {showSalesKanban && <PipelineView orgId={orgId!} />}
     </div>
   );
 }

@@ -25,7 +25,7 @@ import {
 } from "@/lib/mock-store";
 import { getContrastForeground, isValidHex } from "@/lib/branding";
 import { enabledModuleKeys } from "@/lib/modules";
-import { fetchModules, setModuleEnabled, setModuleSettings } from "@/lib/data-access";
+import { fetchModules, setModuleEnabled, setModuleSettings, stopImpersonating } from "@/lib/data-access";
 
 const ACTIVE_ORG_KEY = "zimplifai-crm-active-org";
 
@@ -77,6 +77,18 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
 
   const demoMode = typeof window !== "undefined" && !getSupabaseBrowserClient();
 
+  // Demo mode warning in production — if deployed without Supabase env vars, auth is bypassed.
+  useEffect(() => {
+    if (demoMode && typeof window !== "undefined" && process.env.NODE_ENV === "production") {
+      console.warn(
+        "[BrandingContext] ⚠️ MODO DEMO ACTIVO EN PRODUCCIÓN: " +
+          "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY no están configurados. " +
+          "Toda la autenticación y autorización está deshabilitada. " +
+          "Configura las variables de entorno en Vercel para habilitar Supabase Auth."
+      );
+    }
+  }, [demoMode]);
+
   const loadModules = useCallback(async (orgId: string | null) => {
     if (!orgId) {
       setEnabledModules([]);
@@ -120,12 +132,26 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
         .eq("id", user.id)
         .single();
       setProfile(prof ?? null);
-      setRole(prof?.role ?? "client_member");
 
-      let orgId: string | null =
-        prof?.organization_id ??
-        (typeof window !== "undefined" ? window.localStorage.getItem(ACTIVE_ORG_KEY) : null);
-      if (!orgId && prof?.role === "super_admin") {
+      // Impersonación en prod: `_impersonated_from` llega al JWT tras el refresh
+      // post-swap. Mientras se impersona, role/isSuperAdmin reflejan el rol REAL
+      // (super_admin) para que el switcher y el banner de agencia sigan vivos y
+      // el admin pueda salir; `isImpersonating` lo activa todo.
+      const appMeta = (user.app_metadata ?? {}) as Record<string, unknown>;
+      const impersonating = Boolean(appMeta._impersonated_from);
+      setIsImpersonating(impersonating);
+      const effectiveRole = (impersonating
+        ? appMeta._impersonated_from
+        : prof?.role) as UserRole | undefined;
+      setRole(effectiveRole ?? prof?.role ?? "client_member");
+
+      // Al impersonar, la org es la del JWT (app_metadata.organization_id); el perfil
+      // NO se escribe durante la impersonación para no corromper el rol real.
+      let orgId: string | null = impersonating
+        ? ((appMeta.organization_id as string | null) ?? null)
+        : (prof?.organization_id ??
+          (typeof window !== "undefined" ? window.localStorage.getItem(ACTIVE_ORG_KEY) : null));
+      if (!orgId && (prof?.role === "super_admin" || impersonating)) {
         const { data: orgs } = await sb.from("organizations").select("id").limit(1);
         orgId = orgs?.[0]?.id ?? null;
       }
@@ -168,6 +194,29 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       setEnabledModules(enabledModuleKeys(listModules(db.activeOrgId)));
     });
   }, [demoMode]);
+
+  // Escuchar cambios de auth de Supabase (login, logout, refresh de sesión tras impersonación).
+  // Cuando el middleware hace refreshSession(), el JWT se actualiza con nuevos claims
+  // (_impersonated_from, role, organization_id). Este listener recarga el contexto.
+  useEffect(() => {
+    if (demoMode) return;
+    const sb = getSupabaseBrowserClient();
+    if (!sb) return;
+    const {
+      data: { subscription },
+    } = sb.auth.onAuthStateChange(async (event) => {
+      // Solo nos interesa: SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED, SIGNED_OUT
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED" ||
+        event === "SIGNED_OUT"
+      ) {
+        await load();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [demoMode, load]);
 
   // Inyección de variables CSS del tenant (motor white-label).
   useEffect(() => {
@@ -253,8 +302,8 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       setImpersonatingOrgId(null);
       return;
     }
-    const res = await fetch("/api/admin/impersonate", { method: "DELETE" });
-    if (!res.ok) throw new Error("No se pudo salir de la impersonación");
+    // stopImpersonating refresca la sesión para que el JWT pierda _impersonated_from.
+    await stopImpersonating();
     await load();
   }, [demoMode, load]);
 

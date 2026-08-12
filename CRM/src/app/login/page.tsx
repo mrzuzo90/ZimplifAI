@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { ZMark } from "@/components/shared/ZLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import Image from "next/image";
 

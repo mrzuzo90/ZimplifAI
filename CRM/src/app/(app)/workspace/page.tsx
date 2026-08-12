@@ -35,7 +35,7 @@ export default function PipelinePage() {
       {loading ? (
         <LoadingState label="Cargando tenant" />
       ) : organization ? (
-        <VerticalHome orgId={organization.id} />
+        <VerticalHome />
       ) : (
         <EmptyState
           title="Sin organización activa"

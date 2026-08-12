@@ -36,7 +36,6 @@ import {
   addTimelineEvent,
   addWorkflow,
   addWorkflowRunStep,
-  deleteMessagingBot,
   ensureOrgModules,
   findBookingByToken,
   getCopilotSession,
@@ -141,7 +140,6 @@ import {
   setModuleSettings as mockSetModuleSettings,
   setSitePublished as mockSetSitePublished,
   upsertLeadScore,
-  upsertMessagingBot,
   upsertMetricsDaily,
   upsertOrg,
   upsertSite,
@@ -1652,6 +1650,14 @@ export async function impersonate(orgId: string) {
   });
   const payload = await res.json();
   if (!res.ok) throw new Error(payload.error ?? "Error al impersonar");
+  // Refresca la sesión para que las nuevas claims (role client_admin + org) tomen
+  // efecto ya: RLS basado en JWT y el guard de agencia leen claims, no el perfil.
+  try {
+    const sb = getSupabaseBrowserClient();
+    await sb?.auth.refreshSession();
+  } catch {
+    // Best-effort: el trigger sync_profile_claims ya dejó el perfil consistente.
+  }
   return payload;
 }
 
@@ -1666,6 +1672,13 @@ export async function stopImpersonating() {
   });
   const payload = await res.json();
   if (!res.ok) throw new Error(payload.error ?? "Error al salir de impersonación");
+  // Refresca la sesión para que el JWT pierda _impersonated_from y recupere el rol real.
+  try {
+    const sb = getSupabaseBrowserClient();
+    await sb?.auth.refreshSession();
+  } catch {
+    // Best-effort: el perfil ya se resincronizó por el trigger.
+  }
   return payload;
 }
 
@@ -1795,7 +1808,8 @@ export async function removeAvailabilityRule(orgId: string, id: string) {
 
 /* ---------- Reserva pública /b/[slug] ---------- */
 
-/** Contexto público de reserva de un negocio por slug (organización + calendarios activos). */
+/** Contexto público de reserva de un negocio por slug (organización + calendarios activos).
+ * Solo organizaciones con status='active' pueden recibir reservas públicas. */
 export async function fetchPublicBookingContext(slug: string): Promise<{
   org: Organization;
   calendars: Calendar[];
@@ -1806,6 +1820,7 @@ export async function fetchPublicBookingContext(slug: string): Promise<{
       .from("organizations")
       .select("*")
       .eq("slug", slug)
+      .eq("status", "active")
       .maybeSingle();
     if (error) throw error;
     if (!org) return null;
@@ -1818,7 +1833,7 @@ export async function fetchPublicBookingContext(slug: string): Promise<{
     return { org, calendars: calendars ?? [] };
   }
   const org = getOrg(slugToOrgId(slug));
-  if (!org) return null;
+  if (!org || org.status !== "active") return null;
   return { org, calendars: listCalendars(org.id).filter((c) => c.is_active) };
 }
 
@@ -2042,6 +2057,82 @@ export async function rescheduleBookingByToken(token: string, newDate: string, n
   if (!booking) throw new Error("Reserva no encontrada");
   patchBooking(booking.id, { booking_date: bookingDate, status: "confirmed" });
   return { ...booking, booking_date: bookingDate, status: "confirmed" };
+}
+
+/* ========================= Cliente API público (para componentes de cliente) ========================= */
+
+export interface PublicAvailabilityResponse {
+  slots: DaySlot[];
+}
+
+export async function fetchPublicAvailabilityApi(
+  orgId: string,
+  calendarId: string,
+  date: string
+): Promise<PublicAvailabilityResponse> {
+  const res = await fetch(`/api/public/availability?org_id=${encodeURIComponent(orgId)}&calendar_id=${encodeURIComponent(calendarId)}&date=${encodeURIComponent(date)}`);
+  if (!res.ok) throw new Error("Failed to fetch availability");
+  return res.json();
+}
+
+export interface PublicBookingInput {
+  orgId: string;
+  calendar_id: string;
+  first_name: string;
+  last_name?: string;
+  phone: string;
+  email?: string;
+  party_size: number;
+  date: string;
+  time: string;
+}
+
+export interface PublicBookingResponse {
+  booking: Booking;
+  token: string;
+}
+
+export async function createPublicBookingApi(input: PublicBookingInput): Promise<PublicBookingResponse> {
+  const res = await fetch("/api/public/booking", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error("Failed to create booking");
+  return res.json();
+}
+
+export interface PublicBookingByTokenResponse {
+  booking: Booking & { calendar_name: string | null; org_name: string };
+}
+
+export async function fetchBookingByTokenApi(token: string): Promise<PublicBookingByTokenResponse | null> {
+  const res = await fetch(`/api/public/booking/manage?token=${encodeURIComponent(token)}`);
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error("Failed to fetch booking");
+  }
+  return res.json();
+}
+
+export async function cancelBookingByTokenApi(token: string): Promise<{ booking: Booking }> {
+  const res = await fetch("/api/public/booking/manage/cancel", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+  if (!res.ok) throw new Error("Failed to cancel booking");
+  return res.json();
+}
+
+export async function rescheduleBookingByTokenApi(token: string, date: string, time: string): Promise<{ booking: Booking }> {
+  const res = await fetch("/api/public/booking/manage/reschedule", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, date, time }),
+  });
+  if (!res.ok) throw new Error("Failed to reschedule booking");
+  return res.json();
 }
 
 /* ========================= CRM extendido (Fase E1) ========================= */

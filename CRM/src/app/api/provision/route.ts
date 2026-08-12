@@ -3,15 +3,41 @@ import { getServiceSupabase, isAdminConfigured } from "@/lib/supabase/admin";
 import { applySnapshot, generateApiKey, buildWebhookUrl, type ProvisionInput } from "@/lib/provisioning";
 import { createVerticalWorkflowTemplate } from "@/lib/workflows";
 import { defaultContentForTemplate, slugify } from "@/lib/site";
-import { shortId } from "@/lib/utils";
+import { uuid } from "@/lib/utils";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 /**
  * POST /api/provision
  * Motor de provisión 1-Click (service role, bypass RLS).
  * Crea organización + cliente admin + agentes IA + api_key_hash y
  * devuelve el webhook de ingesta cifrado.
+ * Requiere autenticación de super_admin.
  */
 export async function POST(req: Request) {
+  // Verificar autenticación del usuario que llama
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "No autorizado: se requiere token Bearer" }, { status: 401 });
+  }
+
+  const token = authHeader.slice(7);
+  const sbAnon = createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data: { user }, error: userError } = await sbAnon.auth.getUser(token);
+  if (userError || !user) {
+    return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 });
+  }
+
+  // Verificar que el usuario es super_admin
+  const role = user.app_metadata?.role;
+  if (role !== "super_admin") {
+    return NextResponse.json({ error: "Prohibido: solo super_admin puede provisionar" }, { status: 403 });
+  }
+
   if (!isAdminConfigured()) {
     return NextResponse.json({ error: "Entorno Supabase no configurado" }, { status: 503 });
   }
@@ -51,7 +77,7 @@ export async function POST(req: Request) {
   const { plain, hash } = generateApiKey();
 
   // 2. Crea la organización (Trial por defecto, color primario de la vertical).
-  const orgId = `org_${shortId()}`;
+  const orgId = uuid();
   const { data: org, error: orgError } = await sb
     .from("organizations")
     .insert({
@@ -72,10 +98,11 @@ export async function POST(req: Request) {
   }
 
   // 3. Crea el perfil del cliente admin (se enlaza a un auth user con ese email si existe).
+  const profileId = uuid();
   const { error: profileError } = await sb
     .from("profiles")
     .insert({
-      id: `profile_${shortId()}`,
+      id: profileId,
       organization_id: orgId,
       role: "client_admin",
       full_name: clientName,
@@ -88,7 +115,7 @@ export async function POST(req: Request) {
   // 4. Aprovisiona los agentes IA por defecto de la vertical.
   const { error: agentsError } = await sb.from("ai_agents").insert(
     config.agents.map((agent) => ({
-      id: `ag_${shortId()}`,
+      id: uuid(),
       organization_id: orgId,
       name: agent.name,
       model: agent.model,

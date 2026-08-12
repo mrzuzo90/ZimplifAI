@@ -21,7 +21,7 @@ export default function ROIPage() {
         {loading ? (
           <LoadingState label="Cargando tenant" />
         ) : organization ? (
-          <ROIView orgId={organization.id} />
+          <ROIView />
         ) : (
           <EmptyState title="Sin organización activa" description="Inicia sesión o entra en modo demo." />
         )}

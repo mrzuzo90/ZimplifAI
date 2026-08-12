@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, format } from "date-fns";
 import { CalendarCheck, CheckCircle2, ImagePlus, Loader2, ScanEye, Sparkles } from "lucide-react";
 import {
-  createPublicBooking,
+  createPublicBookingApi,
   fetchCalendars,
-  fetchPublicAvailability,
+  fetchPublicAvailabilityApi,
 } from "@/lib/data-access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -227,8 +227,8 @@ function InspectionBooking({
     (async () => {
       setSlotsLoading(true);
       try {
-        const result = await fetchPublicAvailability(orgId, _calendarId, dateKey);
-        if (!cancelled) setSlots(result);
+        const result = await fetchPublicAvailabilityApi(orgId, _calendarId, dateKey);
+        if (!cancelled) setSlots(result.slots);
       } catch {
         if (!cancelled) setSlots([]);
       } finally {
@@ -244,7 +244,8 @@ function InspectionBooking({
     if (!_calendarId || !time || !firstName.trim() || !phone.trim()) return;
     setSubmitting(true);
     try {
-      const booking = await createPublicBooking(orgId, {
+      const booking = await createPublicBookingApi({
+        orgId,
         calendar_id: _calendarId,
         first_name: firstName.trim(),
         phone: phone.trim(),
@@ -252,7 +253,7 @@ function InspectionBooking({
         date: dateKey,
         time,
       });
-      setCreated(booking);
+      setCreated(booking.booking);
     } catch {
       /* error silencioso: el micrositio no rompe */
     } finally {

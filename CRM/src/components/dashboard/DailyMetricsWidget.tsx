@@ -1,17 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarCheck, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { fetchMetricsDaily } from "@/lib/data-access";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import type { MetricsDaily } from "@/types/database";
+import { useBranding } from "@/hooks/useBranding";
 
 /** Widget "Métricas": leads, reservas y revenue de los últimos 7 días. */
-export function DailyMetricsWidget({ orgId }: { orgId: string }) {
+export function DailyMetricsWidget() {
+  const { organization } = useBranding();
+  const orgId = organization?.id;
   const [rows, setRows] = useState<MetricsDaily[]>([]);
 
   useEffect(() => {
+    if (!orgId) return;
     const dateFrom = new Date(Date.now() - 6 * 86_400_000).toISOString().slice(0, 10);
     const dateTo = new Date().toISOString().slice(0, 10);
     fetchMetricsDaily(orgId, dateFrom, dateTo).then(setRows).catch(() => {});

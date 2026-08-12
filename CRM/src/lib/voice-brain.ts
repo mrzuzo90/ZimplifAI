@@ -219,7 +219,7 @@ export function runVoiceTurn(
         if (!date) {
           return noAction("No te he entendido el día. ¿Hoy, mañana, o algún día de la semana?", next);
         }
-        const services = ctx.services.filter((s) => slotsFor(ctx, date, session.partySize ?? 1).length > 0);
+        const services = ctx.services.filter((_s) => slotsFor(ctx, date, session.partySize ?? 1).length > 0);
         if (services.length === 0) {
           return noAction(`Lo siento, el ${formatDateEs(date)} no tenemos disponibilidad. ¿Otro día?`, { ...next, step: "date", dateStr: null });
         }

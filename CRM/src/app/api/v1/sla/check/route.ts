@@ -1,14 +1,37 @@
 import { NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/supabase/admin";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database";
 
 /**
  * GET /api/v1/sla/check
  * SLA Rescue Radar: detecta leads en riesgo de respuesta lenta.
  * Umbrales por defecto: alerta a los 5 min, auto-rescate a los 10 min.
+ * Requiere autenticación; usa organization_id del JWT (app_metadata).
  */
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const orgId = searchParams.get("org_id") ?? "org_brasa";
+  // Verificar autenticación
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "No autorizado: se requiere token Bearer" }, { status: 401 });
+  }
+
+  const token = authHeader.slice(7);
+  const sbAnon = createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { data: { user }, error: userError } = await sbAnon.auth.getUser(token);
+  if (userError || !user) {
+    return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 });
+  }
+
+  // Obtener organization_id del JWT (app_metadata)
+  const orgId = user.app_metadata?.organization_id;
+  if (!orgId) {
+    return NextResponse.json({ error: "No se pudo determinar la organización del usuario" }, { status: 400 });
+  }
 
   const sb = getServiceSupabase();
   const demo = !sb;

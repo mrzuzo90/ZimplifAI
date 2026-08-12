@@ -431,7 +431,7 @@ function webReply(ctx: BotOrgContext): BotReply {
   };
 }
 
-function fallbackReply(ctx: BotOrgContext): BotReply {
+function fallbackReply(_ctx: BotOrgContext): BotReply {
   return {
     text:
       `No estoy seguro de haber entendido 😅. Puedo ayudarte con:\n` +

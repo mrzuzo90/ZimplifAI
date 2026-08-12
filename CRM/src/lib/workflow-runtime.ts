@@ -42,7 +42,14 @@ export interface WorkflowTriggerContext {
   meta?: Record<string, unknown>;
 }
 
-type AnySupabase = { from: (table: string) => any };
+// Tipo genérico compatible con Supabase Client (browser y service_role)
+// Usamos `any` para el query builder porque SupabaseClient<Database> tiene
+// tipos internos complejos (PostgrestQueryBuilder, PostgrestFilterBuilder, etc.)
+// que varían entre cliente browser y service_role. La estructura de métodos
+// (select, eq, insert, update, delete, single, maybeSingle) es compatible.
+type AnySupabase = {
+  from: (table: string) => any;
+};
 
 /* ===================== Helpers backend dual ===================== */
 
