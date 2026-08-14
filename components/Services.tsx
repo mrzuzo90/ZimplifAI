@@ -51,11 +51,11 @@ export default function Services() {
   const { scrollTo } = useSmoothScroll();
 
   return (
-    <section id="servicios" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-      <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
+    <section id="servicios" className="relative mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+      <div className="mb-8 flex flex-col justify-between gap-6 md:mb-10 md:flex-row md:items-end">
         <div>
           <SectionLabel index="02" label="Servicios" />
-          <Reveal delay={0.1} className="mt-8 max-w-2xl">
+          <Reveal delay={0.1} className="mt-3 max-w-2xl md:mt-4">
             <h2 className="text-4xl font-bold tracking-tight md:text-6xl">
               Lo que hace <span className="text-volt">ZimplifAI</span>
             </h2>

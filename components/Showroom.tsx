@@ -36,10 +36,10 @@ export default function Showroom() {
   );
 
   return (
-    <section id="proyectos" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-      <SectionLabel index="03" label="Proyectos" className="mb-8 md:mb-10" />
+    <section id="proyectos" className="relative mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+      <SectionLabel index="03" label="Proyectos" className="mb-4 md:mb-6" />
 
-      <div className="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
+      <div className="mb-8 flex flex-col justify-between gap-6 md:mb-10 md:flex-row md:items-end">
         <Reveal delay={0.1}>
           <h2 className="max-w-xl text-4xl font-bold tracking-tight md:text-6xl">
             El <span className="font-serif italic font-normal text-volt">showroom</span>. Proyectos

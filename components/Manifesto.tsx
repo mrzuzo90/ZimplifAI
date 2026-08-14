@@ -8,10 +8,10 @@ import WorkPanels from "@/components/WorkPanels";
 
 export default function Manifesto() {
   return (
-    <section id="manifiesto" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-      <SectionLabel index="01" label="Manifiesto" className="mb-6 md:mb-8" />
+    <section id="manifiesto" className="relative mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+      <SectionLabel index="01" label="Manifiesto" className="mb-4 md:mb-6" />
 
-      <div className="grid gap-10 md:grid-cols-12">
+      <div className="grid gap-6 md:grid-cols-12 md:gap-8">
         <div className="md:col-span-3">
           <Reveal className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
             Quién está detrás
@@ -20,7 +20,7 @@ export default function Manifesto() {
 
         <div className="md:col-span-8 md:col-start-5">
           <Reveal delay={0.08}>
-            <p className="mb-6 text-3xl font-medium leading-tight tracking-tight md:text-5xl">
+            <p className="mb-5 text-2xl font-medium leading-tight tracking-tight sm:text-3xl md:text-5xl">
               Construyo software que se usa de verdad. Ahora ayudo a empresas a hacer lo mismo con
               IA: quitarse el papeleo, automatizar lo repetitivo y desplegar tecnología que suena a
               ciencia ficción.
@@ -40,7 +40,7 @@ export default function Manifesto() {
 
           {/* Credencial inline — discreta, sin esquema complejo */}
           <Reveal delay={0.28}>
-            <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-volt/30 bg-volt/5 px-5 py-2.5">
+            <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-volt/30 bg-volt/5 px-5 py-2.5">
               <span className="font-mono text-sm font-semibold tracking-tight text-volt">ELEE0109</span>
               <span className="text-xs text-muted">automatismos industriales</span>
             </div>
@@ -52,7 +52,7 @@ export default function Manifesto() {
       <WorkPanels />
 
       {/* Stats */}
-      <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:mt-10 md:grid-cols-4">
         <Stat value={<Counter to={projects.length} />} label="proyectos reales" />
         <Stat value={<Counter to={liveCount} />} label="en producción" />
         <Stat value={<Counter to={420} suffix="+" />} label="tests automatizados (zCADe)" />

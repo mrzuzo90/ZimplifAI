@@ -96,10 +96,10 @@ export default function Contact() {
   }
 
   return (
-    <section id="contacto" className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-      <SectionLabel index="05" label="Contacto" className="mb-12 md:mb-16" />
+    <section id="contacto" className="relative mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+      <SectionLabel index="05" label="Contacto" className="mb-4 md:mb-6" />
 
-      <div className="grid gap-12 md:grid-cols-12">
+      <div className="grid gap-8 md:grid-cols-12 md:gap-10">
         <div className="md:col-span-5">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
