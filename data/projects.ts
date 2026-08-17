@@ -22,6 +22,7 @@ export interface Project {
   status: string;
   statusTone: ProjectStatusTone;
   url?: string;
+  telegramBotUrl?: string;
   /** Color principal del proyecto para la tarjeta (hex). */
   accent?: string;
   /** Captura/preview visual: "browser" | "desktop" | "terminal" | "mobile" */
@@ -163,23 +164,25 @@ export const projects: Project[] = [
     id: "crm",
     name: "ZimplifAI CRM",
     category: "ia",
-    tagline: "Agency Operating System multi-tenant con IA.",
+    tagline: "Agency Operating System multi-tenant con Bots de IA y Reservas 24/7.",
     description:
-      "Plataforma B2B SaaS completa para gestionar subcuentas verticales (hostelería, servicios, agencia) con provisión 1-clic, feature flags por módulo, impersonación real, workflows visuales, bandeja unificada multicanal, calendarios de citas públicos, editor de micro-webs verticales y CRM extendido (empresas, pipelines, tareas). Todo con white-label en tiempo real y modo demo offline.",
+      "Plataforma B2B SaaS completa para gestionar subcuentas verticales (hostelería, clínicas, servicios y agencias). Incluye bots autónomos de reservas (Telegram y WhatsApp) con pase de sala inteligente por horas, detección de alérgenos y carritos, alertas push en tiempo real al staff, sincronización con Google Calendar, provisión 1-clic, workflows visuales, bandeja unificada multicanal, editor de micro-webs y CRM comercial.",
     problem:
-      "Las agencias necesitan operar decenas de clientes verticales sin repetir setup: provisionar, configurar módulos, entrar en su workspace y controlar features desde un panel central. El CRM lo resuelve con arquitectura multi-tenant estricta (RLS), motor white-label y IA nativa (agentes, copilot, auditoría).",
+      "Los negocios y agencias pierden reservas y tiempo atendiendo chats repetitivos y gestionando mesas manualmente. ZimplifAI CRM automatiza la captación y las reservas 24/7 con IA nativa, entregando el control total a sala en Telegram y centralizando la gestión sin fricción.",
     stack: [
       "Next.js 16.3",
       "React 19",
       "Supabase (Postgres + RLS + Realtime)",
+      "Telegram Bot API",
       "Tailwind CSS v4",
       "Radix UI + shadcn",
       "framer-motion",
       "Turbopack",
     ],
-    status: "Completo · Build verificado",
+    status: "En producción",
     statusTone: "live",
-    url: "https://zimplifai-crm.vercel.app",
+    url: "https://crm.zimplifai.es",
+    telegramBotUrl: "https://t.me/ZimplifAI_bot",
     accent: "#CEFF00",
     previewType: "browser",
   },

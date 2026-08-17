@@ -296,9 +296,20 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-volt/50 px-6 py-3 text-sm font-semibold text-volt transition-colors hover:bg-volt hover:text-bg"
+                  className="inline-flex items-center gap-2 rounded-full border border-volt/50 px-6 py-3 text-sm font-semibold text-volt transition-colors hover:bg-volt hover:text-bg shadow-sm"
                 >
                   Visitar {project.url.replace(/^https?:\/\//, "")}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              )}
+              {project.telegramBotUrl && (
+                <a
+                  href={project.telegramBotUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-sky-400/60 bg-sky-500/10 px-6 py-3 text-sm font-semibold text-sky-300 transition-colors hover:bg-sky-400 hover:text-black"
+                >
+                  <span>🤖 Probar Bot en Telegram</span>
                   <span aria-hidden="true">↗</span>
                 </a>
               )}

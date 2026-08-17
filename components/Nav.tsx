@@ -93,6 +93,14 @@ export default function Nav() {
           </ul>
 
           <div className="flex items-center gap-3">
+            <a
+              href="https://crm.zimplifai.es"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden rounded-full border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:border-volt/60 hover:text-volt md:inline-flex"
+            >
+              Acceso CRM ↗
+            </a>
             <button
               onClick={go("#contacto")}
               className="hidden rounded-full border border-volt/50 px-5 py-2 font-mono text-xs uppercase tracking-[0.14em] text-volt transition-colors hover:bg-volt hover:text-bg md:inline-flex"
@@ -151,6 +159,21 @@ export default function Nav() {
                   </a>
                 </motion.li>
               ))}
+              <motion.li
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.06 * LINKS.length }}
+                className="mt-4 pt-4 border-t border-line/40"
+              >
+                <a
+                  href="https://crm.zimplifai.es"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block py-2 text-2xl font-bold tracking-tight text-volt"
+                >
+                  Acceso CRM ↗
+                </a>
+              </motion.li>
             </ul>
           </motion.div>
         )}
