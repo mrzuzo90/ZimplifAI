@@ -22,8 +22,8 @@ export default function Manifesto() {
           <Reveal delay={0.08}>
             <p className="mb-5 text-2xl font-medium leading-tight tracking-tight sm:text-3xl md:text-5xl">
               Construyo software que se usa de verdad. Ahora ayudo a empresas a hacer lo mismo con
-              IA: quitarse el papeleo, automatizar lo repetitivo y desplegar tecnología que suena a
-              ciencia ficción.
+              IA: quitarse el papeleo, automatizar lo repetitivo y desplegar tecnología que funciona
+              en su operación.
             </p>
           </Reveal>
           <Reveal delay={0.16}>
@@ -35,7 +35,7 @@ export default function Manifesto() {
             </p>
           </Reveal>
           <Reveal delay={0.22}>
-            <p className="text-lg font-medium text-ink">No vendo humo. Construyo, pruebo y publico.</p>
+            <p className="text-lg font-medium text-ink">No vendo humo. Diseño, construyo y despliego.</p>
           </Reveal>
 
           {/* Credencial inline — discreta, sin esquema complejo */}
@@ -55,7 +55,7 @@ export default function Manifesto() {
       <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line md:mt-10 md:grid-cols-4">
         <Stat value={<Counter to={projects.length} />} label="proyectos reales" />
         <Stat value={<Counter to={liveCount} />} label="en producción" />
-        <Stat value={<Counter to={420} suffix="+" />} label="tests automatizados (zCADe)" />
+        <Stat value={<Counter to={420} suffix="+" />} label="tests automatizados" />
         <Stat
           value={<span className="font-mono text-2xl text-volt md:text-3xl">0</span>}
           label="humo vendido"

@@ -7,6 +7,8 @@ import {
   type ProjectStatusTone,
 } from "@/data/projects";
 import Image from "next/image";
+import Link from "next/link";
+import { getProjectPath } from "@/lib/projects";
 
 const toneLabel: Record<ProjectStatusTone, string> = {
   live: "En producción",
@@ -220,18 +222,14 @@ function PreviewMockup({ project }: { project: Project }) {
 export function ProjectCard({ project, onOpen }: ProjectCardProps) {
   return (
     <Tilt max={5} className="h-full">
-      <button
-        onClick={onOpen}
-        data-cursor="project"
-        className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-line bg-surface text-left transition-colors duration-300 hover:border-volt/40"
-        aria-label={`Ver caso de estudio: ${project.name}`}
+      <article
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface text-left transition-colors duration-300 hover:border-volt/40"
         style={{ "--accent": project.accent } as React.CSSProperties}
       >
-        {/* Preview visual */}
-        <PreviewMockup project={project} />
+        <Link href={getProjectPath(project)} data-cursor="project" className="block outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-volt" aria-label={`Leer caso de estudio: ${project.name}`}>
+          <PreviewMockup project={project} />
 
-        {/* Cuerpo */}
-        <div className="flex flex-1 flex-col gap-3 p-5">
+          <div className="flex flex-1 flex-col gap-3 p-5">
           <div className="flex items-center gap-2">
             <span
               className="rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
@@ -257,11 +255,13 @@ export function ProjectCard({ project, onOpen }: ProjectCardProps) {
               {project.stack.length ? project.stack.join(" · ") : "—"}
             </span>
             <span className="inline-flex shrink-0 items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.16em] text-volt opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              Ver caso <span aria-hidden="true">→</span>
+              Leer caso <span aria-hidden="true">→</span>
             </span>
           </div>
         </div>
-      </button>
+        </Link>
+        <button onClick={onOpen} className="border-t border-line px-5 py-3 text-left font-mono text-[11px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-volt">Vista rápida</button>
+      </article>
     </Tilt>
   );
 }

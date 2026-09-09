@@ -27,7 +27,7 @@ const SERVICES: Service[] = [
     n: "02",
     title: "Automatización y agentes a medida",
     description:
-      "Agentes de IA que trabajan por ti, integrados con tus herramientas y tus datos.",
+      "Automatizaciones y agentes que ejecutan tareas concretas, integrados con tus herramientas y tus datos.",
     price: "desde 1.800 €",
     bullets: ["Agentes con LLMs (OpenAI/Claude)", "Integración con tu stack", "Despliegue y soporte"],
   },

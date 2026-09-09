@@ -73,7 +73,7 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: EASE, delay: 1 }}
             className="flex flex-wrap items-center gap-4"
           >
-            <Button onClick={() => scrollTo("#contacto")}>Diagnóstico de 30 min</Button>
+            <Button onClick={() => scrollTo("#contacto")}>Solicitar diagnóstico</Button>
             <Button variant="ghost" onClick={() => scrollTo("#proyectos")}>
               Ver proyectos
             </Button>

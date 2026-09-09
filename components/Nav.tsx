@@ -115,7 +115,7 @@ export default function Nav() {
               onClick={go("#contacto")}
               className="hidden rounded-full border border-volt/50 px-5 py-2 font-mono text-xs uppercase tracking-[0.14em] text-volt transition-colors hover:bg-volt hover:text-bg md:inline-flex"
             >
-              Diagnóstico de 30 min
+              Solicitar diagnóstico
             </button>
 
             {/* Burger */}

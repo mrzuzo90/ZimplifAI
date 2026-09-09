@@ -109,7 +109,7 @@ export default function Contact() {
             transition={{ duration: 0.7, ease: EASE }}
           >
             <h2 className="text-4xl font-bold tracking-tight md:text-6xl">
-              ¿Tienes una empresa que <span className="text-volt">quiere simplificarse?</span>
+              ¿Qué proceso te está <span className="text-volt">robando tiempo?</span>
             </h2>
           </motion.div>
 
@@ -228,7 +228,7 @@ export default function Contact() {
                       : "bg-volt text-bg hover:bg-[#d2ff55]",
                   )}
                 >
-                  {status === "sending" ? "Enviando…" : "Solicitar diagnóstico de 30 min"}
+                  {status === "sending" ? "Enviando…" : "Solicitar diagnóstico"}
                   <span aria-hidden="true">→</span>
                 </button>
 
