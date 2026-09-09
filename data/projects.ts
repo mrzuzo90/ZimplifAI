@@ -27,6 +27,8 @@ export interface Project {
   accent?: string;
   /** Captura/preview visual: "browser" | "desktop" | "terminal" | "mobile" */
   previewType?: "browser" | "desktop" | "terminal" | "mobile";
+  /** Captura real y pública de la interfaz, si el producto tiene una vista presentable. */
+  previewImage?: string;
 }
 
 export const categoryLabels: Record<ProjectCategory, string> = {
@@ -52,21 +54,7 @@ export const projects: Project[] = [
     url: "https://elektrizia.com",
     accent: "#00D4AA",
     previewType: "browser",
-  },
-  {
-    id: "zcade",
-    name: "zCADe",
-    category: "desktop",
-    tagline: "Suite de esquemas y simulación industriales.",
-    description:
-      "El sucesor moderno de CADe SIMU para dibujar y simular esquemas eléctricos industriales, con una lógica de simulación sólida y testeada.",
-    problem:
-      "CADe SIMU no evoluciona. zCADe lo sustituye en escritorio y navegador, con pruebas automatizadas como garantía de calidad.",
-    stack: ["Tauri 2", "React", "Konva", "TypeScript"],
-    status: "Fase A completa · 420+ tests",
-    statusTone: "tests",
-    accent: "#FF6B35",
-    previewType: "desktop",
+    previewImage: "/elektrizia-capture.png",
   },
   {
     id: "elektrikop",
@@ -83,6 +71,7 @@ export const projects: Project[] = [
     url: "https://kop.elektrizia.com",
     accent: "#FFD700",
     previewType: "browser",
+    previewImage: "/elektrikop-capture.png",
   },
   {
     id: "verifai",
@@ -129,36 +118,7 @@ export const projects: Project[] = [
     url: "https://wasap.es",
     accent: "#EC4899",
     previewType: "mobile",
-  },
-  {
-    id: "zopify",
-    name: "zopify",
-    category: "web",
-    tagline: "Plataforma multi-tenant tipo Shopify.",
-    description:
-      "Subdominios por tenant, Stripe Connect y row-level security para lanzar tiendas independientes sobre una misma base.",
-    problem:
-      "Montar una plataforma multi-tenant segura desde cero es complejo y caro. zopify lo resuelve con aislamiento a nivel de base de datos.",
-    stack: ["Supabase", "Stripe"],
-    status: "Modelo validado",
-    statusTone: "wip",
-    accent: "#10B981",
-    previewType: "browser",
-  },
-  {
-    id: "merchandeando",
-    name: "Merchandeando",
-    category: "web",
-    tagline: "Tienda print-on-demand con marca y motion.",
-    description:
-      "Checkout real con Stripe, tema y animaciones de marca. Un ecommerce que se siente premium de principio a fin.",
-    problem:
-      "Las tiendas print-on-demand genéricas no convierten. Merchandeando vende experiencia además de producto.",
-    stack: ["Next.js", "Prisma", "Stripe"],
-    status: "En producción",
-    statusTone: "live",
-    accent: "#F97316",
-    previewType: "browser",
+    previewImage: "/wasap-capture.png",
   },
   {
     id: "crm",
@@ -185,6 +145,7 @@ export const projects: Project[] = [
     telegramBotUrl: "https://t.me/ZimplifAI_bot",
     accent: "#CEFF00",
     previewType: "browser",
+    previewImage: "/crm-capture.png",
   },
 ];
 

@@ -6,6 +6,7 @@ import {
   type Project,
   type ProjectStatusTone,
 } from "@/data/projects";
+import Image from "next/image";
 
 const toneLabel: Record<ProjectStatusTone, string> = {
   live: "En producción",
@@ -22,6 +23,21 @@ interface ProjectCardProps {
 /** Renderiza una "captura" simulada según el tipo de preview. */
 function PreviewMockup({ project }: { project: Project }) {
   const accent = project.accent ?? "#22D3EE";
+
+  if (project.previewImage) {
+    return (
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-bg">
+        <Image
+          src={project.previewImage}
+          alt={`Captura de ${project.name}`}
+          fill
+          sizes="(min-width: 1024px) 58vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/35 via-transparent to-transparent" />
+      </div>
+    );
+  }
 
   const browserChrome = (
     <div className="absolute top-0 left-0 right-0 h-7 flex items-center px-2 border-b border-line bg-surface/80">
