@@ -6,7 +6,7 @@
 
 **Architecture:** Project data remains the source of truth. Server-rendered case-study routes consume it for page metadata and structured data; client showroom cards provide in-site navigation. Home conversion content stays component-based, and site-wide schema/metadata is owned by the root layout.
 
-**Tech Stack:** Next.js 15 App Router, React 19, TypeScript, Tailwind CSS v4, Framer Motion, Vitest.
+**Tech Stack:** Next.js 15 App Router, React 19, TypeScript, Tailwind CSS v4, Framer Motion, Vitest, JSDOM.
 
 **Spec:** `docs/superpowers/specs/2026-09-09-seo-conversion-design.md`
 
@@ -14,7 +14,7 @@
 
 - Preserve the dark design language and `prefers-reduced-motion` behavior.
 - Do not invent testimonials, client logos, business outcomes, or project metrics.
-- Do not introduce any runtime dependency beyond development-only Vitest.
+- Do not introduce any runtime dependency; Vitest and JSDOM are development-only test dependencies.
 - Do not edit the user’s untracked atmosphere files.
 - Every public Spanish route must use canonical metadata and a meaningful title/description.
 
@@ -233,7 +233,7 @@ git commit -m "feat: improve technical SEO and privacy"
 
 - [ ] **Step 1: Write failing focus utility tests**
 
-Extract `getFocusableElements(container: HTMLElement): HTMLElement[]` to `lib/focus.ts`; create `lib/focus.test.ts` with JSDOM to assert disabled and hidden controls are excluded and active buttons/links are included.
+Add development dependency `jsdom`. Extract `getFocusableElements(container: HTMLElement): HTMLElement[]` to `lib/focus.ts`; create `lib/focus.test.ts` with `// @vitest-environment jsdom` to assert disabled and hidden controls are excluded and active buttons/links are included.
 
 - [ ] **Step 2: Run focused test and verify failure**
 

@@ -105,7 +105,7 @@ export default function Services() {
               onClick={() => scrollTo("#contacto")}
               className="pointer-events-auto mt-2 inline-flex items-center gap-2 self-start font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors group-hover:text-volt"
             >
-              Pedir presupuesto
+              Ver si encaja
               <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>

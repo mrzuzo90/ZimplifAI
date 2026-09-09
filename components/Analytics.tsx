@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import Link from "next/link";
 
 const STORAGE_KEY = "zimplifai-analytics-consent";
 const ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true";
@@ -36,7 +37,7 @@ export default function AnalyticsConsent() {
         <div className="fixed bottom-4 left-4 z-[90] flex max-w-xs flex-col gap-3 rounded-2xl border border-line bg-surface/90 p-4 text-xs text-muted backdrop-blur-md">
           <p>
             ZimplifAI usa estadísticas anónimas para mejorar. ¿Las permites? (Sin rastreadores de
-            terceros.)
+            terceros.) <Link href="/privacidad" className="text-ink underline underline-offset-2 hover:text-volt">Privacidad</Link>
           </p>
           <div className="flex gap-2">
             <button

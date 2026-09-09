@@ -3,6 +3,7 @@
 import { useSmoothScroll } from "@/components/providers";
 import { site } from "@/data/site";
 import Image from "next/image";
+import Link from "next/link";
 
 const NAV = [
   { label: "Manifiesto", target: "#manifiesto" },
@@ -66,6 +67,7 @@ export default function Footer() {
             <a href={`mailto:${site.email}`} className="transition-colors hover:text-volt">
               {site.email}
             </a>
+            <Link href="/privacidad" className="transition-colors hover:text-volt">Privacidad</Link>
             {site.whatsapp && (
               <a
                 href={`https://wa.me/${site.whatsapp}`}

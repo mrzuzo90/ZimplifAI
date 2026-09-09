@@ -6,6 +6,8 @@ import { EASE } from "@/lib/motion";
 import { MonoTag } from "@/components/ui/MonoTag";
 import { useSmoothScroll } from "@/components/providers";
 import { categoryLabels, type Project } from "@/data/projects";
+import Link from "next/link";
+import { getProjectPath } from "@/lib/projects";
 
 interface ProjectModalProps {
   project: Project | null;
@@ -291,6 +293,12 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             </div>
 
             <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-line pt-7">
+              <Link
+                href={getProjectPath(project)}
+                className="inline-flex items-center gap-2 rounded-full bg-volt px-6 py-3 text-sm font-semibold text-bg transition-colors hover:bg-[#d2ff55]"
+              >
+                Ver caso completo <span aria-hidden="true">→</span>
+              </Link>
               {project.url && (
                 <a
                   href={project.url}

@@ -59,15 +59,13 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: "ZimplifAI — Simplifico procesos. Implanto IA.",
     description: site.description,
-    images: [
-      { url: `${siteUrl}/og.svg`, width: 1200, height: 630, alt: site.name },
-    ],
+    images: [{ url: `${siteUrl}/opengraph-image`, width: 1200, height: 630, alt: site.name }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ZimplifAI — Simplifico procesos. Implanto IA.",
     description: site.description,
-    images: [`${siteUrl}/og.svg`],
+    images: [`${siteUrl}/opengraph-image`],
   },
   robots: { index: true, follow: true },
 };
@@ -90,7 +88,7 @@ const jsonLd = {
       worksFor: { "@id": `${siteUrl}/#organization` },
     },
     {
-      "@type": "Organization",
+      "@type": "ProfessionalService",
       "@id": `${siteUrl}/#organization`,
       name: site.name,
       url: siteUrl,
@@ -98,6 +96,12 @@ const jsonLd = {
       description: site.description,
       founder: { "@id": `${siteUrl}/#person` },
     },
+    ...[
+      "Implantación de IA en empresas",
+      "Automatización y agentes a medida",
+      "Desarrollo de aplicaciones web full-stack",
+      "Consultoría técnica y transformación con IA",
+    ].map((name) => ({ "@type": "Service", name, provider: { "@id": `${siteUrl}/#organization` } })),
   ],
 };
 
@@ -106,7 +110,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es" className={`${display.variable} ${mono.variable} ${serif.variable}`}>
       <body>
         <a
-          href="#proyectos"
+          href="#contenido-principal"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[300] focus:rounded-full focus:bg-volt focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-bg"
         >
           Saltar al contenido
@@ -118,7 +122,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <VoltageMeter />
           <GrainOverlay />
           <Nav />
-          <main>{children}</main>
+          <main id="contenido-principal">{children}</main>
           <Footer />
         </SmoothScrollProvider>
 

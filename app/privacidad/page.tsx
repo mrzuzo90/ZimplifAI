@@ -1,0 +1,9 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { site } from "@/data/site";
+
+export const metadata: Metadata = { title: "Privacidad", description: "Información sobre el tratamiento de datos en ZimplifAI.", alternates: { canonical: "/privacidad" } };
+
+export default function PrivacyPage() {
+  return <div className="mx-auto max-w-3xl px-5 pb-24 pt-32 md:px-8 md:pt-40"><p className="font-mono text-xs uppercase tracking-[0.2em] text-volt">Privacidad</p><h1 className="mt-5 text-5xl font-bold tracking-tight md:text-7xl">Datos claros, sin letra pequeña.</h1><div className="mt-12 space-y-10 leading-relaxed text-muted"><section><h2 className="text-xl font-bold text-ink">Qué datos recogemos</h2><p className="mt-3">Cuando envías el formulario, recibimos tu nombre, email, empresa si la indicas y el mensaje que escribes. Los usamos exclusivamente para atender tu solicitud.</p></section><section><h2 className="text-xl font-bold text-ink">Cómo se procesan</h2><p className="mt-3">El formulario envía la solicitud mediante Resend, nuestro proveedor de correo transaccional. No vendemos ni cedemos tus datos para publicidad.</p></section><section><h2 className="text-xl font-bold text-ink">Analítica</h2><p className="mt-3">La analítica de Vercel solo se activa si la aceptas expresamente en esta web. Puedes rechazarla sin perder ninguna funcionalidad.</p></section><section><h2 className="text-xl font-bold text-ink">Tus derechos y contacto</h2><p className="mt-3">Puedes solicitar acceso, rectificación o eliminación de tus datos escribiendo a <a className="text-volt hover:underline" href={`mailto:${site.email}`}>{site.email}</a>. Esta página explica de forma sencilla cómo tratamos los datos; para cualquier asunto legal concreto, consulta la normativa aplicable.</p></section></div><Link href="/" className="mt-14 inline-block text-volt hover:underline">Volver al inicio</Link></div>;
+}

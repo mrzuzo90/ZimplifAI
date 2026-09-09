@@ -6,6 +6,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { site } from "@/data/site";
 import { cn } from "@/lib/cn";
 import { EASE } from "@/lib/motion";
+import Link from "next/link";
 
 type Status = "idle" | "sending" | "success" | "error" | "not-configured";
 
@@ -119,8 +120,8 @@ export default function Contact() {
             transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
           >
             <p className="mt-6 max-w-md leading-relaxed text-muted">
-              Cuéntame tu proceso, tu cuello de botella o esa idea que no sabes por dónde empezar. Te
-              digo con franqueza si la IA tiene sentido aquí, y cuánto costaría.
+              Cuéntame tu proceso, tu cuello de botella o esa idea que no sabes por dónde empezar. En
+              un diagnóstico de 30 minutos vemos si la IA tiene sentido y qué siguiente paso tendría.
             </p>
           </motion.div>
 
@@ -201,7 +202,7 @@ export default function Contact() {
                   minLength={10}
                   maxLength={5000}
                   rows={5}
-                  placeholder="¿Qué proceso quieres automatizar?"
+                  placeholder="Proceso, frecuencia, herramientas actuales y el resultado que buscas."
                   className={cn(inputClass, "resize-none")}
                 />
               </label>
@@ -227,7 +228,7 @@ export default function Contact() {
                       : "bg-volt text-bg hover:bg-[#d2ff55]",
                   )}
                 >
-                  {status === "sending" ? "Enviando…" : "Enviar mensaje"}
+                  {status === "sending" ? "Enviando…" : "Solicitar diagnóstico de 30 min"}
                   <span aria-hidden="true">→</span>
                 </button>
 
@@ -236,9 +237,10 @@ export default function Contact() {
                     className="rounded-xl border border-volt/40 bg-volt/10 px-4 py-3 text-sm text-volt"
                     role="status"
                   >
-                    Recibido. Te respondo en menos de 48h.
+                    Recibido. Revisaré tu caso y te responderé por email.
                   </p>
                 )}
+                <p className="text-center text-xs leading-relaxed text-muted">Al enviar aceptas que usemos tus datos para responder a esta solicitud. <Link href="/privacidad" className="text-ink underline decoration-volt/60 underline-offset-4 hover:text-volt">Ver privacidad</Link>.</p>
                 {status === "not-configured" && (
                   <p
                     className="rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-amber-300"

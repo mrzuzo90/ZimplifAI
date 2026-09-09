@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSmoothScroll } from "@/components/providers";
 import { EASE } from "@/lib/motion";
@@ -19,6 +19,7 @@ export default function Nav() {
   const { scrollTo } = useSmoothScroll();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const menuId = useId();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -33,6 +34,14 @@ export default function Nav() {
       document.documentElement.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const go = (target: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -93,6 +102,7 @@ export default function Nav() {
           </ul>
 
           <div className="flex items-center gap-3">
+
             <a
               href="https://crm.zimplifai.es"
               target="_blank"
@@ -105,13 +115,14 @@ export default function Nav() {
               onClick={go("#contacto")}
               className="hidden rounded-full border border-volt/50 px-5 py-2 font-mono text-xs uppercase tracking-[0.14em] text-volt transition-colors hover:bg-volt hover:text-bg md:inline-flex"
             >
-              Contratar
+              Diagnóstico de 30 min
             </button>
 
             {/* Burger */}
             <button
               aria-label={open ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={open}
+              aria-controls={menuId}
               onClick={() => setOpen((v) => !v)}
               className="relative z-[120] flex h-10 w-10 flex-col items-center justify-center gap-[6px] md:hidden"
             >
@@ -136,6 +147,7 @@ export default function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id={menuId}
             className="fixed inset-0 z-[110] flex flex-col justify-end bg-bg md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
