@@ -2,16 +2,19 @@
 
 import { useEffect, useId, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
 import { useSmoothScroll } from "@/components/providers";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 import Image from "next/image";
+import Link from "next/link";
 
 const LINKS = [
   { label: "Manifiesto", target: "#manifiesto" },
   { label: "Servicios", target: "#servicios" },
   { label: "Proyectos", target: "#proyectos" },
   { label: "Habilidades", target: "#habilidades" },
+  { label: "Blog", target: "/blog" },
   { label: "Contacto", target: "#contacto" },
 ];
 
@@ -20,6 +23,8 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -46,10 +51,18 @@ export default function Nav() {
   const go = (target: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     setOpen(false);
-    // Espera a que cierre el menú móvil antes de desplazar.
+    const isHome = pathname === "/";
+
     window.setTimeout(() => {
-      if (target === "#top") scrollTo(0, { duration: 1.2 });
-      else scrollTo(target);
+      if (target.startsWith("/")) {
+        router.push(target);
+      } else if (target === "#top") {
+        if (isHome) scrollTo(0, { duration: 1.2 });
+        else router.push("/");
+      } else {
+        if (isHome) scrollTo(target);
+        else router.push("/" + target);
+      }
     }, open ? 360 : 0);
   };
 
@@ -67,8 +80,8 @@ export default function Nav() {
         )}
       >
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-          <a
-            href="#top"
+          <Link
+            href="/"
             onClick={go("#top")}
             className="flex items-center gap-2"
             aria-label="ZimplifAI - Inicio"
@@ -81,19 +94,29 @@ export default function Nav() {
               className="size-10 md:size-12"
               priority={false}
             />
-          </a>
+          </Link>
 
           <ul className="hidden items-center gap-8 md:flex">
             {LINKS.map((l) => (
               <li key={l.target}>
                 <a
-                  href={l.target}
+                  href={l.target.startsWith("/") ? l.target : (pathname === "/" ? l.target : `/${l.target}`)}
                   onClick={go(l.target)}
-                  className="group relative font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors hover:text-ink"
+                  className={cn(
+                    "group relative font-mono text-xs uppercase tracking-[0.18em] transition-colors hover:text-ink",
+                    (pathname.startsWith("/blog") && l.target === "/blog")
+                      ? "text-volt font-semibold"
+                      : "text-muted",
+                  )}
                 >
                   {l.label}
                   <span
-                    className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-volt transition-transform duration-300 group-hover:scale-x-100"
+                    className={cn(
+                      "absolute -bottom-1 left-0 h-px w-full origin-left bg-volt transition-transform duration-300",
+                      pathname.startsWith("/blog") && l.target === "/blog"
+                        ? "scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100",
+                    )}
                     aria-hidden="true"
                   />
                 </a>
@@ -163,9 +186,14 @@ export default function Nav() {
                   transition={{ duration: 0.5, ease: EASE, delay: 0.06 * i }}
                 >
                   <a
-                    href={l.target}
+                    href={l.target.startsWith("/") ? l.target : (pathname === "/" ? l.target : `/${l.target}`)}
                     onClick={go(l.target)}
-                    className="block py-2 text-4xl font-bold tracking-tight text-ink"
+                    className={cn(
+                      "block py-2 text-4xl font-bold tracking-tight",
+                      (pathname.startsWith("/blog") && l.target === "/blog")
+                        ? "text-volt"
+                        : "text-ink",
+                    )}
                   >
                     {l.label}
                   </a>

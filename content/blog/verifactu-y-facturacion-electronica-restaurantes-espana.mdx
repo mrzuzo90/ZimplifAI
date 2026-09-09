@@ -1,0 +1,59 @@
+---
+title: "VeriFactu y facturación electrónica: qué cambia para los restaurantes en España"
+description: "Guía técnica y práctica sobre la normativa VeriFactu y la Ley Crea y Crece: requisitos para TPVs, registros inalterables con hash, códigos QR y cómo adaptarse sin caos."
+date: "2026-09-02"
+slug: "verifactu-y-facturacion-electronica-restaurantes-espana"
+coverImage: "/images/blog/verifactu-facturacion-electronica.svg"
+tags: ["VeriFactu", "Hostelería", "Normativa", "Facturación Electrónica", "TPV"]
+author: "Zuzo"
+---
+
+El sector de la hostelería en España afronta una de las mayores transformaciones normativas y tecnológicas de la última década. La confluencia de la Ley 11/2021 de medidas de prevención y lucha contra el fraude fiscal (conocida coloquialmente como Ley Antifraude), su desarrollo mediante el Real Decreto 1007/2023 sobre Sistemas Informáticos de Facturación (**Reglamento VeriFactu**) y la **Ley Crea y Crece** obliga a revisar de arriba abajo el modo en que bares, cafeterías y restaurantes emiten sus cobros y gestionan sus facturas.
+
+Durante años ha existido cierta confusión en el sector entre noticias de prórrogas, borradores ministeriales y rumores de pasillo. En este artículo explicamos con rigor técnico y claridad qué exige la ley a los establecimientos hosteleros, qué tecnología exige en los puntos de venta (TPV) y cómo planificar la adaptación para no incurrir en sanciones severas.
+
+<AdSlot position="in-article" />
+
+## El origen del cambio: fin definitivo al software de doble contabilidad
+
+El objetivo declarado de la Agencia Estatal de Administración Tributaria (AEAT) con el sistema VeriFactu es erradicar los programas informáticos que permitían alterar, omitir o manipular las cifras reales de ventas (los denominados softwares de doble uso o cajas B).
+
+Para lograrlo, la normativa no prohíbe el uso de sistemas informáticos; al contrario, establece una serie de requisitos técnicos de obligado cumplimiento para cualquier programa que emita facturas o tickets (facturas simplificadas):
+
+1. **Inalterabilidad y trazabilidad:** Una vez expedido un ticket o factura, no se puede borrar ni modificar a posteriori de manera oculta. Cualquier rectificación debe quedar registrada mediante una factura rectificativa o un contraasiento perfectamente trazable.
+2. **Encadenamiento mediante hash criptográfico:** Cada registro de facturación generado por el TPV debe calcular una huella digital (hash mediante algoritmo SHA-256) que incluye parte de los datos del registro anterior. Esto crea una cadena de bloques matemática donde resulta imposible intercalar o eliminar un registro sin romper la integridad de toda la serie contable.
+3. **Firma electrónica o registro de eventos:** El sistema debe registrar de forma blindada todos los inicios de sesión, cierres de caja y anomalías del software (log de auditoría).
+4. **Código QR normalizado:** Todos los tickets y facturas impresos o emitidos en PDF deben incorporar un código QR y una frase que identifique si el sistema opera bajo la modalidad VeriFactu. El cliente final o la inspección tributaria podrán escanear ese QR con su teléfono móvil para verificar al instante que el cobro ha sido registrado formalmente.
+
+<Callout type="warning" title="Sanciones de la Ley Antifraude">
+La tenencia o uso de sistemas informáticos que no se ajusten a las especificaciones técnicas homologadas contempla sanciones que pueden alcanzar los 50.000 euros por ejercicio para el usuario final del software, y hasta 150.000 euros para los desarrolladores y comercializadores de software no conforme.
+</Callout>
+
+## Modalidad VeriFactu vs. Sistema No VeriFactu
+
+El reglamento ofrece a las empresas dos vías para cumplir la ley:
+
+- **Sistema VeriFactu (remisión continua a la AEAT):** El TPV o software de facturación envía telemáticamente a los servidores de Hacienda una copia resumida y estructurada de cada registro de facturación en el mismo momento en que se genera. Al optar por esta vía, se presume la validez fiscal de las operaciones y se reduce notablemente la carga de inspecciones presenciales.
+- **Sistema No VeriFactu (custodia local certificada):** El negocio conserva los registros en su propio servidor o TPV, pero debe firmar electrónicamente cada factura con un certificado digital cualificado, mantener copias de seguridad inalterables y garantizar que los inspectores puedan acceder a la base de datos de manera inmediata ante cualquier requerimiento.
+
+Para un restaurante o grupo hostelero, la opción de remisión en tiempo real (**VeriFactu**) resulta en la práctica mucho más ágil: traslada la custodia pesada a la nube de la administración tributaria y evita los costes de gestión y renovación de certificados digitales en cada terminal físico de sala.
+
+## Qué ocurre con la facturación electrónica entre empresas (B2B)
+
+Conviene no confundir VeriFactu con la facturación electrónica obligatoria derivada de la Ley Crea y Crece. Mientras que VeriFactu afecta a todos los tickets expedidos a clientes finales (B2C), la Ley Crea y Crece regula las relaciones comerciales entre empresas y profesionales (B2B):
+
+- Las compras a tus distribuidores de carne, pescado, bodega o servicios de mantenimiento tendrán que tramitarse obligatoriamente en formato electrónico estructurado (como Facturae o estándares europeos interoperables).
+- Se exigirá informar a las plataformas de los estados de la factura (recepción, aceptación comercial y pago efectivo en los plazos legales de morosidad comercial).
+
+Esto significa que el viejo hábito de acumular facturas en carpetas de anillas para llevárselas a la gestoría a final de trimestre tiene fecha de caducidad. El flujo de compras y gastos deberá conectarse digitalmente con tu software contable o CRM.
+
+## Plan de acción recomendado para restaurantes
+
+Para evitar prisas de última hora o compras precipitadas de equipamiento innecesario, te aconsejamos seguir estos pasos:
+
+1. **Consulta formal a tu proveedor de TPV:** Solicita a la empresa que mantiene tu software de cobros un documento por escrito que certifique su hoja de ruta de homologación y compatibilidad con el RD 1007/2023.
+2. **Revisión de impresoras y hardware:** Los tickets deberán imprimir códigos QR nítidos y legibles. Si dispones de impresoras térmicas muy antiguas con baja resolución o fallos en el cabezal de impresión, planifica su renovación.
+3. **Conexión a internet estable en el punto de cobro:** Dado que la remisión de datos requiere comunicación telemática, contar con una conexión de respaldo (backup 4G/5G en el router) evitará incidencias en horas punta de servicio.
+4. **Aprovechar para modernizar la gestión:** La transición legal es la oportunidad idónea para integrar el TPV con un sistema de reservas, control de stock y fidelización que trabaje de forma unificada.
+
+La adaptación a VeriFactu no tiene por qué ser un dolor de cabeza si se aborda con anticipación. Convertir una obligación administrativa en una oportunidad para profesionalizar los datos de tu restaurante es la diferencia entre sufrirla o utilizarla para mejorar tus márgenes.

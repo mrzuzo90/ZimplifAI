@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useSmoothScroll } from "@/components/providers";
 import { site } from "@/data/site";
 import Image from "next/image";
@@ -10,20 +11,41 @@ const NAV = [
   { label: "Servicios", target: "#servicios" },
   { label: "Proyectos", target: "#proyectos" },
   { label: "Habilidades", target: "#habilidades" },
+  { label: "Blog", target: "/blog" },
   { label: "Contacto", target: "#contacto" },
 ];
 
 export default function Footer() {
   const { scrollTo } = useSmoothScroll();
+  const pathname = usePathname();
+  const router = useRouter();
   const year = new Date().getFullYear();
+
+  const handleNav = (target: string) => {
+    if (target.startsWith("/")) {
+      router.push(target);
+    } else if (pathname === "/") {
+      scrollTo(target);
+    } else {
+      router.push("/" + target);
+    }
+  };
+
+  const handleLogoClick = () => {
+    if (pathname === "/") {
+      scrollTo(0, { duration: 1.4 });
+    } else {
+      router.push("/");
+    }
+  };
 
   return (
     <footer className="relative border-t border-line">
       <div className="mx-auto max-w-7xl px-5 pb-10 pt-16 md:px-8">
         {/* Marca: imagotipo clicable → arriba (hover: versión entera lima) */}
         <button
-          onClick={() => scrollTo(0, { duration: 1.4 })}
-          aria-label="Volver arriba"
+          onClick={handleLogoClick}
+          aria-label="Volver al inicio"
           className="group block max-w-xs mx-auto md:max-w-none md:mx-0"
         >
           <div className="relative overflow-hidden">
@@ -52,15 +74,28 @@ export default function Footer() {
           </div>
 
           <nav aria-label="Pie de página" className="flex flex-col gap-3">
-            {NAV.map((n) => (
-              <button
-                key={n.target}
-                onClick={() => scrollTo(n.target)}
-                className="self-start font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors hover:text-volt"
-              >
-                {n.label}
-              </button>
-            ))}
+            {NAV.map((n) => {
+              if (n.target.startsWith("/")) {
+                return (
+                  <Link
+                    key={n.target}
+                    href={n.target}
+                    className="self-start font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors hover:text-volt"
+                  >
+                    {n.label}
+                  </Link>
+                );
+              }
+              return (
+                <button
+                  key={n.target}
+                  onClick={() => handleNav(n.target)}
+                  className="self-start font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors hover:text-volt"
+                >
+                  {n.label}
+                </button>
+              );
+            })}
           </nav>
 
           <div className="flex flex-col gap-2 text-sm text-muted">
