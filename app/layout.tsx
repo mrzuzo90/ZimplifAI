@@ -9,6 +9,7 @@ import GrainOverlay from "@/components/GrainOverlay";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AnalyticsConsent from "@/components/Analytics";
+import Script from "next/script";
 import { siteUrl } from "@/lib/site";
 import { site } from "@/data/site";
 import "./globals.css";
@@ -127,6 +128,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </SmoothScrollProvider>
 
         <AnalyticsConsent />
+
+        <Script
+          id="adsbygoogle-init"
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7635423594730192"
+          crossOrigin="anonymous"
+        />
 
         <script
           type="application/ld+json"
