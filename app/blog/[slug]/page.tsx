@@ -5,11 +5,13 @@ import Link from "next/link";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { siteUrl } from "@/lib/site";
 import { site } from "@/data/site";
-import { getAllPosts, getPostBySlug, formatDate } from "@/lib/blog";
+import { getAllPosts, getPostBySlug, formatDate, getAuthorInfo } from "@/lib/blog";
 import { mdxComponents } from "@/components/blog/MDXComponents";
 import AdSlot from "@/components/blog/AdSlot";
 import ShareButtons from "@/components/blog/ShareButtons";
 import { MonoTag } from "@/components/ui/MonoTag";
+import { AiAuthorBadge } from "@/components/blog/AiAuthorBadge";
+import { cn } from "@/lib/cn";
 
 /**
  * ELECCIÓN ARQUITECTÓNICA DE MDX:
@@ -94,6 +96,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
   const ogImageUrl = post.coverImage.startsWith("http")
     ? post.coverImage
     : `${siteUrl}${post.coverImage}`;
+  const authorInfo = getAuthorInfo(post.author);
 
   // Compilar MDX en el servidor con los componentes de diseño del proyecto
   const { content } = await compileMDX({
@@ -102,6 +105,17 @@ export default async function BlogPostPage({ params }: PostPageProps) {
   });
 
   // Schema.org JSON-LD para BlogPosting / Article (SEO enriquecido)
+  //
+  // SCHEMA.ORG ELECCIÓN DE TIPO PARA AUTOR-IA:
+  // Schema.org y las directrices oficiales de Google Search Central para Article/BlogPosting
+  // restringen el campo `author` a los tipos "@type": "Person" o "@type": "Organization".
+  // Google Search Central recomienda expresamente reservar "@type": "Person" únicamente para
+  // personas naturales (humanos).
+  // Para 'Nexo' (agente autónomo de IA), seleccionamos "@type": "Organization" porque:
+  // 1. Honestidad semántica: un agente de software no es un individuo físico/humano con identidad civil.
+  // 2. Nexo actúa y redacta como una entidad de software delegada por ZimplifAI en su infraestructura.
+  // 3. Valida estrictamente al 100% sin advertencias en el validador oficial de Schema.org y en la
+  //    prueba de resultados enriquecidos (Rich Results) de Google.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -115,11 +129,17 @@ export default async function BlogPostPage({ params }: PostPageProps) {
     image: [ogImageUrl],
     datePublished: new Date(post.date).toISOString(),
     dateModified: new Date(post.date).toISOString(),
-    author: {
-      "@type": "Person",
-      name: post.author,
-      url: siteUrl,
-    },
+    author: authorInfo.isAi
+      ? {
+          "@type": "Organization",
+          name: post.author,
+          url: `${siteUrl}/blog`,
+        }
+      : {
+          "@type": "Person",
+          name: post.author,
+          url: siteUrl,
+        },
     publisher: {
       "@type": "Organization",
       name: site.name,
@@ -199,12 +219,22 @@ export default async function BlogPostPage({ params }: PostPageProps) {
           {/* Datos del autor y fecha */}
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-y border-line py-4 font-mono text-xs text-muted">
             <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-full border border-volt/50 bg-surface font-bold text-volt">
-                {post.author.slice(0, 1).toUpperCase()}
+              <div
+                className={cn(
+                  "flex size-9 items-center justify-center rounded-full border font-bold",
+                  authorInfo.isAi
+                    ? "border-plasma/50 bg-plasma/10 text-plasma"
+                    : "border-volt/50 bg-surface text-volt",
+                )}
+              >
+                {authorInfo.avatarText}
               </div>
               <div>
-                <span className="block font-semibold text-ink">{post.author}</span>
-                <span className="text-[11px] text-muted">Especialista en Automatización & IA</span>
+                <div className="flex items-center gap-2">
+                  <span className="block font-semibold text-ink">{post.author}</span>
+                  {authorInfo.isAi && <AiAuthorBadge />}
+                </div>
+                <span className="text-[11px] text-muted">{authorInfo.role}</span>
               </div>
             </div>
 
@@ -266,16 +296,25 @@ export default async function BlogPostPage({ params }: PostPageProps) {
             {/* Caja de autor */}
             <aside className="mt-12 rounded-2xl border border-line bg-surface/80 p-6 md:p-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-volt/50 bg-bg font-display text-2xl font-bold text-volt">
-                  {post.author.slice(0, 1)}
+                <div
+                  className={cn(
+                    "flex size-14 shrink-0 items-center justify-center rounded-2xl border bg-bg font-display text-2xl font-bold",
+                    authorInfo.isAi
+                      ? "border-plasma/50 text-plasma"
+                      : "border-volt/50 text-volt",
+                  )}
+                >
+                  {authorInfo.avatarText}
                 </div>
                 <div>
-                  <h3 className="font-display text-lg font-bold text-ink">
-                    Escrito por {post.author}
-                  </h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display text-lg font-bold text-ink">
+                      Escrito por {post.author}
+                    </h3>
+                    {authorInfo.isAi && <AiAuthorBadge />}
+                  </div>
                   <p className="mt-1 text-sm leading-relaxed text-muted">
-                    {site.author.role}. Ayudo a empresas a transformar procesos lentos en flujos
-                    automatizados y rentables con ingeniería pragmática.
+                    {authorInfo.bio}
                   </p>
                 </div>
               </div>

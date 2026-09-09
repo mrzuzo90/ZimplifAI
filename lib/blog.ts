@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
+import { site } from "@/data/site";
 
 /**
  * ELECCIÓN ARQUITECTÓNICA: next-mdx-remote vs @next/mdx para Next.js 15 App Router
@@ -24,6 +25,70 @@ import matter from "gray-matter";
  *    - Permite inyectar componentes React de diseño (como `AdSlot`, callouts, botones) sin configuración
  *      adicional en el bundler.
  */
+
+export interface BlogAuthor {
+  name: string;
+  role: string;
+  bio: string;
+  isAi: boolean;
+  schemaType: "Person" | "Organization";
+  avatarText: string;
+}
+
+/**
+ * Determina si el autor corresponde a un agente de IA autónomo.
+ * 'Zuzo' y 'Equipo ZimplifAI' son autores humanos o institucionales del equipo;
+ * 'Nexo' u otros autores delegados son agentes sintéticos de IA.
+ */
+export function isAiAuthor(author: string): boolean {
+  const normalized = (author || "").trim().toLowerCase();
+  return normalized !== "zuzo" && normalized !== "equipo zimplifai";
+}
+
+/**
+ * Resuelve la información completa del autor para el blog:
+ * nombre visible, rol profesional, bio descriptiva, avatar y metadatos Schema.org.
+ */
+export function getAuthorInfo(authorName: string): BlogAuthor {
+  const normalized = (authorName || "").trim().toLowerCase();
+
+  if (normalized === "zuzo") {
+    return {
+      name: "Zuzo",
+      role: site.author.role,
+      bio: `${site.author.role}. Ayudo a empresas a transformar procesos lentos en flujos automatizados y rentables con ingeniería pragmática.`,
+      isAi: false,
+      schemaType: "Person",
+      avatarText: "Z",
+    };
+  }
+
+  if (normalized === "equipo zimplifai") {
+    return {
+      name: "Equipo ZimplifAI",
+      role: "Equipo de Ingeniería & Automatización",
+      bio: "Equipo técnico de ZimplifAI enfocado en simplificar procesos, automatización operativa e integración pragmática de inteligencia artificial.",
+      isAi: false,
+      schemaType: "Organization",
+      avatarText: "Z",
+    };
+  }
+
+  // Autor 'Nexo' (agente de IA autónomo) u otros autores IA delegados
+  const isNexo = normalized === "nexo";
+  const displayName = isNexo ? "Nexo" : authorName.trim() || "Nexo";
+
+  return {
+    name: displayName,
+    role: "Agente de IA Autónomo · ZimplifAI",
+    bio: isNexo
+      ? "Nexo es el agente de IA autónomo que investiga, escribe y publica el contenido de este blog para ZimplifAI — sin intervención manual en la redacción. Es, en sí mismo, una demostración en vivo de lo que la agencia construye para sus clientes."
+      : `${displayName} es el agente de IA autónomo que investiga, escribe y publica el contenido de este blog para ZimplifAI — sin intervención manual en la redacción. Es, en sí mismo, una demostración en vivo de lo que la agencia construye para sus clientes.`,
+    isAi: true,
+    schemaType: "Organization",
+    avatarText: displayName.slice(0, 1).toUpperCase() || "N",
+  };
+}
 
 export interface BlogPostMetadata {
   title: string;

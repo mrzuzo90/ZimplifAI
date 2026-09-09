@@ -26,7 +26,7 @@ date: "YYYY-MM-DD"
 slug: "slug-del-articulo-en-kebab-case"
 coverImage: "/images/blog/nombre-imagen.svg"
 tags: ["Categoría Principal", "Tecnología", "Tag Opcional"]
-author: "Zuzo"
+author: "Nexo" # "Nexo" (agente de IA autónomo) o "Zuzo" (fundador humano)
 ---
 ```
 
@@ -40,9 +40,21 @@ author: "Zuzo"
 | `slug` | `string` | **Sí** | Identificador único de URL para `/blog/[slug]`. Formato `kebab-case`. |
 | `coverImage` | `string` | **Sí** | Ruta local a la imagen en `/public` (ej. `/images/blog/mi-post.svg` o `/images/blog/mi-post.png`) o URL absoluta HTTPS (1200×630 recomendada). |
 | `tags` | `string[]` | **Sí** | Array de 2 a 5 etiquetas temáticas (ej. `["IA Empresarial", "Automatización", "Hostelería"]`). Sirven para el filtrado en `/blog`. |
-| `author` | `string` | **Sí** | Nombre del autor. Habitual: `"Zuzo"` o `"Equipo ZimplifAI"`. Aparece en la cabecera, pie del post y schema.org JSON-LD. |
+| `author` | `string` | **Sí** | Nombre del autor: `"Nexo"` o `"Zuzo"`. Configura automáticamente el badge de IA, biografía y metadatos SEO. Véase sección 2.1. |
 
 ---
+
+### 2.1 Convención de Autores: Nexo (Agente IA) vs. Zuzo (Humano)
+
+En ZimplifAI practicamos una **transparencia técnica radical**: si un artículo ha sido investigado, redactado y publicado por el agente de inteligencia artificial que gestiona el VPS, el campo `author` debe ser `"Nexo"`. Si ha sido redactado personalmente por el fundador, se firma como `"Zuzo"`.
+
+El sistema renderiza automáticamente la interfaz y los metadatos correspondientes según el autor especificado:
+
+| Autor en frontmatter | Cuándo utilizarlo | Comportamiento en la interfaz (UI) | Schema.org JSON-LD |
+| :--- | :--- | :--- | :--- |
+| **`author: "Nexo"`** | **Artículos generados o redactados de forma autónoma por IA** (investigación de mercado, normativas técnicas, guías paso a paso generadas por agente). | • Muestra el badge visual sutil `Escrito por IA` (token `plasma` cian) en la cabecera del artículo y en cada tarjeta `BlogCard` del listado `/blog`.<br>• Subtítulo de autor: *"Agente de IA Autónomo · ZimplifAI"*.<br>• Avatar con acento y borde plasma.<br>• Caja de autor al pie: Muestra la biografía honesta de Nexo explicando con naturalidad que es una demostración en vivo de las capacidades de automatización de la agencia. | `@type: "Organization"`<br>*(Conforme a las directrices oficiales de Google Search Central, `Person` se reserva para humanos naturales y `Organization` para agentes o entidades delegadas).* |
+| **`author: "Zuzo"`** | **Artículos de opinión, reflexiones estratégicas o piezas redactadas directamente por el fundador humano.** | • No muestra badge de IA.<br>• Subtítulo de autor: Especialidad y rol profesional del fundador.<br>• Avatar con acento `volt` (lima eléctrico).<br>• Caja de autor al pie: Biografía profesional humana de Zuzo. | `@type: "Person"` |
+
 
 ## 3. Componentes Disponibles en MDX
 
@@ -122,6 +134,7 @@ Al guardar un nuevo archivo `.mdx` en `/content/blog/`:
 
 - [ ] El archivo se guarda en `/content/blog/[slug].mdx`.
 - [ ] El frontmatter contiene los 7 campos obligatorios (`title`, `description`, `date`, `slug`, `coverImage`, `tags`, `author`).
+- [ ] El campo `author` refleja con honestidad el origen: `"Nexo"` para contenido generado por el agente de IA autónomo o `"Zuzo"` para redacción directa del fundador humano.
 - [ ] El artículo tiene entre 600 y 900 palabras en español profesional y cercano.
 - [ ] No promete funcionalidades que ZimplifAI no posea ni inventa datos estadísticos falsos.
 - [ ] Contiene al menos un `<AdSlot position="in-article" />` y un `<Callout />`.

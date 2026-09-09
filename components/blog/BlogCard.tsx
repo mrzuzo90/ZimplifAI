@@ -1,13 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
-import { type BlogPostMetadata, formatDate } from "@/lib/blog";
+import { type BlogPostMetadata, formatDate, isAiAuthor } from "@/lib/blog";
 import { MonoTag } from "@/components/ui/MonoTag";
+import { AiAuthorBadge } from "@/components/blog/AiAuthorBadge";
 
 interface BlogCardProps {
   post: BlogPostMetadata;
 }
 
 export function BlogCard({ post }: BlogCardProps) {
+  const isAi = isAiAuthor(post.author);
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-all duration-300 hover:border-volt/40 hover:bg-surface/80">
       <Link href={`/blog/${post.slug}`} className="block overflow-hidden relative aspect-[16/9] w-full bg-surface-2">
@@ -47,16 +50,17 @@ export function BlogCard({ post }: BlogCardProps) {
         </p>
 
         {/* Footer de la tarjeta */}
-        <div className="mt-auto flex items-center justify-between border-t border-line/60 pt-4">
-          <div className="flex items-center gap-2 font-mono text-xs text-muted">
-            <span>{post.author}</span>
-            <span aria-hidden="true">·</span>
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-line/60 pt-4">
+          <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted">
+            <span className="text-ink font-medium">{post.author}</span>
+            {isAi && <AiAuthorBadge />}
+            <span aria-hidden="true" className="text-line-strong">·</span>
             <time dateTime={post.date}>{formatDate(post.date)}</time>
           </div>
 
           <Link
             href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-volt transition-transform group-hover:translate-x-1"
+            className="inline-flex shrink-0 items-center gap-1 font-mono text-xs uppercase tracking-wider text-volt transition-transform group-hover:translate-x-1"
             aria-label={`Leer artículo completo: ${post.title}`}
           >
             Leer <span aria-hidden="true">→</span>
