@@ -123,7 +123,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         {/* AdSlot en la cabecera del listado */}
-        <AdSlot position="header" className="my-10" />
+        <AdSlot position="header" slotId="2663115877" className="my-10" />
 
         {/* Listado de artículos */}
         {posts.length > 0 ? (

@@ -262,7 +262,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
         </div>
 
         {/* Hueco 1 de publicidad: Header Leaderboard */}
-        <AdSlot position="header" className="my-10" />
+        <AdSlot position="header" slotId="2663115877" className="my-10" />
 
         {/* Cuerpo del artículo con layout a 2 columnas (contenido + sidebar sticky) */}
         <div className="mx-auto mt-12 grid max-w-6xl gap-12 lg:grid-cols-12">
@@ -271,7 +271,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
             <div className="prose-blog">{content}</div>
 
             {/* Hueco 2 de publicidad: Footer del contenido */}
-            <AdSlot position="footer" className="my-12" />
+            <AdSlot position="footer" slotId="9886999771" className="my-12" />
 
             {/* Barra de compartir y tags */}
             <div className="mt-12 border-t border-line pt-8">
@@ -335,7 +335,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
               </div>
 
               {/* Hueco 3 de publicidad: Sidebar Skyscraper/Half-Page */}
-              <AdSlot position="sidebar" />
+              <AdSlot position="sidebar" slotId="9410050726" />
 
               {/* CTA lateral de contacto */}
               <div className="rounded-xl border border-volt/30 bg-surface/80 p-6">

@@ -8,9 +8,20 @@ export type AdPosition = "header" | "in-article" | "sidebar" | "footer";
 export interface AdSlotProps {
   position: AdPosition;
   className?: string;
-  /** Identificador de slot específico asignado en Google AdSense (opcional por ahora). */
+  /** Identificador de slot específico asignado en Google AdSense (opcional, usa el oficial por posición por defecto). */
   slotId?: string;
 }
+
+/**
+ * Unidades de anuncio oficiales de Google AdSense por posición en ZimplifAI:
+ * Publisher ID: ca-pub-7635423594730192
+ */
+export const ADSENSE_SLOT_IDS: Record<AdPosition, string> = {
+  header: "2663115877",
+  "in-article": "1723132398",
+  sidebar: "9410050726",
+  footer: "9886999771",
+};
 
 /**
  * Mapeo de estilos y dimensiones recomendadas según estándares IAB:
@@ -63,6 +74,7 @@ const ADSENSE_CLIENT_ID = "ca-pub-7635423594730192";
  */
 export function AdSlot({ position, className, slotId }: AdSlotProps) {
   const config = DIMENSIONS_BY_POSITION[position];
+  const activeSlotId = slotId || ADSENSE_SLOT_IDS[position];
   const insRef = useRef<HTMLModElement | null>(null);
   const pushedRef = useRef(false);
   const [adLoaded, setAdLoaded] = useState(false);
@@ -119,7 +131,7 @@ export function AdSlot({ position, className, slotId }: AdSlotProps) {
     <aside
       aria-label={`Espacio publicitario: ${config.slotLabel}`}
       data-ad-position={position}
-      data-ad-slot-id={slotId || "0000000000"}
+      data-ad-slot-id={activeSlotId}
       className={cn(
         "relative flex flex-col items-center justify-center overflow-hidden rounded-xl transition-all",
         !adLoaded &&
@@ -166,8 +178,7 @@ export function AdSlot({ position, className, slotId }: AdSlotProps) {
         className="adsbygoogle relative z-10 w-full"
         style={{ display: "block" }}
         data-ad-client={ADSENSE_CLIENT_ID}
-        // TODO: crear unidades de anuncio en adsense.google.com y sustituir slotId por el ID real de cada posición
-        data-ad-slot={slotId || "0000000000"}
+        data-ad-slot={activeSlotId}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
