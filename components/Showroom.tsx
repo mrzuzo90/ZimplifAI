@@ -84,7 +84,7 @@ export default function Showroom() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.45, ease: EASE }}
-              className={cn(spanClass(i), "h-full")}
+              className={cn(spanClass(i), "h-full min-w-0")}
             >
               <ProjectCard project={project} onOpen={() => setActive(project)} />
             </motion.div>
