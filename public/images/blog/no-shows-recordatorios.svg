@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07080a"/>
+      <stop offset="100%" stop-color="#101319"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- calendar grid icon -->
+  <g transform="translate(120,150)">
+    <rect x="0" y="0" width="340" height="300" rx="18" fill="none" stroke="#8b9098" stroke-width="2" opacity="0.5"/>
+    <line x1="0" y1="70" x2="340" y2="70" stroke="#8b9098" stroke-width="2" opacity="0.5"/>
+    <line x1="60" y1="0" x2="60" y2="30" stroke="#ceff00" stroke-width="6" stroke-linecap="round"/>
+    <line x1="280" y1="0" x2="280" y2="30" stroke="#45e5ff" stroke-width="6" stroke-linecap="round"/>
+
+    <g fill="#8b9098" opacity="0.35">
+      <rect x="24" y="100" width="40" height="40" rx="6"/>
+      <rect x="90" y="100" width="40" height="40" rx="6"/>
+      <rect x="156" y="100" width="40" height="40" rx="6"/>
+      <rect x="222" y="100" width="40" height="40" rx="6"/>
+      <rect x="288" y="100" width="28" height="40" rx="6"/>
+
+      <rect x="24" y="160" width="40" height="40" rx="6"/>
+      <rect x="156" y="160" width="40" height="40" rx="6"/>
+      <rect x="222" y="160" width="40" height="40" rx="6"/>
+      <rect x="288" y="160" width="28" height="40" rx="6"/>
+
+      <rect x="24" y="220" width="40" height="40" rx="6"/>
+      <rect x="90" y="220" width="40" height="40" rx="6"/>
+      <rect x="222" y="220" width="40" height="40" rx="6"/>
+    </g>
+
+    <!-- highlighted reserved slot with check (confirmed) -->
+    <rect x="90" y="160" width="40" height="40" rx="6" fill="#ceff00" opacity="0.9"/>
+    <path d="M99 180 L107 188 L121 170" stroke="#07080a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- empty / no-show slot with x -->
+    <rect x="288" y="220" width="28" height="40" rx="6" fill="none" stroke="#ff6b6b" stroke-width="2.5" opacity="0.9"/>
+    <path d="M295 228 L309 252 M309 228 L295 252" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- chat bubble reminder icon -->
+  <g transform="translate(560,190)">
+    <rect x="0" y="0" width="220" height="140" rx="20" fill="none" stroke="#45e5ff" stroke-width="2.5" opacity="0.8"/>
+    <path d="M40 140 L40 175 L75 140" fill="none" stroke="#45e5ff" stroke-width="2.5" opacity="0.8"/>
+    <line x1="30" y1="40" x2="190" y2="40" stroke="#8b9098" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+    <line x1="30" y1="65" x2="160" y2="65" stroke="#8b9098" stroke-width="4" opacity="0.4" stroke-linecap="round"/>
+    <line x1="30" y1="90" x2="120" y2="90" stroke="#8b9098" stroke-width="4" opacity="0.4" stroke-linecap="round"/>
+  </g>
+
+  <text x="120" y="480" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#e8e6e1">No-shows en reservas</text>
+  <text x="120" y="530" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#ceff00">Recordatorios que funcionan</text>
+  <text x="120" y="575" font-family="Arial, sans-serif" font-size="22" fill="#8b9098">ZimplifAI · Operaciones de hostelería</text>
+</svg>
