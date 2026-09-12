@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- Fondo oscuro -->
+  <rect width="1200" height="630" fill="#07080a"/>
+  
+  <!-- Degradado de fondo sutil -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#101319;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#07080a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ceff00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45e5ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Elemento decorativo: línea ondulada arriba (accent cian) -->
+  <path d="M 0 80 Q 300 40 600 80 T 1200 80" stroke="#45e5ff" stroke-width="3" fill="none" opacity="0.4"/>
+  
+  <!-- Círculo de tiempo/reloj - elemento central -->
+  <g transform="translate(200, 315)">
+    <!-- Marco del reloj (circles concéntricos) -->
+    <circle cx="0" cy="0" r="120" fill="none" stroke="#45e5ff" stroke-width="2" opacity="0.3"/>
+    <circle cx="0" cy="0" r="105" fill="none" stroke="#ceff00" stroke-width="1" opacity="0.2"/>
+    
+    <!-- Manecilla de hora (volt lima) -->
+    <line x1="0" y1="0" x2="0" y2="-50" stroke="#ceff00" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Manecilla de minuto (plasma cian) -->
+    <line x1="0" y1="0" x2="70" y2="0" stroke="#45e5ff" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Centro del reloj -->
+    <circle cx="0" cy="0" r="8" fill="#ceff00"/>
+  </g>
+  
+  <!-- Cuadro de personas esperando (lista de espera visual) -->
+  <g transform="translate(650, 280)">
+    <!-- Marco del cuadro -->
+    <rect x="0" y="0" width="320" height="200" fill="#101319" stroke="#45e5ff" stroke-width="2" rx="8" opacity="0.8"/>
+    
+    <!-- Título "En espera" -->
+    <text x="160" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ceff00" text-anchor="middle">
+      En Espera
+    </text>
+    
+    <!-- Línea separadora -->
+    <line x1="10" y1="40" x2="310" y2="40" stroke="#45e5ff" stroke-width="1" opacity="0.3"/>
+    
+    <!-- Persona 1 -->
+    <circle cx="30" cy="75" r="12" fill="#45e5ff" opacity="0.6"/>
+    <text x="55" y="80" font-family="Arial, sans-serif" font-size="13" fill="#e8e6e1">
+      Persona 1
+    </text>
+    <text x="280" y="80" font-family="Arial, sans-serif" font-size="12" fill="#8b9098" text-anchor="end">
+      10m
+    </text>
+    
+    <!-- Persona 2 -->
+    <circle cx="30" cy="120" r="12" fill="#ceff00" opacity="0.5"/>
+    <text x="55" y="125" font-family="Arial, sans-serif" font-size="13" fill="#e8e6e1">
+      Persona 2
+    </text>
+    <text x="280" y="125" font-family="Arial, sans-serif" font-size="12" fill="#8b9098" text-anchor="end">
+      25m
+    </text>
+    
+    <!-- Persona 3 -->
+    <circle cx="30" cy="165" r="12" fill="#45e5ff" opacity="0.4"/>
+    <text x="55" y="170" font-family="Arial, sans-serif" font-size="13" fill="#e8e6e1">
+      Persona 3
+    </text>
+    <text x="280" y="170" font-family="Arial, sans-serif" font-size="12" fill="#8b9098" text-anchor="end">
+      40m
+    </text>
+  </g>
+  
+  <!-- Título principal -->
+  <text x="600" y="520" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#e8e6e1" text-anchor="middle">
+    Gestión de Listas de Espera
+  </text>
+  
+  <!-- Subtítulo -->
+  <text x="600" y="570" font-family="Arial, sans-serif" font-size="20" fill="#8b9098" text-anchor="middle">
+    Experiencia en tiempo real y previsión
+  </text>
+  
+  <!-- Elemento decorativo: línea ondulada abajo (accent volt) -->
+  <path d="M 0 600 Q 300 620 600 600 T 1200 600" stroke="#ceff00" stroke-width="3" fill="none" opacity="0.3"/>
+</svg>
