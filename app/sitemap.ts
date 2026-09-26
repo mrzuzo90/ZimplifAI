@@ -35,6 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${siteUrl}/auditoria-geo-hosteleria`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
     ...projects.map((project) => ({
       url: `${siteUrl}${getProjectPath(project)}`,
       lastModified: new Date(),

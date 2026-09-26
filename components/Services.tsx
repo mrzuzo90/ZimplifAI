@@ -5,6 +5,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/motion/Reveal";
 import { useSmoothScroll } from "@/components/providers";
 import { container, fadeUp } from "@/lib/motion";
+import Link from "next/link";
 
 interface Service {
   n: string;
@@ -113,6 +114,37 @@ export default function Services() {
           </motion.article>
         ))}
       </motion.div>
+
+      {/* Enlace especializado hacia la Auditoría GEO para hostelería */}
+      <div className="mt-8 flex flex-col justify-between gap-6 rounded-2xl border border-line bg-surface/60 p-6 sm:flex-row sm:items-center md:mt-10 md:p-8">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-volt" aria-hidden="true" />
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-volt">
+              Especial Hostelería & Hoteles
+            </span>
+          </div>
+          <h3 className="mt-2 text-xl font-bold tracking-tight text-ink md:text-2xl">
+            Auditoría GEO accionable
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            ¿Qué dicen ChatGPT, Perplexity y Gemini de tu restaurante u hotel? Análisis de 8 consultas
+            reales, fuentes citadas y 3 acciones priorizadas.
+          </p>
+        </div>
+        <Link
+          href="/auditoria-geo-hosteleria"
+          className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-volt/40 bg-volt/10 px-6 py-3 font-mono text-xs uppercase tracking-wider text-volt transition-colors hover:bg-volt hover:text-bg sm:self-center"
+        >
+          Ver auditoría GEO
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </Link>
+      </div>
     </section>
   );
 }
