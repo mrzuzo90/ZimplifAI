@@ -12,6 +12,7 @@ import Link from "next/link";
 const LINKS = [
   { label: "Manifiesto", target: "#manifiesto" },
   { label: "Servicios", target: "#servicios" },
+  { label: "Auditoría GEO", target: "/auditoria-geo-hosteleria" },
   { label: "Proyectos", target: "#proyectos" },
   { label: "Habilidades", target: "#habilidades" },
   { label: "Blog", target: "/blog" },
@@ -104,7 +105,7 @@ export default function Nav() {
                   onClick={go(l.target)}
                   className={cn(
                     "group relative font-mono text-xs uppercase tracking-[0.18em] transition-colors hover:text-ink",
-                    (pathname.startsWith("/blog") && l.target === "/blog")
+                    (l.target.startsWith("/") && pathname.startsWith(l.target))
                       ? "text-volt font-semibold"
                       : "text-muted",
                   )}
@@ -113,7 +114,7 @@ export default function Nav() {
                   <span
                     className={cn(
                       "absolute -bottom-1 left-0 h-px w-full origin-left bg-volt transition-transform duration-300",
-                      pathname.startsWith("/blog") && l.target === "/blog"
+                      l.target.startsWith("/") && pathname.startsWith(l.target)
                         ? "scale-x-100"
                         : "scale-x-0 group-hover:scale-x-100",
                     )}
@@ -190,7 +191,7 @@ export default function Nav() {
                     onClick={go(l.target)}
                     className={cn(
                       "block py-2 text-4xl font-bold tracking-tight",
-                      (pathname.startsWith("/blog") && l.target === "/blog")
+                      (l.target.startsWith("/") && pathname.startsWith(l.target))
                         ? "text-volt"
                         : "text-ink",
                     )}
