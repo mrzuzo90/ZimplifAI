@@ -1,0 +1,70 @@
+---
+title: "Pruebas de aceptación de un asistente de IA para reservas en restaurantes"
+description: "Descubre cómo realizar pruebas de aceptación en el asistente de IA de tu restaurante antes de activar reservas: modo ensayo, batería de casos y regresión."
+date: "2026-10-01"
+slug: "pruebas-aceptacion-asistente-ia-restaurantes-reservas"
+coverImage: "/images/blog/crm-ia-hosteleria.svg"
+tags: ["Hostelería", "Inteligencia Artificial", "Gestión de Reservas", "Control de Calidad"]
+author: "Nexo"
+---
+
+Antes de conceder permisos de escritura en la agenda a un asistente de inteligencia artificial, es imprescindible validar su comportamiento en un entorno controlado. Permitir que reserve mesas sin una fase previa de pruebas expone al restaurante a incidencias graves: asignaciones en turnos cerrados, errores en comensales o bloqueos involuntarios de aforo durante el servicio.
+
+Las pruebas de aceptación constituyen el filtro técnico para garantizar que el asistente comprenda las solicitudes, respete las reglas del local y responda con solidez ante peticiones complejas.
+
+<AdSlot position="in-article" />
+
+## 1. El modo ensayo: validación sin alterar la sala
+
+El primer paso consiste en activar un entorno de ensayo. En esta modalidad, el sistema procesa interacciones completas pero sin permisos para ejecutar cambios reales en la base de datos del restaurante.
+
+Este modo de simulación cumple tres funciones clave:
+- **Aislamiento del libro de reservas:** Las reservas generadas se dirigen a una réplica o se marcan como simulaciones, evitando ocupar mesas reales en el servicio diario.
+- **Contención de comunicaciones:** Los mensajes de confirmación o recordatorios se envían a registros internos de depuración, impidiendo avisos imprevistos a comensales reales.
+- **Inspección de datos extraídos:** Permite revisar campo por campo cómo interpreta el asistente el turno solicitado, la fecha, el nombre del comensal y las notas de sala.
+
+<Callout type="info" title="Aislamiento del entorno de pruebas">
+Mantener el libro de reservas real desacoplado del asistente durante las pruebas iniciales evita bloqueos accidentales de mesas y asegura que el personal de sala mantenga el control exclusivo del servicio.
+</Callout>
+
+## 2. Batería de pruebas: flujos nominales y casos límite
+
+La batería de aceptación debe someter al sistema a situaciones operativas exigentes, evaluando su comportamiento ante consultas habituales y excepciones:
+
+### Flujos nominales
+Verifican el recorrido estándar de un comensal en horario disponible:
+- Identificación precisa del turno deseado (comida o cena).
+- Captura limpia de datos de contacto y confirmación de personas dentro de los márgenes habituales.
+- Respuesta coherente con la disponibilidad de inventario.
+
+### Casos límite y excepciones operativas
+Comprueban que el sistema no compromete la capacidad del local cuando la petición plantea dudas:
+
+- **[Prueba ficticia 1 - Solicitud en servicio cerrado]:** El usuario solicita mesa un lunes por la noche, día de descanso semanal. El asistente debe identificar el cierre, explicarlo con cortesía y ofrecer turnos abiertos alternativos, sin registrar ninguna reserva.
+- **[Prueba ficticia 2 - Grupo que excede el límite ordinario]:** Se solicita mesa para doce personas en un turno con tope de seis comensales por reserva estándar. El asistente debe frenar la reserva directa y remitir la petición a gestión manual, sin dividir mesas por cuenta propia.
+- **[Prueba ficticia 3 - Petición con ambigüedad temporal]:** El mensaje solicita mesa para el próximo viernes a mediodía sin concretar hora. El asistente debe solicitar la franja exacta antes de confirmar la reserva.
+- **[Prueba ficticia 4 - Modificación sobre reserva no localizada]:** El usuario solicita cambiar de hora una reserva aportando un teléfono no registrado. El asistente debe solicitar el localizador o verificar la identidad sin alterar registros ajenos.
+
+## 3. Criterios de lanzamiento (Go / No-Go)
+
+Para autorizar el paso a producción del asistente, el equipo debe definir criterios de corte objetivos y verificables:
+
+- **Cero tolerancias en asignaciones erróneas:** Ninguna interacción de prueba debe generar reservas en días de cierre, turnos completos o tramos fuera de servicio.
+- **Integridad de datos mínimos:** Cada reserva debe recopilar nombre, teléfono, comensales y franja horaria válida antes de completarse.
+- **Derivación clara ante dudas no resueltas:** Ante preguntas complejas fuera de carta o discrepancias de disponibilidad, el asistente debe transferir la consulta al equipo humano sin inventar condiciones.
+- **Tiempos de respuesta estables:** La generación de respuestas debe mantenerse dentro de un umbral ágil que no degrade la atención.
+
+<Callout type="tip" title="Validación con el equipo de sala">
+Involucrar al responsable de sala en la revisión de los diálogos de prueba ayuda a identificar dudas recurrentes y adaptar las respuestas a las particularidades del local.
+</Callout>
+
+## 4. Pruebas de regresión ante cambios operativos
+
+La operativa evoluciona con frecuencia: se modifican turnos de temporada, se ajustan aforos de terraza o cambian las políticas de antelación para reservar. Cada modificación en las directrices del asistente o en los parámetros de la agenda exige ejecutar pruebas de regresión.
+
+Un control de regresión ordenado asegura que la corrección de un detalle operativo no desajuste procesos ya consolidados:
+- **Automatización de casos críticos:** Reejecutar las pruebas nominales y límites cada vez que se modifiquen las instrucciones o los horarios de apertura.
+- **Control de versiones:** Mantener un registro ordenado de las modificaciones realizadas en el asistente para identificar el origen de cualquier anomalía tras un cambio.
+- **Auditoría periódica:** Revisar muestras de conversaciones reales en producción para descubrir nuevos patrones de consulta e incorporarlos a la batería de pruebas.
+
+La puesta en marcha de un asistente de reservas exige un marco de validación riguroso que proteja la tranquilidad de la sala. Si deseas revisar los flujos de atención y definir protocolos de validación técnica para tu establecimiento, puedes ponerte en contacto con nosotros a través de nuestra página de [contacto](/contacto).
