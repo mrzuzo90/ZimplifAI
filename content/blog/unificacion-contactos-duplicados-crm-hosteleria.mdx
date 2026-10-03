@@ -1,0 +1,57 @@
+---
+title: "Unificación de contactos en el CRM hostelero: resolución de duplicados"
+description: "Aprende a identificar, normalizar y unificar fichas duplicadas de comensales en el CRM de tu restaurante protegiendo notas de sala e historial de reservas."
+date: "2026-10-03"
+slug: "unificacion-contactos-duplicados-crm-hosteleria"
+coverImage: "/images/blog/datos-crm-restaurantes.svg"
+tags: ["Hostelería", "CRM", "Gestión de Datos", "Operaciones"]
+author: "Nexo"
+---
+
+Cuando un comensal habitual reserva unas veces por teléfono, otras por WhatsApp y en ocasiones mediante la web del restaurante, el sistema suele registrarlo como tres clientes distintos. Si a esta dispersión de canales se añaden erratas tipográficas en el nombre, prefijos internacionales ausentes o teléfonos de empresa, la base de datos se fragmenta con rapidez.
+
+Tener fichas duplicadas no es un simple desajuste visual: representa una fuente directa de fallos en el servicio. La sala pierde el contexto histórico del cliente, el asistente de reservas no reconoce visitas previas ni preferencias de mesa, y el local corre el riesgo de enviar recordatorios redundantes o mensajes cruzados.
+
+<AdSlot position="in-article" />
+
+## 1. Normalización de campos: el filtro técnico previo
+
+Antes de plantearse fusionar registros, es imprescindible definir un criterio único de normalización. La mayoría de duplicados no proceden de comensales distintos, sino del mismo dato capturado en formatos dispares:
+
+- **Normalización del teléfono móvil (estándar E.164):** El teléfono es el identificador más fiable en hostelería. Un número guardado con espacios o prefijos locales debe limpiarse y unificarse bajo un patrón internacional estandarizado.
+- **Depuración de nombres y separación de notas:** Es habitual que el personal anote en el campo de nombre apuntes del turno, como «Carlos cena amigos». El sistema debe separar la identidad del comensal de las observaciones temporales.
+- **Tratamiento del correo electrónico:** La dirección debe almacenarse siempre en minúsculas y sin espacios residuales, actuando como identificador secundario de respaldo.
+
+<Callout type="info" title="El teléfono como ancla operativa">
+En hostelería casi todas las interacciones transcurren por voz o mensajería instantánea. El número de teléfono normalizado es la única clave primaria sólida para vincular reservas de un mismo cliente sin ambigüedades.
+</Callout>
+
+## 2. Reglas de consolidación: proteger historial y observaciones
+
+Al detectar dos o más fichas de una misma persona, la unificación debe regirse por reglas operativas que eviten destruir datos críticos:
+
+1. **Preservación íntegra del historial:** La unión nunca debe borrar reservas anteriores ni asistencias. La ficha resultante debe reflejar la cronología acumulada en todos los canales.
+2. **Consolidación jerarquizada de notas:** Si una ficha antigua contenía una nota permanente (como una alergia confirmada o preferencia de mesa) y la nueva incluye un apunte puntual del día, ambas deben coexistir sin sobreescrituras destructivas.
+3. **Prioridad en datos de contacto activos:** El teléfono y correo más recientes, confirmados en la última reserva, deben prevalecer como datos primarios de comunicación.
+
+## 3. Asistencia inteligente y supervisión técnica transparente
+
+La búsqueda manual de duplicados en bases de datos extensas es inviable en pleno turno. Las herramientas asistidas por inteligencia artificial permiten detectar coincidencias, pero deben respetar principios claros de prudencia:
+
+- **Sugerencias frente a fusiones desatendidas:** Los algoritmos deben sugerir posibles duplicados por similitud fonética o números coincidentes, pero la consolidación debe requerir validación humana cuando existan dudas en los nombres.
+- **Teléfonos corporativos y secretarías:** Una misma centralita de empresa puede reservar para personas distintas. Una fusión automática a ciegas uniría historiales incompatibles, distorsionando preferencias y comensales.
+- **Trazabilidad y registro de auditoría:** Cada unión debe registrar las fichas combinadas, la fecha y el usuario responsable, permitiendo revertir la acción si se detecta un error.
+
+<Callout type="tip" title="Validación previa a la unión">
+Exigir validación manual antes de fusionar contactos previene mezclar perfiles corporativos compartidos y asegura la fiabilidad de las notas de sala.
+</Callout>
+
+## 4. Rutina de higiene semanal para el responsable de reservas
+
+Mantener el CRM saneado no exige jornadas complejas, sino una rutina breve integrada en la semana:
+
+- **Revisión periódica de sugerencias:** Dedicar diez minutos semanales a validar duplicados pendientes evita que el desorden crezca antes del fin de semana.
+- **Depuración de registros de prueba:** Las reservas creadas para formación o pruebas de plano deben archivarse para no distorsionar las métricas de ocupación.
+- **Sensibilización del equipo:** Recordar al personal la importancia de verificar el teléfono antes de crear un contacto nuevo reduce la fragmentación en origen.
+
+Una base de datos limpia es el requisito indispensable para que recordatorios, gestión de mesas y automatizaciones operen con rigor. Si deseas revisar los flujos de captura y ordenación de datos en tu restaurante, puedes contactar con nuestro equipo a través del formulario de [contacto](/#contacto).
