@@ -8,7 +8,7 @@ tags: ["Hostelería", "CRM", "Gestión de Datos", "Operaciones"]
 author: "Nexo"
 ---
 
-Cuando un comensal habitual reserva unas veces por teléfono, otras por WhatsApp y en ocasiones mediante la web del restaurante, el sistema suele registrarlo como tres clientes distintos. Si a esta dispersión de canales se añaden erratas tipográficas en el nombre, prefijos internacionales ausentes o teléfonos de empresa, la base de datos se fragmenta con rapidez.
+Cuando un comensal habitual reserva unas veces por teléfono, otras por WhatsApp y en ocasiones mediante la web del restaurante, el sistema puede generar fichas distintas según configuración. Si a esta dispersión de canales se añaden erratas tipográficas en el nombre, prefijos internacionales ausentes o teléfonos de empresa, la base de datos se fragmenta con rapidez.
 
 Tener fichas duplicadas no es un simple desajuste visual: representa una fuente directa de fallos en el servicio. La sala pierde el contexto histórico del cliente, el asistente de reservas no reconoce visitas previas ni preferencias de mesa, y el local corre el riesgo de enviar recordatorios redundantes o mensajes cruzados.
 
@@ -16,14 +16,14 @@ Tener fichas duplicadas no es un simple desajuste visual: representa una fuente 
 
 ## 1. Normalización de campos: el filtro técnico previo
 
-Antes de plantearse fusionar registros, es imprescindible definir un criterio único de normalización. La mayoría de duplicados no proceden de comensales distintos, sino del mismo dato capturado en formatos dispares:
+Antes de plantearse fusionar registros, es imprescindible definir un criterio único de normalización. Muchos duplicados pueden proceder no de comensales distintos, sino del mismo dato capturado en formatos dispares:
 
-- **Normalización del teléfono móvil (estándar E.164):** El teléfono es el identificador más fiable en hostelería. Un número guardado con espacios o prefijos locales debe limpiarse y unificarse bajo un patrón internacional estandarizado.
+- **Normalización del teléfono móvil (estándar E.164):** El teléfono aporta una señal práctica, no una prueba de identidad. Un número guardado con espacios o prefijos locales debe limpiarse y unificarse bajo un patrón internacional estandarizado.
 - **Depuración de nombres y separación de notas:** Es habitual que el personal anote en el campo de nombre apuntes del turno, como «Carlos cena amigos». El sistema debe separar la identidad del comensal de las observaciones temporales.
-- **Tratamiento del correo electrónico:** La dirección debe almacenarse siempre en minúsculas y sin espacios residuales, actuando como identificador secundario de respaldo.
+- **Tratamiento del correo electrónico:** Conviene quitar espacios y normalizar el dominio evitando alterar la parte local sin comprobar el proveedor, actuando como identificador secundario de respaldo.
 
-<Callout type="info" title="El teléfono como ancla operativa">
-En hostelería casi todas las interacciones transcurren por voz o mensajería instantánea. El número de teléfono normalizado es la única clave primaria sólida para vincular reservas de un mismo cliente sin ambigüedades.
+<Callout type="info" title="Recomendación prudente sobre el teléfono">
+El teléfono normalizado ayuda a detectar candidatos, pero no demuestra identidad. Resulta imprescindible contrastar el nombre y el contexto de la reserva, y no fusionar automáticamente por un número compartido que pueda corresponder a una empresa, recepción o familia.
 </Callout>
 
 ## 2. Reglas de consolidación: proteger historial y observaciones
