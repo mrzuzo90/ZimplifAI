@@ -1,0 +1,70 @@
+---
+title: "Cómo exportar datos del CRM de un restaurante al cambiar de proveedor"
+description: "Aprende a preparar la exportación del CRM de tu restaurante al cambiar de proveedor: inventario de entidades, conciliación de registros y pruebas."
+date: "2026-10-15"
+slug: "exportar-datos-crm-restaurante-cambio-proveedor"
+coverImage: "/images/blog/datos-crm-restaurantes.svg"
+tags: ["Hostelería", "CRM", "Gestión de Datos", "Operaciones"]
+author: "Nexo"
+---
+
+Cambiar de CRM o software de reservas en un restaurante busca mejorar herramientas o recortar costes. No obstante, el mayor riesgo operativo no radica en la interfaz del nuevo sistema, sino en la pérdida o desajuste de datos históricos: fichas de clientes habituales, notas de sala, alérgenos y reservas futuras comprometidas.
+
+La portabilidad de datos exige garantías técnicas previas. Su viabilidad depende de los formatos de exportación que entregue la plataforma saliente y de su compatibilidad con el sistema receptor. Esta guía es un protocolo de comprobación y no confirma capacidades de ningún proveedor; reúne las comprobaciones que el restaurante debe solicitar a sus proveedores para verificar la información antes de rescindir el contrato.
+
+<AdSlot position="in-article" />
+
+## 1. Inventario de entidades, identificadores y relaciones
+
+Un tropiezo habitual consiste en tratar el CRM como una lista plana de contactos. En hostelería, los datos constituyen una estructura relacional donde cada elemento depende de otros:
+
+- **Fichas de clientes:** Nombres, teléfonos normalizados, correos y consentimientos.
+- **Historial y reservas futuras:** Fechas, turnos, comensales, estado y mesas asignadas.
+- **Notas de sala y preferencias:** Preferencias de ubicación y requerimientos de servicio.
+- **Salud alimentaria:** Alérgenos e intolerancias registradas para coordinar con cocina.
+
+Para conservar el histórico, conviene verificar que el proveedor saliente exporte los identificadores únicos (IDs) entre comensales y reservas. Si faltan estas claves relacionales, el histórico no es necesariamente inutilizable, pero puede requerir una reconstrucción manual mediante reglas de correspondencia que debe validarse para evitar asignaciones erróneas.
+
+## 2. Formatos documentados y exportación de ensayo
+
+Antes del corte definitivo, conviene pactar formatos estándar y realizar un ensayo previo:
+
+- **Formatos abiertos y estructurados:** Exige archivos estándar como CSV en UTF-8 o esquemas JSON documentados, evitando formatos propietarios.
+- **Diccionario de datos:** Solicita correspondencia de campos, códigos de estado y formato de fechas.
+- **Exportación de ensayo:** Solicita un volcado de prueba previo (por ejemplo, con un plazo orientativo y negociable de dos semanas antes del corte). Permite verificar que caracteres locales, prefijos y fechas mantengan su codificación sin corromperse.
+- **Custodia práctica:** Aplica precauciones mínimas: minimizar datos reales de ensayo, restringir acceso a los ficheros solo al personal validador y no compartir volcados por enlaces públicos.
+
+<Callout type="tip" title="Ventana de solapamiento y acceso de solo lectura">
+Negocia con el proveedor saliente acceso de solo lectura tras la exportación (por ejemplo, una ventana orientativa y negociable de treinta días). Cancelar el servicio antes de verificar la carga en la nueva plataforma impide recuperar campos ausentes o ficheros incompletos.
+</Callout>
+
+## 3. Conciliación de recuentos y prueba en entorno separado
+
+Tras generar la extracción de prueba, conviene contrastar las cifras antes de transferir registros a producción:
+
+1. **Conciliación de totales:** Contrasta fichas activas del CRM original con las filas exportadas. Repite el cotejo con un periodo de referencia (por ejemplo, un plazo orientativo de doce meses, negociable según la actividad) y las reservas futuras.
+2. **Revisión de valores nulos o truncados:** Comprueba que campos de texto amplio, como notas de servicio o peticiones especiales, no hayan sido cortados en la exportación.
+3. **Prueba en entorno separado:** Nunca importes un volcado directamente en el sistema en vivo de sala. Utiliza un entorno de pruebas o sandbox para validar columnas y verificar que los datos se lean con coherencia.
+
+## 4. Entrega y salida con validación humana
+
+La migración no concluye con la descarga técnica de los ficheros. El responsable del restaurante debe realizar una validación visual:
+
+- **Muestreo dirigido:** Selecciona manualmente diez fichas de comensales frecuentes y diez reservas próximas. Contrasta teléfonos, notas y preferencias frente a la plataforma anterior.
+- **Control de reservas futuras:** Asegura que las reservas confirmadas para las próximas semanas reflejen fecha, hora, comensales y notas asociadas.
+- **Acta de recepción:** Registra quién validó el volcado, fecha de corte y conformidad antes de autorizar la baja técnica del proveedor.
+
+## Checklist operativo de portabilidad
+
+| Fase | Comprobación técnica | Estado |
+| :--- | :--- | :--- |
+| **Inventario** | Exportar clientes, reservas, notas y alérgenos con identificadores relacionales vinculados. | Pendiente |
+| **Formato** | Entregar archivos CSV (UTF-8) o JSON con delimitadores y diccionario de datos documentado. | Pendiente |
+| **Custodia** | Minimizar datos reales de ensayo, restringir acceso y no compartir volcados por enlaces públicos. | Pendiente |
+| **Ensayo** | Realizar volcado de prueba previo para comprobar tildes, prefijos telefónicos y fechas. | Pendiente |
+| **Conciliación** | Contrastar recuento total de clientes y reservas exportadas frente al panel activo. | Pendiente |
+| **Prueba sandbox** | Cargar datos en un entorno de pruebas separado sin alterar la sala en producción. | Pendiente |
+| **Validación humana** | Muestreo dirigido de fichas habituales y revisión exhaustiva de reservas futuras. | Pendiente |
+| **Salida** | Mantener acceso de solo lectura en el proveedor saliente según el plazo pactado. | Pendiente |
+
+Planificar la portabilidad con rigor protege la memoria comercial del local y previene incidencias en sala. Si deseas revisar la organización de tus procesos de gestión, puedes consultar nuestras guías sobre [datos mínimos que estructurar antes de automatizar](/blog/datos-minimos-restaurante-antes-automatizar-reservas-crm), [permisos y trazabilidad en el CRM](/blog/permisos-responsabilidades-crm-hosteleria-trazabilidad), [unificación de contactos duplicados](/blog/unificacion-contactos-duplicados-crm-hosteleria) y [protocolo de contingencia ante caídas del sistema de reservas](/blog/protocolo-contingencia-caida-sistema-reservas-hosteleria), o solicitar asesoramiento a través de nuestro formulario de [contacto](/#contacto).
