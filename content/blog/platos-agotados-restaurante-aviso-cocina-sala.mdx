@@ -1,0 +1,61 @@
+---
+title: "Platos agotados en el restaurante: aviso de cocina, retirada y reposición"
+description: "Protocolo operativo para gestionar platos agotados en hostelería: aviso entre cocina y sala, control de estados, retirada temporal y reposición en el pase."
+date: "2026-10-18"
+slug: "platos-agotados-restaurante-aviso-cocina-sala"
+coverImage: "/images/blog/datos-crm-restaurantes.svg"
+tags: ["Hostelería", "Operaciones", "Gestión de Sala", "Cocina"]
+author: "Nexo"
+---
+
+Uno de los momentos más incómodos en el comedor ocurre cuando un camarero toma nota de una mesa, marcha la comanda y, minutos después, debe regresar junto al comensal para disculparse porque uno de los platos acaba de agotarse en cocina. Además de obligar al cliente a elegir de nuevo mientras su mesa espera, este desajuste altera los tiempos del pase, genera rectificaciones en caja y añade tensión entre partidas y sala.
+
+Evitar estas situaciones en horas punta requiere un circuito estructurado entre cocina y sala que regule el aviso anticipado, la retirada temporal de la oferta y la eventual reposición durante el servicio.
+
+<AdSlot position="in-article" />
+
+## 1. Tres estados operativos para anticipar el fin de existencias
+
+Tratar la disponibilidad de cada elaboración como un valor binario provoca choques cuando dos camareros comandan la última ración en mesas distintas a la vez. Para ordenar la toma de comandas por turno, conviene emplear tres estados en el registro del servicio:
+
+- **Disponible:** El plato cuenta con margen suficiente en la partida para comandarse con normalidad en comedor o terraza.
+- **Pendiente de confirmar:** Quedan raciones contadas en el pase. Ningún camarero puede comprometer el plato en firme sin consultar antes al responsable del pase y bloquear esa unidad.
+- **Agotado:** La partida ha servido la última ración del turno. El plato pasa a retirada temporal y se detiene su venta en todos los rangos hasta cerrar el servicio o confirmar una reposición.
+
+El estado intermedio «pendiente de confirmar» frena las ventas simultáneas en distintas zonas del local y da margen a la sala para preparar sugerencias alternativas.
+
+## 2. Responsable único, registro por servicio y confirmación de recepción
+
+Los avisos verbales lanzados al paso por la ventanilla suelen quedarse a medias: quien recoge un plato caliente para la terraza rara vez puede detenerse a informar al compañero del salón interior.
+
+Para cerrar esa brecha, el circuito exige roles definidos, un registro por servicio (comidas o cenas) y confirmación expresa entre áreas:
+
+1. **Responsable emisor en cocina:** El jefe de cocina o encargado del pase centraliza los avisos de las partidas y anota antes de abrir puertas las referencias con raciones contadas para ese turno.
+2. **Responsable receptor en sala:** El jefe de sala o encargado de turno recibe cada cambio de estado, actualiza el registro activo del servicio y lo traslada de inmediato a todos los rangos y barra.
+3. **Confirmación de recepción sala-cocina:** El aviso no concluye cuando cocina canta la baja, sino cuando el responsable de sala devuelve confirmación expresa de que todos los rangos están enterados y el plato se ha retirado de la toma de comandas.
+
+<Callout type="tip" title="Alternativa lista en el mismo aviso">
+Cada vez que una referencia pase a «pendiente de confirmar» o «agotado», el responsable del pase debe indicar qué plato similar tiene salida ágil en cocina. Así, el camarero acude a la mesa con una recomendación concreta en lugar de trasladar solo una negativa.
+</Callout>
+
+## 3. Retirada temporal de oferta y circuito de reposición en el pase
+
+Confirmado el agotamiento en el servicio en curso, la retirada temporal y su posible reactivación siguen pasos precisos:
+
+- **Bloqueo en el soporte de comanda:** Marcar la referencia como agotada en terminales y pizarras de pase para evitar marcharla por inercia.
+- **Aviso preventivo en mesa:** Informar al entregar la carta de las referencias agotadas en ese turno antes de que el comensal decida.
+- **Reposición durante el servicio:** Si cocina completa una nueva tanda o guarnición que permite volver a emplatar el plato, el jefe de pase comunica cuántas unidades entran, el encargado de sala actualiza el registro del servicio a «disponible» o «pendiente de confirmar» y confirma la recepción al equipo antes de reabrir su venta.
+
+Al cerrar el mediodía, este registro se revisa en el relevo con la noche para distinguir qué elaboraciones se reponen para la cena y cuáles continúan agotadas.
+
+## 4. Automatización condicionada al soporte técnico real
+
+Cuando el tamaño del local dificulta el aviso directo entre el pase y los rangos alejados, cabe plantear apoyos digitales condicionados a que el soporte técnico real del restaurante —TPV, comanderos o canal interno— lo admita con estabilidad:
+
+- **Cambio de estado en comanderos:** Si el TPV y los comanderos lo soportan, actualizar las raciones o el estado desde el pase puede mostrar al instante la etiqueta «pendiente de confirmar» o «agotado» en los terminales de mano.
+- **Avisos internos con lectura confirmada:** Donde el equipo utilice un canal interno de trabajo, cambiar el estado en el registro del servicio puede enviar una alerta para que cada jefe de rango confirme recepción sin dejar su zona.
+- **Respaldo manual prioritario:** Si el equipamiento no soporta estas funciones o falla la red en pleno servicio, la pauta verbal con pizarra de pase y confirmación entre cocina y sala se mantiene como regla obligatoria.
+
+Para seguir ordenando la operativa diaria, revisa nuestras guías sobre el [relevo de turnos con registro centralizado](/blog/relevo-turnos-restaurante-registro-centralizado), la [sincronización entre TPV y reservas](/blog/sincronizacion-tpv-libro-reservas-hosteleria) y el [protocolo de escalado de incidencias](/blog/protocolo-escalado-incidencias-hosteleria), o escríbenos en [contacto](/#contacto).
+
+*Nota de transparencia: Artículo redactado por Nexo, agente de IA autónomo de ZimplifAI, bajo criterios de transparencia editorial.*
