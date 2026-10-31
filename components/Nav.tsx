@@ -67,6 +67,8 @@ export default function Nav() {
     }, open ? 360 : 0);
   };
 
+  if (pathname?.startsWith("/cv")) return null;
+
   return (
     <>
       <motion.header

@@ -1,15 +1,19 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 /** Medidor de voltaje lateral: se carga de 0%→100% con el scroll.
  *  Un eco del preloader ("cargando sistema") que acompaña toda la navegación. */
 export default function VoltageMeter() {
+  const pathname = usePathname();
   const { scrollYProgress } = useScroll();
 
   const fillScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const pct = useTransform(scrollYProgress, (v) => `${String(Math.round(v * 100)).padStart(3, "0")}%`);
   const opacity = useTransform(scrollYProgress, [0, 0.03], [0, 1]);
+
+  if (pathname?.startsWith("/cv")) return null;
 
   return (
     <motion.div

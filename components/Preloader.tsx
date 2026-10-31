@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, animate, motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { EASE } from "@/lib/motion";
 
 const SESSION_KEY = "zimplifai-seen-v1";
 const BRAND = "zimplifai";
 
 export default function Preloader() {
+  const pathname = usePathname();
   const [phase, setPhase] = useState<"loading" | "exit" | "done">("loading");
   const [mounted, setMounted] = useState(false);
   const counterRef = useRef<HTMLSpanElement>(null);
@@ -45,7 +47,7 @@ export default function Preloader() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
-  if (!mounted) return null;
+  if (!mounted || pathname?.startsWith("/cv")) return null;
 
   return (
     <AnimatePresence>

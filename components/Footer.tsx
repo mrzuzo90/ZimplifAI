@@ -39,6 +39,8 @@ export default function Footer() {
     }
   };
 
+  if (pathname?.startsWith("/cv")) return null;
+
   return (
     <footer className="relative border-t border-line">
       <div className="mx-auto max-w-7xl px-5 pb-10 pt-16 md:px-8">
