@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type Mode = "default" | "interactive" | "project";
 
@@ -9,10 +10,17 @@ type Mode = "default" | "interactive" | "project";
  *  - project (tarjetas del showroom): anillo volt + etiqueta "ver caso".
  *  Solo en punteros finos y sin reduced-motion. */
 export default function CustomCursor() {
+  const pathname = usePathname();
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    if (pathname?.startsWith("/cv")) {
+      document.documentElement.classList.remove("has-cursor");
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (!window.matchMedia("(pointer: fine)").matches) return;
@@ -72,7 +80,7 @@ export default function CustomCursor() {
     };
   }, []);
 
-  if (!enabled) return null;
+  if (!enabled || pathname?.startsWith("/cv")) return null;
 
   return (
     <>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Analytics } from "@vercel/analytics/react";
 import Link from "next/link";
 
@@ -11,6 +12,7 @@ type Consent = "idle" | "yes" | "no";
 
 /** Analytics de Vercel con consentimiento opt-in y sin terceros pesados. */
 export default function AnalyticsConsent() {
+  const pathname = usePathname();
   const [consent, setConsent] = useState<Consent>("idle");
   const [ready, setReady] = useState(false);
 
@@ -23,7 +25,7 @@ export default function AnalyticsConsent() {
     setReady(true);
   }, []);
 
-  if (!ANALYTICS_ENABLED) return null;
+  if (!ANALYTICS_ENABLED || pathname?.startsWith("/cv")) return null;
 
   const decide = (value: Consent) => {
     localStorage.setItem(STORAGE_KEY, value);

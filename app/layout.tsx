@@ -9,7 +9,7 @@ import GrainOverlay from "@/components/GrainOverlay";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AnalyticsConsent from "@/components/Analytics";
-import Script from "next/script";
+import AdSenseScript from "@/components/AdSenseScript";
 import { siteUrl } from "@/lib/site";
 import { site } from "@/data/site";
 import "./globals.css";
@@ -71,41 +71,6 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Person",
-      "@id": `${siteUrl}/#person`,
-      name: site.author.name,
-      description:
-        "Especialista en automatización: full-stack, IA y automatismos industriales (ELEE0109). Creador de ZimplifAI.",
-      knowsAbout: [
-        "Inteligencia artificial",
-        "Automatización de procesos",
-        "Desarrollo full-stack",
-        "Automatismos industriales",
-      ],
-      worksFor: { "@id": `${siteUrl}/#organization` },
-    },
-    {
-      "@type": "ProfessionalService",
-      "@id": `${siteUrl}/#organization`,
-      name: site.name,
-      url: siteUrl,
-      email: site.email,
-      description: site.description,
-      founder: { "@id": `${siteUrl}/#person` },
-    },
-    ...[
-      "Implantación de IA en empresas",
-      "Automatización y agentes a medida",
-      "Desarrollo de aplicaciones web full-stack",
-      "Consultoría técnica y transformación con IA",
-    ].map((name) => ({ "@type": "Service", name, provider: { "@id": `${siteUrl}/#organization` } })),
-  ],
-};
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es" className={`${display.variable} ${mono.variable} ${serif.variable}`}>
@@ -129,17 +94,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         <AnalyticsConsent />
 
-        <Script
-          id="adsbygoogle-init"
-          strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7635423594730192"
-          crossOrigin="anonymous"
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <AdSenseScript />
       </body>
     </html>
   );
