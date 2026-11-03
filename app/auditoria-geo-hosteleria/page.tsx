@@ -491,6 +491,129 @@ export default function AuditoriaGeoHosteleriaPage() {
           </div>
         </section>
 
+        {/* BLOQUE COMERCIAL: SEGUIMIENTO GEO MENSUAL */}
+        <section
+          id="seguimiento-mensual"
+          aria-labelledby="seguimiento-geo-heading"
+          className="mt-20 rounded-3xl border border-volt/30 bg-surface p-6 md:p-10"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <MonoTag tone="volt">Suscripción mensual</MonoTag>
+                <MonoTag>Sin permanencia</MonoTag>
+              </div>
+              <h2
+                id="seguimiento-geo-heading"
+                className="mt-4 text-2xl font-bold tracking-tight text-ink md:text-4xl"
+              >
+                Seguimiento GEO mensual
+              </h2>
+            </div>
+
+            <div className="rounded-2xl border border-volt/40 bg-bg px-5 py-3 text-left sm:text-right">
+              <p className="font-display text-2xl font-bold text-volt md:text-3xl">
+                49 €/mes <span className="font-mono text-xs font-normal text-muted">+ IVA</span>
+              </p>
+              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wider text-muted">
+                Facturación mensual, cancelable
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-6 text-sm leading-relaxed text-muted md:text-base">
+            Seguimiento GEO mensual, 49 €/mes + IVA; facturación mensual, cancelable; 8 consultas
+            de intención de reserva en ChatGPT, Perplexity y Gemini; registro de aparición, fuentes
+            citadas/competidores y 3 acciones priorizadas; no incluye implementar cambios ni
+            garantiza rankings/reservas; diagnóstico externo sin acceso a sistemas.
+          </p>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-line bg-bg p-5">
+              <span className="font-mono text-xs uppercase tracking-wider text-volt">
+                {"// Qué incluye cada ciclo mensual"}
+              </span>
+              <ul className="mt-3 space-y-2 text-sm text-ink/90">
+                <li className="flex items-start gap-2">
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-volt"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    8 consultas de intención de reserva en ChatGPT, Perplexity y Gemini.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-volt"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    Registro de aparición, fuentes citadas/competidores y 3 acciones priorizadas.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-line bg-bg p-5">
+              <span className="font-mono text-xs uppercase tracking-wider text-plasma">
+                {"// Condiciones y alcance honesto"}
+              </span>
+              <ul className="mt-3 space-y-2 text-sm text-muted">
+                <li className="flex items-start gap-2">
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-plasma"
+                    aria-hidden="true"
+                  />
+                  <span>Facturación mensual, cancelable.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-plasma"
+                    aria-hidden="true"
+                  />
+                  <span>No incluye implementar cambios ni garantiza rankings/reservas.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span
+                    className="mt-1.5 size-1.5 shrink-0 rounded-full bg-plasma"
+                    aria-hidden="true"
+                  />
+                  <span>Diagnóstico externo sin acceso a sistemas.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-line/60 pt-6">
+            <a
+              href={`mailto:${site.email}?subject=Seguimiento%20GEO%20mensual%20(49%20%E2%82%AC%2Fmes%20%2B%20IVA)&body=Hola%20Zuzo%2C%0A%0AMe%20interesa%20el%20Seguimiento%20GEO%20mensual%20(49%20%E2%82%AC%2Fmes%20%2B%20IVA)%20para%20mi%20establecimiento.%0A%0ANombre%20del%20local%20u%20hotel%3A%20%0AUbicaci%C3%B3n%3A%20`}
+              className="inline-flex items-center gap-3 rounded-full bg-volt px-7 py-3.5 text-sm font-semibold tracking-wide text-bg transition-colors duration-300 hover:bg-[#d2ff55]"
+            >
+              Solicitar Seguimiento GEO mensual
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <Link
+              href="/#contacto"
+              className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 font-mono text-xs uppercase tracking-wider text-ink transition-colors hover:border-volt/60 hover:text-volt"
+            >
+              Formulario de contacto
+            </Link>
+
+            {site.whatsapp && (
+              <a
+                href={`https://wa.me/${site.whatsapp}?text=Hola%20Zuzo,%20me%20interesa%20el%20Seguimiento%20GEO%20mensual%20(49%20%E2%82%AC%2Fmes%20%2B%20IVA)%20para%20mi%20negocio%20de%20hosteler%C3%ADa`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-3.5 font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-volt"
+              >
+                WhatsApp directo ↗
+              </a>
+            )}
+          </div>
+        </section>
+
         {/* SECCIÓN 04: BLOQUE PILOTO STOCK CRÍTICO */}
         <section className="mt-24 border-t border-line pt-16 md:mt-32 md:pt-20">
           <SectionLabel index="04" label="Automatización operativa complementaria" />
