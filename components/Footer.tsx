@@ -39,7 +39,9 @@ export default function Footer() {
     }
   };
 
-  if (pathname?.startsWith("/cv")) return null;
+  if (pathname?.startsWith("/cv") || pathname?.startsWith("/redes-bt-uf0894")) {
+    return null;
+  }
 
   return (
     <footer className="relative border-t border-line">

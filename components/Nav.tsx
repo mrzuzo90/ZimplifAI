@@ -67,7 +67,9 @@ export default function Nav() {
     }, open ? 360 : 0);
   };
 
-  if (pathname?.startsWith("/cv")) return null;
+  if (pathname?.startsWith("/cv") || pathname?.startsWith("/redes-bt-uf0894")) {
+    return null;
+  }
 
   return (
     <>

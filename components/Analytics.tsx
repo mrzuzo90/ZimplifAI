@@ -25,7 +25,7 @@ export default function AnalyticsConsent() {
     setReady(true);
   }, []);
 
-  if (!ANALYTICS_ENABLED || pathname?.startsWith("/cv")) return null;
+  if (!ANALYTICS_ENABLED || pathname?.startsWith("/cv") || pathname?.startsWith("/redes-bt-uf0894")) return null;
 
   const decide = (value: Consent) => {
     localStorage.setItem(STORAGE_KEY, value);

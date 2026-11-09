@@ -47,7 +47,7 @@ export default function Preloader() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
-  if (!mounted || pathname?.startsWith("/cv")) return null;
+  if (!mounted || pathname?.startsWith("/cv") || pathname?.startsWith("/redes-bt-uf0894")) return null;
 
   return (
     <AnimatePresence>
